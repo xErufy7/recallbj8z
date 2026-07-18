@@ -84,8 +84,8 @@ export const mapAiEventToGameEvent = (aiEvent: any): GameEvent => {
         title: aiEvent.title,
         description: aiEvent.description,
         type: aiEvent.type || 'neutral',
-        triggerType: 'RANDOM',
-        choices: aiEvent.choices.map((c: any) => ({
+        triggerType: aiEvent.triggerType || 'RANDOM',
+        choices: (aiEvent.choices || []).map((c: any) => ({
             text: c.text,
             resultDescription: c.resultDescription,
             action: (s: GameState) => {

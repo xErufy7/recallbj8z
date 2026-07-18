@@ -674,7 +674,14 @@ const SEMESTER_1_EVENTS_RAW: GameEvent[] = [
     }
 ];
 
-const PARSED_AI_EVENTS = (AI_EVENTS as any[]).map(mapAiEventToGameEvent);
+const PARSED_AI_EVENTS = (AI_EVENTS as any[]).reduce((acc: GameEvent[], e: any) => {
+    if (e.childrens && Array.isArray(e.childrens)) {
+        acc.push(...e.childrens.map(mapAiEventToGameEvent));
+    } else if (e.choices) {
+        acc.push(mapAiEventToGameEvent(e));
+    }
+    return acc;
+}, []);
 
 export const PHASE_EVENTS: Record<Phase, GameEvent[]> = {
     [Phase.INIT]: [],
