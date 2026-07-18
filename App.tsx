@@ -22,7 +22,7 @@ import { SUBJECT_NAMES, SubjectKey } from './types';
 
 const App: React.FC = () => {
   const [isDevMode, setIsDevMode] = useState(false);
-  const [isDevMode, setIsDevMode] = useState(false);
+
   // UI State (View Routing & Modals)
   const [view, setView] = useState<'HOME' | 'TALENTS' | 'GAME'>('HOME');
   const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty>('NORMAL');
