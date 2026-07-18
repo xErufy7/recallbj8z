@@ -1,6 +1,7 @@
 import { SEMESTER_2_EVENTS, WINTER_BREAK_EVENTS } from "./events_semester2";
 import { STUDY_TOUR_EVENTS } from "./events_study_tour";
 import { OI_EVENTS } from "./events_oi";
+import { ROMANCE_EVENTS } from "./events_romance";
 
 import { GameState, GameEvent, SubjectKey, SUBJECT_NAMES, OIStats, EventChoice, Phase } from '../types';
 import { modifySub, modifyOI, mapAiEventToGameEvent } from './utils';
@@ -679,7 +680,7 @@ export const PHASE_EVENTS: Record<Phase, GameEvent[]> = {
     [Phase.INIT]: [],
     [Phase.SUMMER]: injectSleep(SUMMER_EVENTS_RAW),
     [Phase.MILITARY]: injectSleep(MILITARY_EVENTS_RAW),
-    [Phase.SEMESTER_1]: injectSleep([...SEMESTER_1_EVENTS_RAW, ...PARSED_AI_EVENTS]),
+    [Phase.SEMESTER_1]: injectSleep([...SEMESTER_1_EVENTS_RAW, ...PARSED_AI_EVENTS, ...ROMANCE_EVENTS]),
     [Phase.SELECTION]: [],
     [Phase.PLACEMENT_EXAM]: [],
     [Phase.MIDTERM_EXAM]: [],
@@ -691,9 +692,9 @@ export const PHASE_EVENTS: Record<Phase, GameEvent[]> = {
     [Phase.FINAL_EXAM_2]: [],
     [Phase.ENDING]: [],
     [Phase.WITHDRAWAL]: [],
-    [Phase.WINTER_BREAK]: injectSleep([...WINTER_BREAK_EVENTS, ...OI_EVENTS]),
-    [Phase.SEMESTER_2]: injectSleep([...SEMESTER_2_EVENTS, ...STUDY_TOUR_EVENTS, ...OI_EVENTS, ...PARSED_AI_EVENTS]),
-    [Phase.SUMMER_BREAK]: injectSleep([...OI_EVENTS]),
+    [Phase.WINTER_BREAK]: injectSleep([...WINTER_BREAK_EVENTS, ...OI_EVENTS, ...ROMANCE_EVENTS]),
+    [Phase.SEMESTER_2]: injectSleep([...SEMESTER_2_EVENTS, ...STUDY_TOUR_EVENTS, ...OI_EVENTS, ...PARSED_AI_EVENTS, ...ROMANCE_EVENTS]),
+    [Phase.SUMMER_BREAK]: injectSleep([...OI_EVENTS, ...ROMANCE_EVENTS]),
     [Phase.WC_EXAM]: [],
     [Phase.PROVINCIAL_EXAM]: [],
     [Phase.APIO_EXAM]: [],
