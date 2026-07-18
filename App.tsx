@@ -22,7 +22,7 @@ import { SUBJECT_NAMES, SubjectKey } from './types';
 
 const App: React.FC = () => {
   const [isDevMode, setIsDevMode] = useState(false);
-  (window as any).toggleDevMode = () => setIsDevMode(p => !p);
+  const [isDevMode, setIsDevMode] = useState(false);
   // UI State (View Routing & Modals)
   const [view, setView] = useState<'HOME' | 'TALENTS' | 'GAME'>('HOME');
   const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty>('NORMAL');
@@ -280,25 +280,7 @@ const App: React.FC = () => {
         </div>
 
         {/* Header */}
-        <button 
-            onClick={() => { (window as any).toggleDevMode?.(); }} 
-            className="fixed bottom-4 left-4 z-[9999] bg-red-600 text-white font-black px-6 py-4 rounded-3xl shadow-2xl border-4 border-yellow-400 hover:bg-red-500 animate-pulse text-lg"
-        >
-            <i className="fas fa-hammer mr-2"></i> 开发者模式(作弊)
-        </button>
-        
-        {isDevMode && (
-             <div className="bg-red-50 p-2 text-red-600 border border-red-200 rounded-lg flex gap-2 overflow-x-auto text-xs z-50">
-                 <button onClick={() => setState(s => ({...s, phase: Phase.SUMMER}))}>+Summer</button>
-                 <button onClick={() => setState(s => ({...s, phase: Phase.SEMESTER_1}))}>+Sem1</button>
-                 <button onClick={() => setState(s => ({...s, phase: Phase.WINTER_BREAK}))}>+Winter</button>
-                 <button onClick={() => setState(s => ({...s, phase: Phase.SEMESTER_2}))}>+Sem2</button>
-                 <button onClick={() => setState(s => ({...s, week: s.week + 1}))}>+Week</button>
-                 <button onClick={() => setState(s => ({...s, general: {...s.general, money: s.general.money + 100}}))}>+$100</button>
-                 <button onClick={() => setState(s => ({...s, general: {...s.general, health: 100, mindset: 100}}))}>+Heal</button>
-                 <button onClick={() => setState(s => ({...s, general: {...s.general, experience: s.general.experience + 100}}))}>+Exp</button>
-             </div>
-        )}
+
         <header className="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 flex flex-col gap-3 flex-shrink-0 z-20 relative">
                <div className="hidden md:flex absolute top-4 right-4 gap-2">
                   <button onClick={() => setShowSchedule(true)} className="bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-white hover:shadow transition-all"><i className="fas fa-calendar-alt text-blue-500 mr-1"></i>时间表</button>

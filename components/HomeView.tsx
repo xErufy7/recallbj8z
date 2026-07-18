@@ -143,7 +143,11 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
                          )}
                          
                          {/* Achievement Meta Progression */}
-                         <AchievementDesk unlockedAchievements={unlockedAchievements} />
+                         <div className="mt-8">
+                             <button onClick={() => setShowAchievements(true)} className="px-6 py-3 bg-white text-slate-700 border border-slate-200 hover:border-indigo-300 rounded-xl font-bold shadow-sm hover:shadow-md transition-all flex items-center gap-2">
+                                 <i className="fas fa-trophy text-yellow-500"></i> 查看成就墙 ({unlockedAchievements.length} / {Object.keys(ACHIEVEMENTS).length})
+                             </button>
+                         </div>
 
                          <div className="flex gap-4 mt-8">
                              <motion.button 
