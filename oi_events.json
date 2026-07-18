@@ -1,0 +1,3709 @@
+[
+  {
+    "id": "oi_pu_read_int_problem",
+    "phase": "SUMMER",
+    "cfRatingMin": 1200,
+    "cfRatingMax": 1399,
+    "title": "读题漏关键条件",
+    "description": "你在洛谷刷一道CF Div.2的A题，题目背景很长，你快速扫了一眼样例就开始写。结果提交后全是WA，返回一看发现漏掉了“所有数互不相同”这个关键条件。",
+    "type": "negative",
+    "choices": [
+      {
+        "text": "重新读题，仔细分析样例",
+        "effect": {
+          "experience": 5,
+          "oi_misc": 5,
+          "efficiency": -2
+        },
+        "resultDescription": "你重新读了三遍题，终于发现漏掉的条件，修改后AC了。但浪费了不少时间。"
+      },
+      {
+        "text": "直接去CF看别人代码",
+        "effect": {
+          "mindset": -3,
+          "oi_misc": 2
+        },
+        "resultDescription": "你从别人代码里抄了思路，勉强过了，但自己没完全理解，下次遇到类似题还是不会。"
+      },
+      {
+        "text": "放弃这题，先做后面",
+        "effect": {
+          "luck": 5,
+          "experience": -5
+        },
+        "resultDescription": "你跳到后面做签到题，结果后面B题更难，最后只拿了个爆零。"
+      }
+    ]
+  },
+  {
+    "id": "oi_pu_longlong_memory",
+    "phase": "CSP_EXAM",
+    "cfRatingMin": 1200,
+    "cfRatingMax": 1399,
+    "title": "忘记开long long痛失30分",
+    "description": "CSP-J/S第一轮模拟考，你写了一个求和的题，自信交卷。出分后发现有一个点WA，原因是int溢出，而数据范围明明写了1e9。",
+    "type": "negative",
+    "choices": [
+      {
+        "text": "吸取教训，以后所有整数都开long long",
+        "effect": {
+          "oi_math": 5,
+          "mindset": 3,
+          "efficiency": -3
+        },
+        "resultDescription": "你开始养成随手开long long的习惯，虽然代码变长了，但再没因为溢出炸过。"
+      },
+      {
+        "text": "抱怨出题人卡int，然后继续用int",
+        "effect": {
+          "mindset": -5,
+          "oi_misc": -2
+        },
+        "resultDescription": "下次考试你继续忘开long long，又栽在同样的坑里。"
+      },
+      {
+        "text": "仔细研究数据范围，判断何时需要用long long",
+        "effect": {
+          "oi_math": 8,
+          "experience": 5,
+          "efficiency": 2
+        },
+        "resultDescription": "你学会了分析题目数值范围，能准确判断是否需要64位整形，水平有了实质提升。"
+      }
+    ]
+  },
+  {
+    "id": "oi_pu_cf_rating_anxiety",
+    "phase": "SUMMER",
+    "cfRatingMin": 1200,
+    "cfRatingMax": 1399,
+    "title": "CF掉分后心态崩了",
+    "description": "你熬夜打了一场CF Div.3，结果只切了A题，B题TLE，C题没看懂，rating掉了80分。第二天上课昏昏欲睡，被老师点名。",
+    "type": "negative",
+    "choices": [
+      {
+        "text": "打起精神听课，晚上复盘比赛",
+        "effect": {
+          "health": -5,
+          "oi_misc": 8,
+          "mindset": 5
+        },
+        "resultDescription": "你强忍困意听完了数学课，晚上认真补了题，发现很多知识点自己不懂，决定系统学习。"
+      },
+      {
+        "text": "请假回家睡觉，放弃当天学习",
+        "effect": {
+          "health": 10,
+          "experience": -5,
+          "efficiency": -5
+        },
+        "resultDescription": "你睡了大半天，晚上精神恢复，但错过了当天的复习内容，进度落后。"
+      },
+      {
+        "text": "课上偷偷刷CF题解，结果被没收手机",
+        "effect": {
+          "luck": -10,
+          "mindset": -3
+        },
+        "resultDescription": "老师发现你上课玩手机，没收处罚，家长也被叫来谈话。"
+      }
+    ]
+  },
+  {
+    "id": "oi_pu_oj_jinxian",
+    "phase": "SEMESTER_2",
+    "cfRatingMin": 1200,
+    "cfRatingMax": 1399,
+    "title": "机房摸鱼被抓现行",
+    "description": "你在学校机房里偷偷打开洛谷，打算切几道水题。结果刚提交一道题，教练就悄悄走到你身后，看到你在做CF难度只有800的题。",
+    "type": "neutral",
+    "choices": [
+      {
+        "text": "赶紧解释自己在复习基础",
+        "effect": {
+          "mindset": 5,
+          "luck": 3
+        },
+        "resultDescription": "教练点了点头，让你好好练，并推荐了一套适合你水平的题单。"
+      },
+      {
+        "text": "假装在查资料，关掉OJ",
+        "effect": {
+          "efficiency": -5,
+          "mindset": -3
+        },
+        "resultDescription": "教练没说什么，但记下了你的名字，下次机房课你被安排到了角落。"
+      },
+      {
+        "text": "坦白自己基础薄弱，请求指导",
+        "effect": {
+          "oi_misc": 5,
+          "experience": 8,
+          "health": -3
+        },
+        "resultDescription": "教练花了一个小时给你讲基本算法，你感激涕零，决定认真补基础。"
+      }
+    ]
+  },
+  {
+    "id": "oi_pu_contest_strategy",
+    "phase": "NOIP_EXAM",
+    "cfRatingMin": 1200,
+    "cfRatingMax": 1399,
+    "title": "赛时时间分配失误",
+    "description": "NOIP第一题花费了太多时间调数组边界，导致第三题没时间写，最后只拿了低分。",
+    "type": "negative",
+    "choices": [
+      {
+        "text": "向学长请教时间分配套路",
+        "effect": {
+          "experience": 8,
+          "oi_misc": 5,
+          "efficiency": 5
+        },
+        "resultDescription": "学长教你先通读全卷，从最易拿分题做起，下次比赛你时间管理好了很多。"
+      },
+      {
+        "text": "痛定思痛，以后先写暴力保底",
+        "effect": {
+          "oi_misc": 10,
+          "mindset": 3
+        },
+        "resultDescription": "你学会了在有限时间内拿分的策略，虽然解不出难题，但稳定到手基础分。"
+      },
+      {
+        "text": "觉得是能力问题，开始猛刷难题",
+        "effect": {
+          "health": -5,
+          "mindset": -3,
+          "oi_misc": 3
+        },
+        "resultDescription": "你熬夜刷题，但效率低下，基础题反而生疏了。"
+      }
+    ]
+  },
+  {
+    "id": "oi_pu_kmp_learning",
+    "phase": "SUMMER",
+    "cfRatingMin": 1200,
+    "cfRatingMax": 1399,
+    "title": "试图学KMP失败",
+    "description": "你在网上找教程学字符串匹配，看到KMP的next数组推导时彻底懵了，对着代码看了两小时还是不会写。",
+    "type": "neutral",
+    "choices": [
+      {
+        "text": "先放下，回头重看基础字符串处理",
+        "effect": {
+          "oi_string": 5,
+          "experience": 3,
+          "efficiency": 3
+        },
+        "resultDescription": "你回去复习了哈希和朴素匹配，打好基础后再看KMP，终于理解了关键。"
+      },
+      {
+        "text": "死磕到底，通宵理解",
+        "effect": {
+          "health": -10,
+          "oi_string": 5,
+          "mindset": 2
+        },
+        "resultDescription": "你熬到凌晨三点，终于似懂非懂地抄出了模板，但第二天完全忘了。"
+      },
+      {
+        "text": "放弃KMP，改用C++自带函数",
+        "effect": {
+          "mindset": -5,
+          "efficiency": 5
+        },
+        "resultDescription": "你用find函数暂时解决了问题，但遇到需要O(n)的题还是不会。"
+      }
+    ]
+  },
+  {
+    "id": "oi_pu_cf_pretest_passed",
+    "phase": "MIDTERM_EXAM",
+    "cfRatingMin": 1200,
+    "cfRatingMax": 1399,
+    "title": "pretest过了但被hack",
+    "description": "CF Div.2中你A题通过了pretest，但系统测试后被hack了，因为你没考虑n=1的情况。",
+    "type": "negative",
+    "choices": [
+      {
+        "text": "仔细看别人hack的输入，补全边界",
+        "effect": {
+          "oi_misc": 8,
+          "experience": 5,
+          "mindset": 3
+        },
+        "resultDescription": "你学会了边界测试的重要性，以后写题必先考虑极值数据。"
+      },
+      {
+        "text": "生气地关掉CF，觉得出题人太阴",
+        "effect": {
+          "mindset": -5,
+          "luck": -3
+        },
+        "resultDescription": "你情绪低落，几天没碰代码，rating继续掉。"
+      },
+      {
+        "text": "下场比赛故意留漏洞引诱hack，学习经验",
+        "effect": {
+          "oi_misc": 10,
+          "luck": 5,
+          "health": -3
+        },
+        "resultDescription": "你主动在群里发代码求hack，学到了很多边界情况，后来成了hack达人。"
+      }
+    ]
+  },
+  {
+    "id": "oi_pu_teammate_carry",
+    "phase": "CSP_EXAM",
+    "cfRatingMin": 1200,
+    "cfRatingMax": 1399,
+    "title": "被队友带飞省选模拟",
+    "description": "学校组队参加省选模拟，你只会暴力，队友是个神犇直接AC了所有题，你躺赢到了前10%。",
+    "type": "positive",
+    "choices": [
+      {
+        "text": "抱紧大腿，虚心请教思路",
+        "effect": {
+          "oi_misc": 10,
+          "experience": 8,
+          "mindset": 3
+        },
+        "resultDescription": "队友给你详细讲解了每一题的思考过程，你学到了很多，后来自己也能独立做中等题了。"
+      },
+      {
+        "text": "觉得都是队友功劳，自己不用努力",
+        "effect": {
+          "mindset": -8,
+          "oi_misc": -5,
+          "luck": 5
+        },
+        "resultDescription": "你放松了训练，下次没有大腿抱的时候直接垫底。"
+      },
+      {
+        "text": "虽然躺赢，但开始疯狂刷题想追上",
+        "effect": {
+          "health": -10,
+          "oi_misc": 15,
+          "efficiency": 3
+        },
+        "resultDescription": "你每天刷题到深夜，一个月后rating从1200冲到了1500。"
+      }
+    ]
+  },
+  {
+    "id": "oi_pu_stl_learning",
+    "phase": "WINTER",
+    "cfRatingMin": 1200,
+    "cfRatingMax": 1399,
+    "title": "初学STL调试半小时",
+    "description": "你在洛谷写一道排序题，用了vector和sort，结果报错找不到模板，查了半天发现少了一个头文件。",
+    "type": "neutral",
+    "choices": [
+      {
+        "text": "认真记住常用STL头文件",
+        "effect": {
+          "oi_ds": 5,
+          "efficiency": 5,
+          "experience": 3
+        },
+        "resultDescription": "你整理了一个STL头文件笔记，之后写题不再犯低级错误。"
+      },
+      {
+        "text": "直接Google解决方案",
+        "effect": {
+          "efficiency": 5,
+          "mindset": -2
+        },
+        "resultDescription": "快速解决了问题，但没记住，下次还是同样的错。"
+      },
+      {
+        "text": "改用C语言手写排序",
+        "effect": {
+          "oi_ds": 3,
+          "efficiency": -5
+        },
+        "resultDescription": "你手写快排加深了理解，但速度慢了很多，比赛时不利。"
+      }
+    ]
+  },
+  {
+    "id": "oi_pu_wa_on_math",
+    "phase": "NOIP_EXAM",
+    "cfRatingMin": 1200,
+    "cfRatingMax": 1399,
+    "title": "数论题公式推错",
+    "description": "NOIP考了一道等差数列求和，你忘了公式，现场推导了半天，结果少除了2，WA掉一大半。",
+    "type": "negative",
+    "choices": [
+      {
+        "text": "背熟所有基础公式，每天默写一遍",
+        "effect": {
+          "oi_math": 10,
+          "health": -3,
+          "mindset": 3
+        },
+        "resultDescription": "你花了一周把数论公式背得滚瓜烂熟，后续稳稳拿到数学分。"
+      },
+      {
+        "text": "找规律推出公式，练好手算能力",
+        "effect": {
+          "oi_math": 8,
+          "experience": 5,
+          "efficiency": -2
+        },
+        "resultDescription": "你学会了用数列通项自己推导，虽然慢但准确率高了很多。"
+      },
+      {
+        "text": "放弃数学题，把时间给其他题",
+        "effect": {
+          "oi_math": -5,
+          "luck": 3,
+          "mindset": 5
+        },
+        "resultDescription": "你避开了数学坑，但在其他题上拿到了更多分，也算是一种策略。"
+      }
+    ]
+  },
+  {
+    "id": "oi_pu_codeform_elegance",
+    "phase": "SEMESTER_2",
+    "cfRatingMin": 1200,
+    "cfRatingMax": 1399,
+    "title": "代码风格被同学嘲笑",
+    "description": "你在机房帮同学debug，他看了一眼你的代码，笑着说变量名全是a,b,c，缩进也不对齐，根本看不懂。",
+    "type": "neutral",
+    "choices": [
+      {
+        "text": "虚心接受，学习代码规范",
+        "effect": {
+          "mindset": 5,
+          "efficiency": 5,
+          "experience": 3
+        },
+        "resultDescription": "你开始用有意义的变量名和缩进，代码可读性大增，debug速度也快了。"
+      },
+      {
+        "text": "不服气，认为能跑就行",
+        "effect": {
+          "mindset": -3,
+          "efficiency": -2
+        },
+        "resultDescription": "你继续用混乱的代码风格，后来自己都看不懂自己的代码了。"
+      },
+      {
+        "text": "让他帮忙改，偷学规范",
+        "effect": {
+          "oi_misc": 5,
+          "luck": 3
+        },
+        "resultDescription": "同学帮你重构了代码，你学了好多技巧，两人成了好基友。"
+      }
+    ]
+  },
+  {
+    "id": "oi_pu_contest_rusty",
+    "phase": "MIDTERM_EXAM",
+    "cfRatingMin": 1200,
+    "cfRatingMax": 1399,
+    "title": "长时间没写代码手感生疏",
+    "description": "因为期中考试，你两周没碰OI，周末打CF时连最简单的循环条件都写错了，导致TLE。",
+    "type": "negative",
+    "choices": [
+      {
+        "text": "保持每天至少一道题维持手感",
+        "effect": {
+          "health": -3,
+          "oi_misc": 8,
+          "efficiency": 5
+        },
+        "resultDescription": "你建立了每日一题的习惯，即使考试也能抽时间刷水题，水平稳步提升。"
+      },
+      {
+        "text": "考前突击刷100题找回感觉",
+        "effect": {
+          "health": -12,
+          "oi_misc": 10,
+          "mindset": 2
+        },
+        "resultDescription": "你疯狂刷题两天，但是睡眠不足导致考试状态很差，反而下滑了。"
+      },
+      {
+        "text": "承认自己需要休息，下次再战",
+        "effect": {
+          "mindset": 8,
+          "luck": 3,
+          "experience": -3
+        },
+        "resultDescription": "你调整心态，放松了一周，回来后状态恢复了。"
+      }
+    ]
+  },
+  {
+    "id": "oi_pu_csp_j_cheat",
+    "phase": "CSP_EXAM",
+    "cfRatingMin": 1200,
+    "cfRatingMax": 1399,
+    "title": "CSP-J考场上想抄答案",
+    "description": "CSP-J考场上，你看到旁边一个明显是神犇的选手键盘飞起，你产生了看他的屏幕的想法。",
+    "type": "neutral",
+    "choices": [
+      {
+        "text": "忍住了，低头自己想",
+        "effect": {
+          "mindset": 10,
+          "luck": 5,
+          "oi_misc": 2
+        },
+        "resultDescription": "你凭自己的能力做出了一道题，虽然分不高但收获了诚信。"
+      },
+      {
+        "text": "偷偷瞟了几眼，抄到一点思路",
+        "effect": {
+          "mindset": -5,
+          "luck": 3,
+          "oi_misc": 3
+        },
+        "resultDescription": "你抄到了部分代码，但被监考老师发现，取消成绩，并记过处分。"
+      },
+      {
+        "text": "举手举报作弊，维护公平",
+        "effect": {
+          "mindset": 8,
+          "luck": -5,
+          "experience": 5
+        },
+        "resultDescription": "你举报了旁边考生，虽然自己也没考好，但得到了老师的表扬。"
+      }
+    ]
+  },
+  {
+    "id": "oi_pu_dp_ko",
+    "phase": "WINTER",
+    "cfRatingMin": 1200,
+    "cfRatingMax": 1399,
+    "title": "第一次接触DP完全懵逼",
+    "description": "老师在OI课上讲背包DP，只讲了01背包，你听得云里雾里，课后习题完全不会做。",
+    "type": "negative",
+    "choices": [
+      {
+        "text": "找书本和网上教程重新学",
+        "effect": {
+          "oi_dp": 8,
+          "experience": 5,
+          "efficiency": -3
+        },
+        "resultDescription": "你花了一个周末啃完了背包九讲，终于弄懂了01背包和完全背包。"
+      },
+      {
+        "text": "找学长要代码，硬背模板",
+        "effect": {
+          "oi_dp": 3,
+          "mindset": -2,
+          "efficiency": 5
+        },
+        "resultDescription": "你背下了背包模板，能套着用，但遇到变形题还是不会。"
+      },
+      {
+        "text": "放弃DP，专心搞图论",
+        "effect": {
+          "oi_dp": -8,
+          "oi_graph": 3,
+          "luck": 2
+        },
+        "resultDescription": "你放弃了一个重要方向，之后遇到DP题吃大亏。"
+      }
+    ]
+  },
+  {
+    "id": "oi_pu_ate_code_review",
+    "phase": "SEMESTER_1",
+    "cfRatingMin": 1200,
+    "cfRatingMax": 1399,
+    "title": "刷题过程中发现好题解",
+    "description": "你在洛谷看一道题的题解，作者写得非常详细，还分享了多种做法和易错点，你觉得很有启发。",
+    "type": "positive",
+    "choices": [
+      {
+        "text": "认真阅读并自己做一遍",
+        "effect": {
+          "oi_misc": 10,
+          "experience": 8,
+          "mindset": 3
+        },
+        "resultDescription": "你学会了多种解法，并且自己实践了一遍，水平大增。"
+      },
+      {
+        "text": "收藏了但没看，以后再说",
+        "effect": {
+          "oi_misc": 2,
+          "efficiency": -3
+        },
+        "resultDescription": "你收藏了很多好文章，但从不翻看，仍是菜鸡。"
+      },
+      {
+        "text": "模仿题解风格写一篇自己的题解",
+        "effect": {
+          "oi_misc": 8,
+          "experience": 5,
+          "health": -3
+        },
+        "resultDescription": "你发了一篇题解，得到很多赞和评论，动力十足。"
+      }
+    ]
+  },
+  {
+    "id": "oi_pu_contest_friend",
+    "phase": "MIDTERM_EXAM",
+    "cfRatingMin": 1200,
+    "cfRatingMax": 1399,
+    "title": "和好友拼题相互激励",
+    "description": "你和班里另一个OIer约好每天晚上刷一道AtCoder的题，然后交换代码互相找bug。",
+    "type": "positive",
+    "choices": [
+      {
+        "text": "坚持执行，每天总结",
+        "effect": {
+          "oi_misc": 12,
+          "experience": 8,
+          "health": -5
+        },
+        "resultDescription": "你们坚持了一个月，各自rating涨了100多，友情也更深了。"
+      },
+      {
+        "text": "坚持了几天就松懈了",
+        "effect": {
+          "oi_misc": 3,
+          "mindset": -3,
+          "efficiency": -3
+        },
+        "resultDescription": "你们俩都没有坚持住，回到了各自划水状态。"
+      },
+      {
+        "text": "把拼题学到的方法教给更多人",
+        "effect": {
+          "oi_misc": 10,
+          "mindset": 8,
+          "luck": 3
+        },
+        "resultDescription": "你们组织了小规模刷题群，带动了班级OI氛围。"
+      }
+    ]
+  },
+  {
+    "id": "oi_pu_oj_zhongduan",
+    "phase": "NOIP_EXAM",
+    "cfRatingMin": 1200,
+    "cfRatingMax": 1399,
+    "title": "考试中OJ突然宕机",
+    "description": "NOIP复赛时，你们使用的评测系统突然卡顿，提交后一直显示“等待中”，你非常着急。",
+    "type": "negative",
+    "choices": [
+      {
+        "text": "冷静等待，同时检查代码的其他部分",
+        "effect": {
+          "mindset": 8,
+          "efficiency": 3,
+          "luck": 3
+        },
+        "resultDescription": "你利用等待时间检查了代码，发现了一个逻辑错误并修正，提交后正好OJ恢复，AC了。"
+      },
+      {
+        "text": "心急如焚，反复刷新浪费20分钟",
+        "effect": {
+          "mindset": -8,
+          "efficiency": -10,
+          "luck": -3
+        },
+        "resultDescription": "你浪费了大量时间，最后来不及做后面的大题，直接退役心态。"
+      },
+      {
+        "text": "举手向监考老师反映问题",
+        "effect": {
+          "luck": 5,
+          "experience": 3,
+          "oi_misc": 2
+        },
+        "resultDescription": "老师协调后恢复了服务，但影响了你的做题节奏。"
+      }
+    ]
+  },
+  {
+    "id": "oi_pu_cf_problem_hard",
+    "phase": "WINTER",
+    "cfRatingMin": 1200,
+    "cfRatingMax": 1399,
+    "title": "CF Div.3 最后一题太难",
+    "description": "你打了一场CF Div.3，前四题很快就过了，但第五题是构造题，你想了一个半小时也没思路。",
+    "type": "neutral",
+    "choices": [
+      {
+        "text": "看题解学习构造方法，记下套路",
+        "effect": {
+          "oi_misc": 10,
+          "experience": 5,
+          "efficiency": -2
+        },
+        "resultDescription": "你学到了常见的构造技巧，下次遇到类似题能快速反应。"
+      },
+      {
+        "text": "强行自己写，结果WA了十几次",
+        "effect": {
+          "mindset": -5,
+          "oi_misc": 3,
+          "efficiency": -5
+        },
+        "resultDescription": "你硬刚了一个多小时，最后还是没做出来，还影响了心情。"
+      },
+      {
+        "text": "放弃这题，提前提交，保证已有分",
+        "effect": {
+          "experience": 3,
+          "luck": 5,
+          "oi_misc": -2
+        },
+        "resultDescription": "你保住了前四题的分，rating小涨，但错过了一次学习机会。"
+      }
+    ]
+  },
+  {
+    "id": "oi_pu_tle_optimize",
+    "phase": "SUMMER",
+    "cfRatingMin": 1200,
+    "cfRatingMax": 1399,
+    "title": "暴力超时后优化通过",
+    "description": "你在洛谷做一道题，写了个三重循环的暴力，结果TLE了。你开始思考怎么优化。",
+    "type": "positive",
+    "choices": [
+      {
+        "text": "学习复杂度分析，尝试用二分或双指针",
+        "effect": {
+          "oi_misc": 8,
+          "experience": 5,
+          "efficiency": 5
+        },
+        "resultDescription": "你改用了双指针，复杂度降为O(n^2)，终于AC了，成就感满满。"
+      },
+      {
+        "text": "直接看题解，复制最优解法",
+        "effect": {
+          "oi_misc": 3,
+          "mindset": -2,
+          "efficiency": 5
+        },
+        "resultDescription": "你抄到了最优解法，但是没理解，下次还是TLE。"
+      },
+      {
+        "text": "尝试用硬优化，比如加register和O2",
+        "effect": {
+          "oi_misc": 2,
+          "efficiency": 3,
+          "experience": 2
+        },
+        "resultDescription": "你通过卡常勉强AC了，但是代码变得很难看，而且不治本。"
+      }
+    ]
+  },
+  {
+    "id": "oi_pu_contest_failure",
+    "phase": "CSP_EXAM",
+    "cfRatingMin": 1200,
+    "cfRatingMax": 1399,
+    "title": "CSP-S第一场爆零",
+    "description": "CSP-S第一轮，你因为紧张把所有代码都写错了一个括号，编译错误导致爆零。",
+    "type": "negative",
+    "choices": [
+      {
+        "text": "找老师复盘，练习编译和调试",
+        "effect": {
+          "mindset": 5,
+          "experience": 8,
+          "efficiency": 5
+        },
+        "resultDescription": "你学会了用本地编译器提前检查，再也没犯过CE错误。"
+      },
+      {
+        "text": "自闭三天，不想碰OI",
+        "effect": {
+          "mindset": -10,
+          "experience": -5,
+          "health": 3
+        },
+        "resultDescription": "你消沉了一段时间，回来之后进度落后很多。"
+      },
+      {
+        "text": "跟同学吐槽运气差，求安慰",
+        "effect": {
+          "mindset": 3,
+          "luck": -5,
+          "oi_misc": -2
+        },
+        "resultDescription": "同学安慰了你，但你没有真正解决问题，下次考试又CE了。"
+      }
+    ]
+  },
+  {
+    "id": "oi_sp_two_pointers_application",
+    "phase": "WINTER",
+    "cfRatingMin": 1400,
+    "cfRatingMax": 1599,
+    "title": "双指针初体验",
+    "description": "你在洛谷上做一道双指针经典题，思路清晰但写出来总是边界条件爆炸。你盯着屏幕上的WA，怀疑自己是不是连基础算法都掌握不牢。",
+    "type": "neutral",
+    "choices": [
+      {
+        "text": "重读《算法竞赛进阶指南》双指针章节",
+        "effect": {
+          "oi_misc": 8,
+          "mindset": 3,
+          "efficiency": -2
+        },
+        "resultDescription": "你花了一下午啃完例题，终于理解了双指针的实质——单调性。之后连续AC了3道双指针题目，信心大增。"
+      },
+      {
+        "text": "直接看题解，抄一遍代码试试",
+        "effect": {
+          "oi_misc": 2,
+          "luck": -5
+        },
+        "resultDescription": "你照着题解打了一遍，虽然过了样例，但稍有变形就又WA了。下次遇到同类题依然不会。"
+      },
+      {
+        "text": "向机房OI爷请教，让他手把手教",
+        "effect": {
+          "experience": 10,
+          "health": -3
+        },
+        "resultDescription": "神犇帮你逐行debug，指出你少考虑了一个前缀和的后缀情况。你恍然大悟，立刻AC，但错过了晚饭时间。"
+      }
+    ]
+  },
+  {
+    "id": "oi_sp_div2_c_breakthrough",
+    "phase": "SEMESTER_2",
+    "cfRatingMin": 1400,
+    "cfRatingMax": 1599,
+    "title": "CF Div.2 C题破防",
+    "description": "你终于鼓起勇气打了一场Codeforces Div.2，A和B秒切，C题是构造题，你卡了半小时毫无头绪。看着排名不断下滑，你开始焦虑。",
+    "type": "negative",
+    "choices": [
+      {
+        "text": "死磕C题，不破楼兰终不还",
+        "effect": {
+          "mindset": -8,
+          "experience": 5
+        },
+        "resultDescription": "你坚持到最后10分钟，突然灵光一现写出构造方案，但交上去因为少特判一个边界RE了。最后rating掉了50，但学到了构造的套路。"
+      },
+      {
+        "text": "果断放弃C题，去尝试D题",
+        "effect": {
+          "oi_misc": 6,
+          "mindset": 5,
+          "luck": -3
+        },
+        "resultDescription": "你发现D题是线段树板子题，很快敲完AC，rating反而涨了。之后你明白了打CF要懂得取舍。"
+      },
+      {
+        "text": "赛后看题解，整理错题本",
+        "effect": {
+          "oi_ds": 8,
+          "health": -2
+        },
+        "resultDescription": "你熬夜看完C题官方题解和讨论，发现原来是个经典不等式模型。你花一小时整理错题，下次见到一样套路直接秒。"
+      }
+    ]
+  },
+  {
+    "id": "oi_sp_segment_tree_init",
+    "phase": "MIDTERM_EXAM",
+    "cfRatingMin": 1400,
+    "cfRatingMax": 1599,
+    "title": "线段树入门狂魔",
+    "description": "你刚学会线段树的基本操作，准备在洛谷上刷题。结果第一道区间加、区间求和就调试了2小时，心态炸裂。",
+    "type": "neutral",
+    "choices": [
+      {
+        "text": "硬着头皮自己debug",
+        "effect": {
+          "oi_ds": 12,
+          "mindset": -5,
+          "health": -10
+        },
+        "resultDescription": "你一行一行地检查，终于发现是build函数里参数写反了。虽然AC了，但你累得趴在桌上睡着，错过了下午的英语课。"
+      },
+      {
+        "text": "下载别人AC代码，逐行对比",
+        "effect": {
+          "oi_misc": 5,
+          "experience": 10,
+          "efficiency": 8
+        },
+        "resultDescription": "你找到一份清晰规范的代码，发现你犯了一个低级错误——没有开long long。改完后直接AC，效率超高。"
+      },
+      {
+        "text": "先放一放，复习其他基础算法",
+        "effect": {
+          "oi_dp": 5,
+          "mindset": 3,
+          "health": 5
+        },
+        "resultDescription": "你决定晚上再战，先刷了几道简单贪心，心情平复。晚上回来再调试，状态很好，很快发现bug并AC。"
+      }
+    ]
+  },
+  {
+    "id": "oi_sp_classroom_sleep",
+    "phase": "SEMESTER_1",
+    "cfRatingMin": 1400,
+    "cfRatingMax": 1599,
+    "title": "机房熬夜后上课",
+    "description": "昨晚你为了打CF Div.2熬夜到凌晨2点，今天第一节课数学课你眼皮打架。数学老师正在讲重点，你强撑着但意识模糊。",
+    "type": "negative",
+    "choices": [
+      {
+        "text": "主动站起来听课，彻底清醒",
+        "effect": {
+          "health": 5,
+          "efficiency": 10,
+          "luck": -2
+        },
+        "resultDescription": "你站起来后精神一振，全程跟上了老师讲的导数，还在课上回答了问题。但中午困得趴在食堂桌上睡着了。"
+      },
+      {
+        "text": "偷偷趴桌休息，祈祷老师不发现",
+        "effect": {
+          "health": 8,
+          "mindset": -4,
+          "experience": -3
+        },
+        "resultDescription": "你睡着后老师提问你同桌，声音惊醒你，但你没听到问题，尴尬地站着。课后被班主任叫去谈话。"
+      },
+      {
+        "text": "掐自己大腿保持清醒，课后补觉",
+        "effect": {
+          "health": -6,
+          "efficiency": 5,
+          "mindset": 3
+        },
+        "resultDescription": "你靠掐大腿勉强撑完一节课，记了笔记，但下课后头晕眼花。午休时睡死过去，错过了OI集训的集合时间。"
+      }
+    ]
+  },
+  {
+    "id": "oi_sp_math_in_oi",
+    "phase": "CSP_EXAM",
+    "cfRatingMin": 1400,
+    "cfRatingMax": 1599,
+    "title": "数论卡壳现场",
+    "description": "CSP-S临近，你刷了一道数论综合题，需要用到拓展欧几里得和乘法逆元。你推导了一半卡住，不确定模运算是否正确。",
+    "type": "positive",
+    "choices": [
+      {
+        "text": "拿出草稿纸重新推导一遍全部数学",
+        "effect": {
+          "oi_math": 12,
+          "mindset": 5,
+          "efficiency": -3
+        },
+        "resultDescription": "你从裴蜀定理开始推，逐步到exgcd、逆元存在条件，终于写对了代码。之后做数论题思路清晰很多。"
+      },
+      {
+        "text": "看洛谷题解吸收多种解法",
+        "effect": {
+          "oi_misc": 5,
+          "experience": 8
+        },
+        "resultDescription": "你发现题解里有三种不同做法，你学会了用费马小定理+快速幂求逆元的简洁写法，效率提升。"
+      },
+      {
+        "text": "直接放弃，转头做其他板块",
+        "effect": {
+          "mindset": 3,
+          "health": 5,
+          "oi_math": -4
+        },
+        "resultDescription": "你暂时放下数论，去刷了几道模拟题调节心情。但后来发现数论在CSP-S中考到了同类型，你后悔没坚持。"
+      }
+    ]
+  },
+  {
+    "id": "oi_sp_dp_knapsack_variation",
+    "phase": "SEMESTER_1",
+    "cfRatingMin": 1400,
+    "cfRatingMax": 1599,
+    "title": "背包变种折磨记",
+    "description": "你在AtCoder上做到一道DP题，看起来是多重背包，但物品数量很大，需要二进制优化。你之前没学过这个优化，完全无从下手。",
+    "type": "neutral",
+    "choices": [
+      {
+        "text": "现场学习二进制优化，并尝试实现",
+        "effect": {
+          "oi_dp": 15,
+          "mindset": -5,
+          "health": -8
+        },
+        "resultDescription": "你花了一小时理解原理，手写二进制拆分+单调队列优化，终于AC。虽然头昏脑胀，但DP功力大涨。"
+      },
+      {
+        "text": "用朴素多重背包赌一把小数据",
+        "effect": {
+          "oi_dp": 3,
+          "luck": -5,
+          "health": 3
+        },
+        "resultDescription": "你硬着头皮写了三层循环，果然TLE。但当你提交时发现数据很弱，居然有部分分，拿到了60%。"
+      },
+      {
+        "text": "找队友讨论，让他给你讲思路",
+        "effect": {
+          "experience": 10,
+          "efficiency": 8
+        },
+        "resultDescription": "队友是神犇，几句话点通二进制拆分本质。你恍然大悟，快速AC，还从他那里学到了一维数组滚动写法。"
+      }
+    ]
+  },
+  {
+    "id": "oi_sp_csp_s_confidence",
+    "phase": "CSP_EXAM",
+    "cfRatingMin": 1400,
+    "cfRatingMax": 1599,
+    "title": "CSP-S考前自信爆棚",
+    "description": "模拟赛你发挥不错，连续几场都切了前两题，觉得自己CSP-S拿省一有望。你开始幻想自己在考场上大杀四方。",
+    "type": "positive",
+    "choices": [
+      {
+        "text": "适度兴奋，保持刷题节奏",
+        "effect": {
+          "mindset": 8,
+          "experience": 5,
+          "health": 3
+        },
+        "resultDescription": "你继续按计划刷真题，稳扎稳打。考场上心态平和，正常发挥，最后拿到了不错的分数。"
+      },
+      {
+        "text": "骄傲自满，刷题量骤减",
+        "effect": {
+          "mindset": -10,
+          "experience": -5,
+          "efficiency": -8
+        },
+        "resultDescription": "你觉得自己稳了，开始摸鱼聊天。结果考场上遇到两道新题全都无从下手，最后只拿了省三，懊悔不已。"
+      },
+      {
+        "text": "找老师要来历年省一分数线，制定保底策略",
+        "effect": {
+          "oi_misc": 6,
+          "mindset": 2,
+          "luck": 3
+        },
+        "resultDescription": "你分析分数线，发现自己第二题常犯小错误。于是加强检查习惯，最终虽然题目难，但凭借细心拿到了省一。"
+      }
+    ]
+  },
+  {
+    "id": "oi_sp_graph_dijkstra_mistake",
+    "phase": "NOIP_EXAM",
+    "cfRatingMin": 1400,
+    "cfRatingMax": 1599,
+    "title": "Dijkstra踩坑",
+    "description": "NOIP模拟赛有一道图论题，你一眼就看出是最短路，但用优先队列写Dijkstra时，忘记处理重边，样例过了但交上去WA。",
+    "type": "negative",
+    "choices": [
+      {
+        "text": "冷静分析WA点，重新检查建图",
+        "effect": {
+          "oi_graph": 12,
+          "mindset": 5,
+          "health": -3
+        },
+        "resultDescription": "你发现邻接表里存了重复边，用min函数缩去重边后AC。从此记住了图论题要谨慎处理重边。"
+      },
+      {
+        "text": "怀疑算法不会，改成SPFA",
+        "effect": {
+          "oi_graph": -5,
+          "experience": 3,
+          "mindset": -5
+        },
+        "resultDescription": "你换SPFA居然过了，但赛后发现数据里有负边，幸好没卡。不过你逃避了Dijkstra的bug，后来正式比赛又因为重边栽了跟头。"
+      },
+      {
+        "text": "直接看别人代码，学习规范写法",
+        "effect": {
+          "oi_graph": 8,
+          "efficiency": 10,
+          "experience": 5
+        },
+        "resultDescription": "你看到一份代码用了自定义结构体重载<，还用了距离数组初始化为INF。你模仿后写出更可靠的Dijkstra，下次再没错过。"
+      }
+    ]
+  },
+  {
+    "id": "oi_sp_cheating_false_alarm",
+    "phase": "MIDTERM_EXAM",
+    "cfRatingMin": 1400,
+    "cfRatingMax": 1599,
+    "title": "误被当成作弊",
+    "description": "期中考试结束后，你名字出现在作弊嫌疑名单上，理由是手机APP检测到你考试期间运行了代码编辑器。你明明没用，只打开了草稿纸。",
+    "type": "negative",
+    "choices": [
+      {
+        "text": "主动找班主任解释，并展示手机记录",
+        "effect": {
+          "mindset": 10,
+          "luck": 8,
+          "experience": -2
+        },
+        "resultDescription": "你心平气和地解释了那是昨晚打CF时打开的编辑器，后台进程残留。班主任查明后撤销处分，还夸你成熟。"
+      },
+      {
+        "text": "沉默不语，自己消化委屈",
+        "effect": {
+          "mindset": -8,
+          "health": -5,
+          "luck": -10
+        },
+        "resultDescription": "你不说话，但心里很不舒服，影响了之后OI训练状态。后来成绩被扣了15分，你更抑郁了。"
+      },
+      {
+        "text": "让家长出面跟学校交涉",
+        "effect": {
+          "experience": 3,
+          "luck": 5,
+          "mindset": 2
+        },
+        "resultDescription": "家长找来证明你手机确实有编程软件，但校方还是给了警告。虽然没有实质性惩罚，但你觉得很没面子。"
+      }
+    ]
+  },
+  {
+    "id": "oi_sp_contest_mate_talk",
+    "phase": "SUMMER",
+    "cfRatingMin": 1400,
+    "cfRatingMax": 1599,
+    "title": "机房悄悄讲题",
+    "description": "你在机房里跟邻座讨论一道昨天CF的C题，正讲到关键处，轮到值日老师巡查。老师推门进来，你们赶紧闭嘴。",
+    "type": "neutral",
+    "choices": [
+      {
+        "text": "装作在打代码，不动声色",
+        "effect": {
+          "mindset": 3,
+          "experience": 0,
+          "luck": 5
+        },
+        "resultDescription": "老师只是扫了一眼，没发现异常，但你们再也没敢继续讨论。你默默把思路打在了代码注释里。"
+      },
+      {
+        "text": "主动站起来承认讨论，请求解释",
+        "effect": {
+          "luck": -3,
+          "mindset": 8,
+          "experience": 5
+        },
+        "resultDescription": "老师愣了一下，然后说“下次讲题小声点”，居然让你们继续。你们抓紧讲完，还顺便帮旁边的同学也讲通了。"
+      },
+      {
+        "text": "继续低声讲，赌老师听不见",
+        "effect": {
+          "luck": -8,
+          "health": -2,
+          "experience": 2
+        },
+        "resultDescription": "老师听力极好，当场抓住你们。被罚站了半节课，还写了500字检讨，但你们在检讨里把算法思想写进去了。"
+      }
+    ]
+  },
+  {
+    "id": "oi_sp_pretest_fail",
+    "phase": "NOIP_EXAM",
+    "cfRatingMin": 1400,
+    "cfRatingMax": 1599,
+    "title": "预赛翻车现场",
+    "description": "NOIP初赛你觉得自己没问题，选择题和填空都写完了，结果对答案时发现逻辑题全错，可能连初赛都过不了。",
+    "type": "negative",
+    "choices": [
+      {
+        "text": "振作起来，分析错题原因",
+        "effect": {
+          "oi_misc": 10,
+          "mindset": 6,
+          "health": -3
+        },
+        "resultDescription": "你发现你掉进了命题陷阱，学会了“形式逻辑”题的套路。虽然初赛擦线过，但以后遇到类似题不会再错。"
+      },
+      {
+        "text": "自暴自弃，开始玩手机",
+        "effect": {
+          "mindset": -12,
+          "health": 3,
+          "experience": -5
+        },
+        "resultDescription": "你觉得自己凉了，干脆不复习。结果初赛过了别人都没过，但你的排名很低，省选没资格，后悔莫及。"
+      },
+      {
+        "text": "找教练要历年初赛成绩分布，算自己可能分数",
+        "effect": {
+          "luck": 3,
+          "mindset": 2,
+          "experience": 5
+        },
+        "resultDescription": "你根据往年线估计自己可能能过，于是继续准备复赛。最后你初赛刚好过线2分，有惊无险。"
+      }
+    ]
+  },
+  {
+    "id": "oi_sp_stl_advanced",
+    "phase": "SEMESTER_1",
+    "cfRatingMin": 1400,
+    "cfRatingMax": 1599,
+    "title": "STL花式应用",
+    "description": "你发现一道题可以用set和map轻松解决，但总是因为迭代器操作不当导致RE。你开始怀疑自己是不是不适合用STL。",
+    "type": "neutral",
+    "choices": [
+      {
+        "text": "仔细阅读cplusplus.com文档，深究每个函数",
+        "effect": {
+          "oi_ds": 10,
+          "mindset": 3,
+          "efficiency": -5
+        },
+        "resultDescription": "你花了半天时间专门学习set::insert的返回值、迭代器失效等情况。之后用STL写得又快又准，被同学称为STL工具人。"
+      },
+      {
+        "text": "暴力手写结构体，不依赖STL",
+        "effect": {
+          "oi_ds": 5,
+          "efficiency": -8,
+          "mindset": 2
+        },
+        "resultDescription": "你手动实现红黑树失败，改成数组+二分，勉强AC但代码长且容易溢界。效率低下。"
+      },
+      {
+        "text": "看洛谷讨论区STL技巧总结帖",
+        "effect": {
+          "oi_misc": 8,
+          "experience": 8,
+          "health": -2
+        },
+        "resultDescription": "你看到一篇帖子总结了常用STL坑点，你按里面建议改了代码，AC并学到了很多技巧。"
+      }
+    ]
+  },
+  {
+    "id": "oi_sp_luogu_red_pocket",
+    "phase": "SUMMER",
+    "cfRatingMin": 1400,
+    "cfRatingMax": 1599,
+    "title": "洛谷周年庆红包",
+    "description": "洛谷周年庆活动，打开网页弹出一个红包，点击可能得到随机洛谷币或贡献值。你有点心动。",
+    "type": "positive",
+    "choices": [
+      {
+        "text": "果断点击，看看能开出什么",
+        "effect": {
+          "luck": 8,
+          "experience": 3,
+          "mindset": 5
+        },
+        "resultDescription": "你开出了50洛谷币，正好可以买一个题单。你立刻买了个线段树题单，狂刷一天，水平提升。"
+      },
+      {
+        "text": "怀疑是广告不点，继续刷题",
+        "effect": {
+          "oi_misc": 3,
+          "mindset": 5,
+          "luck": -2
+        },
+        "resultDescription": "你发现那是正规活动，但错过了一次免费资源。不过你因为专注刷题，还是有效率的。"
+      },
+      {
+        "text": "分享给机房同学一起点",
+        "effect": {
+          "experience": 5,
+          "mindset": 3,
+          "health": 2
+        },
+        "resultDescription": "你和三个同学都开了红包，每个人分别得到不同奖励。你们互相交流开出啥，机房充满了快乐的气氛。"
+      }
+    ]
+  },
+  {
+    "id": "oi_sp_physics_teacher_oi",
+    "phase": "MIDTERM_EXAM",
+    "cfRatingMin": 1400,
+    "cfRatingMax": 1599,
+    "title": "物理老师讲OI",
+    "description": "物理老师在课上提到可以用二分法求物理问题的极值，你兴奋得差点站起来，但旁边同学一脸懵逼。",
+    "type": "neutral",
+    "choices": [
+      {
+        "text": "课后跟老师深入交流OI与物理结合",
+        "effect": {
+          "oi_math": 5,
+          "experience": 8,
+          "mindset": 4
+        },
+        "resultDescription": "老师教你用数值逼近方法在物理模拟中的应用，你不仅学会一个新技巧，还和老师混熟了，以后可以光明正大用机房。"
+      },
+      {
+        "text": "课上打断老师，说这个可以用线段树优化",
+        "effect": {
+          "oi_misc": -5,
+          "luck": -8,
+          "mindset": -3
+        },
+        "resultDescription": "老师愣了，说“这里跟数据结构没关系”，让你坐下。同学都笑话你，你尴尬极了。"
+      },
+      {
+        "text": "默默记下，课后自己推演算法",
+        "effect": {
+          "oi_misc": 8,
+          "health": -2,
+          "efficiency": 5
+        },
+        "resultDescription": "你放学后花了半小时推导，发现这个问题可以完美转化为二分答案模型。你兴奋地写了个程序验证。"
+      }
+    ]
+  },
+  {
+    "id": "oi_sp_cf_upsolving_frustration",
+    "phase": "SUMMER",
+    "cfRatingMin": 1400,
+    "cfRatingMax": 1599,
+    "title": "补题补到自闭",
+    "description": "你打了一场CF后rating掉了，决定重打这一场的A-E题。结果D题你想了一整天还是不会，感觉很挫败。",
+    "type": "negative",
+    "choices": [
+      {
+        "text": "继续死磕，不AC不睡觉",
+        "effect": {
+          "oi_misc": 10,
+          "health": -15,
+          "mindset": -5
+        },
+        "resultDescription": "你熬夜到凌晨3点，终于推出来了，但第二天上课完全没精神，还被老师批评。不过你的思维深度有提升。"
+      },
+      {
+        "text": "求助Codeforces讨论区",
+        "effect": {
+          "experience": 12,
+          "efficiency": 8,
+          "mindset": 3
+        },
+        "resultDescription": "你在讨论区看到大神用“反悔贪心”解这道题，你学习后不仅懂了，还学会了新题型。"
+      },
+      {
+        "text": "放下这道题，先做其他题单调解",
+        "effect": {
+          "mindset": 6,
+          "health": 5,
+          "oi_ds": 3
+        },
+        "resultDescription": "你换做几道简单数据结构题，AC后心情恢复。第二天再看D题，竟有了思路。"
+      }
+    ]
+  },
+  {
+    "id": "oi_sp_oi_training_camp_choice",
+    "phase": "SUMMER",
+    "cfRatingMin": 1400,
+    "cfRatingMax": 1599,
+    "title": "暑假集训营选择",
+    "description": "暑假有两个OI集训营：一个在本市知名教练指导下，小班教学；另一个是线上全国名师直播，便宜但需要自律。你纠结选哪个。",
+    "type": "neutral",
+    "choices": [
+      {
+        "text": "选择线下集训，面对面交流",
+        "effect": {
+          "oi_misc": 8,
+          "experience": 10,
+          "health": -5,
+          "money": -8
+        },
+        "resultDescription": "你在线下认识了同省大神，每天高强度刷题+讨论，进益飞快，但费用贵且食堂难吃。"
+      },
+      {
+        "text": "选择线上课程，自主节奏",
+        "effect": {
+          "oi_dp": 5,
+          "health": 5,
+          "money": 5,
+          "mindset": -2
+        },
+        "resultDescription": "你在线听课，但自制力不强，经常走神。不过你利用了回放反复听难点，最终也学到了不少。"
+      },
+      {
+        "text": "两个都不去，自己在家刷Codeforces",
+        "effect": {
+          "oi_misc": 6,
+          "experience": 3,
+          "health": 8,
+          "luck": -3
+        },
+        "resultDescription": "你每天在家打CF，rating涨了100，但缺乏系统训练，有些知识点还是没覆盖到。"
+      }
+    ]
+  },
+  {
+    "id": "oi_sp_skill_equation_type",
+    "phase": "NOIP_EXAM",
+    "cfRatingMin": 1400,
+    "cfRatingMax": 1599,
+    "title": "方程模型化难题",
+    "description": "NOIP模拟题给你一堆限制条件，要你建构一个线性方程组，然后求整数解。你发现这是exgcd的变形，但系数很大。",
+    "type": "positive",
+    "choices": [
+      {
+        "text": "用扩展欧几里得逐步求解",
+        "effect": {
+          "oi_math": 14,
+          "mindset": 4,
+          "health": -3
+        },
+        "resultDescription": "你仔细推了通解公式，并处理了负数问题，最终AC。你对数论的理解更上一层。"
+      },
+      {
+        "text": "暴力枚举一个变量可能的范围",
+        "effect": {
+          "oi_misc": 5,
+          "luck": -4,
+          "experience": 2
+        },
+        "resultDescription": "你枚举范围太大，TLE了。但优化后勉强拿到部分分，不是最优解。"
+      },
+      {
+        "text": "请教数学老师，用矩阵思想",
+        "effect": {
+          "oi_math": 8,
+          "experience": 8,
+          "mindset": 5
+        },
+        "resultDescription": "数学老师帮你从线性代数角度解释，你发现可以用高斯消元。虽然代码长了点，但AC且通用性更强。"
+      }
+    ]
+  },
+  {
+    "id": "oi_sp_mood_swing_after_contest",
+    "phase": "CSP_EXAM",
+    "cfRatingMin": 1400,
+    "cfRatingMax": 1599,
+    "title": "赛后情绪波动",
+    "description": "CSP-S刚刚结束，你自我感觉尚可，但对了一下民间答案，发现第二题少判了一个边界条件，可能丢掉30分。你心神不宁。",
+    "type": "negative",
+    "choices": [
+      {
+        "text": "接受现实，开始准备NOIP",
+        "effect": {
+          "mindset": 10,
+          "experience": 5,
+          "health": 3
+        },
+        "resultDescription": "你很快调整心态，把精力放在NOIP复习上。后来成绩出来，你第二题只丢10分，依然拿到了省一。"
+      },
+      {
+        "text": "反复看答案，懊悔不已",
+        "effect": {
+          "mindset": -15,
+          "health": -8,
+          "efficiency": -5
+        },
+        "resultDescription": "你连续两天都在纠结那个边界条件，导致没心思刷题。最后NOIP也受到心态影响，发挥失常。"
+      },
+      {
+        "text": "跟一起比赛的同学吐槽，互相安慰",
+        "effect": {
+          "experience": 3,
+          "mindset": 5,
+          "luck": -1
+        },
+        "resultDescription": "你和同学一起骂出题人，心情好多了。还发现大家都有不同程度的翻车，你并不是最惨的。"
+      }
+    ]
+  },
+  {
+    "id": "oi_sp_lca_learning",
+    "phase": "WINTER",
+    "cfRatingMin": 1400,
+    "cfRatingMax": 1599,
+    "title": "树上LCA卡壳",
+    "description": "你学了倍增法求LCA，但写代码时总把fa数组初始化弄错。你看着TLE的评测结果，怀疑自己是不是该先学树剖。",
+    "type": "neutral",
+    "choices": [
+      {
+        "text": "重新理解倍增原理，手画二叉树调试",
+        "effect": {
+          "oi_graph": 14,
+          "mindset": 3,
+          "health": -6
+        },
+        "resultDescription": "你画了一棵深度为5的树，手动模拟了倍增过程，终于搞懂了为什么fa[k][i] = fa[k-1][fa[k-1][i]]。调完AC，快如闪电。"
+      },
+      {
+        "text": "改用树剖求LCA",
+        "effect": {
+          "oi_graph": 10,
+          "experience": 5,
+          "efficiency": 3
+        },
+        "resultDescription": "你顺便学了树链剖分，虽然代码长但思路清晰。你顺利AC，并且学会了轻重链剖分。"
+      },
+      {
+        "text": "直接跳到下一题，打算以后回头",
+        "effect": {
+          "mindset": 5,
+          "health": 5,
+          "oi_graph": -3
+        },
+        "resultDescription": "你暂时绕过LCA，但后来遇到树题还是不会。你后悔没有当时花时间搞懂。"
+      }
+    ]
+  },
+  {
+    "id": "oi_sp_cf_rating_increase",
+    "phase": "MIDTERM_EXAM",
+    "cfRatingMin": 1400,
+    "cfRatingMax": 1599,
+    "title": "CF专打小号",
+    "description": "你注册了一个小号打算打Div.3放松，结果连续三场跳分，小号rating都超过大号了。你开始觉得大号有毒。",
+    "type": "positive",
+    "choices": [
+      {
+        "text": "放弃大号，专心打小号上分",
+        "effect": {
+          "mindset": 8,
+          "experience": 5,
+          "luck": 3
+        },
+        "resultDescription": "小号rating一路飙升到1600+，你信心大增。但后来发现大号不打会掉分，你还是得回去打大号。"
+      },
+      {
+        "text": "分析小号上分原因，调整大号策略",
+        "effect": {
+          "oi_misc": 8,
+          "mindset": 6,
+          "efficiency": 5
+        },
+        "resultDescription": "你发现小号你注重稳定A和B，C题尝试但不死磕。你把这个策略用到大号，rating也开始稳定上涨。"
+      },
+      {
+        "text": "用小号继续碾压，大号就作为纪念",
+        "effect": {
+          "experience": 3,
+          "mindset": 2,
+          "luck": -3
+        },
+        "resultDescription": "你沉迷小号虐菜，但失去了跟高rating玩家交流的机会。后来大号掉到1400以下，你有点后悔。"
+      }
+    ]
+  },
+  {
+    "id": "oi_ex_dp_state_compression",
+    "phase": "SEMESTER_2",
+    "cfRatingMin": 1600,
+    "cfRatingMax": 1899,
+    "title": "状压DP卡常",
+    "description": "你在洛谷上刷一道状压DP题目，状态转移写得很顺，但提交后TLE了几个点。你怀疑是常数太大，需要优化预处理或改用更快的枚举子集方式。",
+    "type": "neutral",
+    "choices": [
+      {
+        "text": "手写__builtin_popcount优化",
+        "effect": {
+          "oi_dp": 8,
+          "efficiency": -2
+        },
+        "resultDescription": "你手写了一个popcount表，常数降了一点，但还是TLE，不过你学到了位运算优化的精髓。"
+      },
+      {
+        "text": "用滚动数组+预处理转移",
+        "effect": {
+          "oi_dp": 10,
+          "efficiency": -5
+        },
+        "resultDescription": "你花了一小时预处理所有转移，代码冗长但效率起飞，AC了，但你的放学时间被拖后了。"
+      },
+      {
+        "text": "直接看题解找优化思路",
+        "effect": {
+          "oi_misc": 5,
+          "experience": 3
+        },
+        "resultDescription": "你发现题解用了更巧妙的枚举子集方式，恍然大悟，下次遇到类似题就知道了。"
+      }
+    ]
+  },
+  {
+    "id": "oi_ex_segment_tree_lazy",
+    "phase": "SEMESTER_1",
+    "cfRatingMin": 1600,
+    "cfRatingMax": 1899,
+    "title": "线段树懒标记大战",
+    "description": "你在写一道带区间加法和区间赋值的线段树题目，两个懒标记互相影响，你debug了很久还没过样例，室友喊你去吃饭。",
+    "type": "negative",
+    "choices": [
+      {
+        "text": "继续调试，吃完泡面再说",
+        "effect": {
+          "oi_ds": 12,
+          "health": -8,
+          "efficiency": -5
+        },
+        "resultDescription": "你饿着肚子猛调两小时，终于发现赋值标记没清空加法标记，AC后成就感满满，但胃开始疼了。"
+      },
+      {
+        "text": "先去吃饭，回来再搞",
+        "effect": {
+          "health": 3,
+          "experience": 2
+        },
+        "resultDescription": "你吃着热饭放松了心情，回来半小时就发现了bug，效率反而更高了。"
+      },
+      {
+        "text": "去Luogu讨论区问一波",
+        "effect": {
+          "oi_misc": 5,
+          "efficiency": 4
+        },
+        "resultDescription": "你在帖子里描述了问题，热心的群友指出了标记下传的顺序错误，你照着改立刻AC了。"
+      }
+    ]
+  },
+  {
+    "id": "oi_ex_treap_learning",
+    "phase": "SUMMER",
+    "cfRatingMin": 1600,
+    "cfRatingMax": 1899,
+    "title": "平衡树入门之Treap",
+    "description": "你决定啃下Treap，照着蓝书打了一遍，但旋转操作总是写反。你盯着屏幕上的RE，怀疑人生。",
+    "type": "neutral",
+    "choices": [
+      {
+        "text": "手动模拟小数据调试",
+        "effect": {
+          "oi_ds": 10,
+          "efficiency": -3
+        },
+        "resultDescription": "你画了半小时旋转图，终于找到是左旋右旋搞混了，之后Treap代码库建立成功。"
+      },
+      {
+        "text": "直接看别人的splay代码",
+        "effect": {
+          "oi_ds": 5,
+          "oi_misc": -3
+        },
+        "resultDescription": "你被splay的zigzag搞得头大，最后还是回来学Treap，绕了一圈。"
+      },
+      {
+        "text": "放弃，用set应付",
+        "effect": {
+          "oi_ds": -8,
+          "experience": 2
+        },
+        "resultDescription": "你逞一时之快，但后续很多平衡树题目只能用std::set，复杂度高，后悔没好好学。"
+      }
+    ]
+  },
+  {
+    "id": "oi_ex_cf_1800_problem",
+    "phase": "SEMESTER_1",
+    "cfRatingMin": 1600,
+    "cfRatingMax": 1899,
+    "title": "CF 1800分题卡题",
+    "description": "你自信地打开一道CF 1800分的构造题，想了半小时毫无思路，看着时间一点点流逝，而周围的神犇已经切了四道。",
+    "type": "negative",
+    "choices": [
+      {
+        "text": "硬刚到底，不AC不睡觉",
+        "effect": {
+          "oi_misc": 8,
+          "health": -10,
+          "luck": -3
+        },
+        "resultDescription": "你死磕到凌晨两点，终于想出了一个极妙的构造，AC后却失眠了，第二天上课打瞌睡被老师点名。"
+      },
+      {
+        "text": "先跳过去做后面的题",
+        "effect": {
+          "experience": 5,
+          "efficiency": 4
+        },
+        "resultDescription": "你换了一道题，发现是熟悉的二分答案，迅速拿下，最后三道题都拿了分，总分不低。"
+      },
+      {
+        "text": "看题解学习构造技巧",
+        "effect": {
+          "oi_misc": 12,
+          "experience": 3
+        },
+        "resultDescription": "你看了题解，学到了经典的“奇偶构造”方法，并总结到笔记本上，以后遇到类似题就会了。"
+      }
+    ]
+  },
+  {
+    "id": "oi_ex_graph_mst_kruskal",
+    "phase": "CSP_EXAM",
+    "cfRatingMin": 1600,
+    "cfRatingMax": 1899,
+    "title": "最小生成树魔改",
+    "description": "CSP-S模拟赛出了一道看似MST的题，但边权会随选择动态变化，你一开始想用Kruskal，但发现好像需要LCT。",
+    "type": "neutral",
+    "choices": [
+      {
+        "text": "坚持Kruskal+排序技巧",
+        "effect": {
+          "oi_graph": 8,
+          "oi_misc": 4
+        },
+        "resultDescription": "你发现其实可以离线按某种顺序排序，用并查集动态维护，得到60分，部分正确。"
+      },
+      {
+        "text": "从LCT角度思考",
+        "effect": {
+          "oi_ds": 12,
+          "efficiency": -6
+        },
+        "resultDescription": "你试图现推LCT，但写了一半发现不会维护边权，时间不够，最后爆零，但加深了LCT理解。"
+      },
+      {
+        "text": "放弃，检查前面的题",
+        "effect": {
+          "experience": 3,
+          "luck": -2
+        },
+        "resultDescription": "你回头检查，发现第一题少开long long，改过来多得了10分，但这道题0分。"
+      }
+    ]
+  },
+  {
+    "id": "oi_ex_dp_slope_optimization",
+    "phase": "MIDTERM_EXAM",
+    "cfRatingMin": 1600,
+    "cfRatingMax": 1899,
+    "title": "斜率优化之凸壳",
+    "description": "你在学习斜率优化DP，对着《算法竞赛进阶指南》上的维护下凸壳代码抄了一遍，结果连样例都过不了，单调队列里感觉有坑。",
+    "type": "negative",
+    "choices": [
+      {
+        "text": "逐行打印调出错误",
+        "effect": {
+          "oi_dp": 10,
+          "efficiency": -4
+        },
+        "resultDescription": "你发现是分母符号导致斜率比较出错，修正后AC，对凸包的维护有了深层理解。"
+      },
+      {
+        "text": "换一种写法（用双端队列）",
+        "effect": {
+          "oi_dp": 8,
+          "oi_misc": 3
+        },
+        "resultDescription": "你重新实现了一遍，用了结构体封装，代码简洁，终于过了，但浪费了午休时间。"
+      },
+      {
+        "text": "去看洛谷题解的视频",
+        "effect": {
+          "experience": 4,
+          "efficiency": -1
+        },
+        "resultDescription": "你看了半小时视频，发现原来是自己把double比较写成了int，改完AC，但时间紧迫。"
+      }
+    ]
+  },
+  {
+    "id": "oi_ex_math_combination",
+    "phase": "NOIP_EXAM",
+    "cfRatingMin": 1600,
+    "cfRatingMax": 1899,
+    "title": "组合数取模翻车",
+    "description": "NOIP模拟最后一道组合数题，n和m都很大，你自信地用了费马小定理预处理阶乘，但输出全是0，你慌得手心出汗。",
+    "type": "negative",
+    "choices": [
+      {
+        "text": "检查模数是否质数",
+        "effect": {
+          "oi_math": 10,
+          "experience": 2
+        },
+        "resultDescription": "你发现模数不是质数，不能直接逆元，改用Lucas定理后AC，吓出一身冷汗。"
+      },
+      {
+        "text": "用递推公式硬算",
+        "effect": {
+          "oi_math": 3,
+          "efficiency": -8
+        },
+        "resultDescription": "你打算用递推O(nm)算，但n=1e5直接超时，最后时间耗尽，爆零了。"
+      },
+      {
+        "text": "放弃，赌一把写暴力",
+        "effect": {
+          "oi_misc": -2,
+          "luck": 5
+        },
+        "resultDescription": "你写了暴力枚举小数据，结果竟然拿了30分，运气不错。"
+      }
+    ]
+  },
+  {
+    "id": "oi_ex_string_hash_collision",
+    "phase": "SEMESTER_2",
+    "cfRatingMin": 1600,
+    "cfRatingMax": 1899,
+    "title": "哈希碰撞猛如虎",
+    "description": "你用双哈希+map判重字符串，但大样例还是WA了，怀疑哈希冲突，想换用Trie树。",
+    "type": "neutral",
+    "choices": [
+      {
+        "text": "换成Trie树重建代码",
+        "effect": {
+          "oi_string": 12,
+          "efficiency": -7
+        },
+        "resultDescription": "你花了一下午把哈希改成了Trie，代码长了三倍，但稳稳AC，再也不用担心碰撞了。"
+      },
+      {
+        "text": "改用3个模数+随机种子",
+        "effect": {
+          "oi_string": 6,
+          "efficiency": -2
+        },
+        "resultDescription": "你加了第三个模数和随机种子，碰撞概率极低，成功AC，但心里还是不放心。"
+      },
+      {
+        "text": "用set存字符串，暴力比较",
+        "effect": {
+          "oi_string": -5,
+          "luck": -3
+        },
+        "resultDescription": "你直接交了set，不出所料MLE+超时，后悔没好好学哈希。"
+      }
+    ]
+  },
+  {
+    "id": "oi_ex_csp_s_contest",
+    "phase": "CSP_EXAM",
+    "cfRatingMin": 1600,
+    "cfRatingMax": 1899,
+    "title": "CSP-S第三题博弈",
+    "description": "CSP-S赛场上，你遇到一道博弈论+DP的题目，样例过了，但自己构造的数据总是错，你开始怀疑dp转移方程。",
+    "type": "positive",
+    "choices": [
+      {
+        "text": "重新推导sg函数",
+        "effect": {
+          "oi_math": 12,
+          "oi_dp": 8,
+          "experience": 5
+        },
+        "resultDescription": "你冷静下来，发现其实不是sg函数，而是min-max对抗搜索，推对了方程，最终AC，靠这题进了省一。"
+      },
+      {
+        "text": "暴力打表找规律",
+        "effect": {
+          "oi_misc": 6,
+          "efficiency": 3
+        },
+        "resultDescription": "你写了暴力搜索小数据，发现了周期规律，直接输出答案，拿了80分，还不错。"
+      },
+      {
+        "text": "放弃，回头检查前两题",
+        "effect": {
+          "experience": 4,
+          "luck": -5
+        },
+        "resultDescription": "你检查后发现前两题没出错，但第三题只拿了10分，总分差一点。"
+      }
+    ]
+  },
+  {
+    "id": "oi_ex_noip_preparation",
+    "phase": "NOIP_EXAM",
+    "cfRatingMin": 1600,
+    "cfRatingMax": 1899,
+    "title": "NOIP前夕的焦虑",
+    "description": "距离NOIP还有一周，你发现自己的图论和字符串很薄弱，而身边的神犇已经在刷3000分题了，你感到不知所措。",
+    "type": "negative",
+    "choices": [
+      {
+        "text": "专攻最薄弱板块（图论）",
+        "effect": {
+          "oi_graph": 15,
+          "health": -5
+        },
+        "resultDescription": "你连续三天熬夜刷最短路径、差分约束和网络流，图论能力飙升，但身体快撑不住了。"
+      },
+      {
+        "text": "做几套真题保持手感",
+        "effect": {
+          "experience": 8,
+          "oi_misc": 4
+        },
+        "resultDescription": "你做了近三年NOIP真题，熟悉了出题风格，心态稳定了很多。"
+      },
+      {
+        "text": "跟好友一起复习讨论",
+        "effect": {
+          "oi_graph": 5,
+          "oi_string": 5,
+          "health": 3
+        },
+        "resultDescription": "你和朋友互相讲题，查漏补缺，还不时摸鱼玩会儿游戏，压力小了不少。"
+      }
+    ]
+  },
+  {
+    "id": "oi_ex_code_review",
+    "phase": "SUMMER",
+    "cfRatingMin": 1600,
+    "cfRatingMax": 1899,
+    "title": "被学长Code Review",
+    "description": "你在机房把一段AC代码给学长看，学长皱着眉头说你的变量名太随意，甚至有个函数写了200行，建议你重构。",
+    "type": "positive",
+    "choices": [
+      {
+        "text": "虚心接受，花时间重构",
+        "effect": {
+          "oi_misc": 8,
+          "efficiency": 5
+        },
+        "resultDescription": "你按照学长建议拆分成小函数，加了注释，代码可读性大大提高，调试速度也快了。"
+      },
+      {
+        "text": "嘴上答应，实则不改",
+        "effect": {
+          "experience": -2,
+          "luck": -3
+        },
+        "resultDescription": "你表面同意，但回去后继续用原来的一坨代码，后来赛时调试超时，后悔不已。"
+      },
+      {
+        "text": "跟学长讨论更优解",
+        "effect": {
+          "oi_dp": 5,
+          "oi_graph": 5
+        },
+        "resultDescription": "你们讨论着发现题目还有更优的树链剖分解法，你学到了新东西，重构同时顺便优化了算法。"
+      }
+    ]
+  },
+  {
+    "id": "oi_ex_contest_time_management",
+    "phase": "CSP_EXAM",
+    "cfRatingMin": 1600,
+    "cfRatingMax": 1899,
+    "title": "比赛时间分配翻车",
+    "description": "你在一场4小时的CF Div.2中，第一道C题花了1.5小时还没调出来，后面还有D和E没看，你开始深呼吸。",
+    "type": "neutral",
+    "choices": [
+      {
+        "text": "果断跳过C，做D和E",
+        "effect": {
+          "experience": 6,
+          "oi_misc": 5
+        },
+        "resultDescription": "你写D题时发现是经典二分+贪心，半小时AC，又看了E题拿部分分，最终排名比硬刚C高了不少。"
+      },
+      {
+        "text": "再给C半小时，不行就跳",
+        "effect": {
+          "efficiency": -3,
+          "luck": 3
+        },
+        "resultDescription": "你多花半小时发现了输出格式的小bug，修好后AC了C，但D和E没时间了，总分中等。"
+      },
+      {
+        "text": "直接全部暴力拿部分分",
+        "effect": {
+          "oi_misc": -5,
+          "experience": 2
+        },
+        "resultDescription": "你暴力写了几个小数据，最后总分很低，但至少没爆零。"
+      }
+    ]
+  },
+  {
+    "id": "oi_ex_luogu_rating",
+    "phase": "SUMMER",
+    "cfRatingMin": 1600,
+    "cfRatingMax": 1899,
+    "title": "洛谷Ranking下滑",
+    "description": "你发现洛谷个人主页的评分从蓝掉到了绿，因为你最近一直在刷水题，没有提升难度，你感到有点沮丧。",
+    "type": "negative",
+    "choices": [
+      {
+        "text": "刷几道黄/紫题提分",
+        "effect": {
+          "oi_dp": 8,
+          "oi_ds": 8,
+          "experience": 4
+        },
+        "resultDescription": "你挑了三道紫题，磕掉后rating回升，还学到了树剖和平衡树，一举两得。"
+      },
+      {
+        "text": "不管rating，继续刷板子",
+        "effect": {
+          "oi_ds": 5,
+          "experience": -2
+        },
+        "resultDescription": "你坚持刷基础题，基础更扎实了，但rating依然在掉，心态有点崩。"
+      },
+      {
+        "text": "去CF打一场找回自信",
+        "effect": {
+          "oi_misc": 6,
+          "health": -4
+        },
+        "resultDescription": "你熬夜打了一场CF，rating加了不少，但第二天上课状态很差。"
+      }
+    ]
+  },
+  {
+    "id": "oi_ex_atcoder_problem",
+    "phase": "MIDTERM_EXAM",
+    "cfRatingMin": 1600,
+    "cfRatingMax": 1899,
+    "title": "AtCoder ABC的F题",
+    "description": "你在AtCoder ABC上做F题，是带mod的计数DP，你算错了取模，WA了两次，旁边的同学已经AK离场。",
+    "type": "negative",
+    "choices": [
+      {
+        "text": "检查取模和long long",
+        "effect": {
+          "oi_math": 6,
+          "experience": 3
+        },
+        "resultDescription": "你发现有个减法忘记加mod，修完后AC，但排名已经靠后，不过学到了教训。"
+      },
+      {
+        "text": "重新读题，可能理解有误",
+        "effect": {
+          "oi_misc": 8,
+          "efficiency": -3
+        },
+        "resultDescription": "你仔细读题发现题目要求的是组合数而非排列数，改后AC，恍然大悟。"
+      },
+      {
+        "text": "放弃去看题解",
+        "effect": {
+          "oi_dp": 3,
+          "luck": -5
+        },
+        "resultDescription": "你看了题解后表示懂了，但下次遇到类似题还是不会，依赖题解成为习惯。"
+      }
+    ]
+  },
+  {
+    "id": "oi_ex_oi_coach",
+    "phase": "SEMESTER_2",
+    "cfRatingMin": 1600,
+    "cfRatingMax": 1899,
+    "title": "跟教练争论算法优劣",
+    "description": "教练在讲一道最短路题，说SPFA已经死了，但你认为在负权图上只能用SPFA，两人争执了起来。",
+    "type": "positive",
+    "choices": [
+      {
+        "text": "坚持己见，课后找资料",
+        "effect": {
+          "oi_graph": 10,
+          "experience": 5
+        },
+        "resultDescription": "你查论文发现有一种优化的Bellman-Ford在竞赛中更稳定，跟教练讨论后两人都受益了。"
+      },
+      {
+        "text": "认怂，听教练的",
+        "effect": {
+          "oi_graph": 2,
+          "oi_misc": -3
+        },
+        "resultDescription": "你表面接受，但心里不服，后来在比赛中吃了SPFA的亏，才明白教练是对的。"
+      },
+      {
+        "text": "提议做性能测试",
+        "effect": {
+          "oi_graph": 8,
+          "oi_misc": 4
+        },
+        "resultDescription": "你和教练一起在随机图上测试了SPFA和Dijkstra+势能，结果发现SPFA确实容易卡，从此你彻底摒弃SPFA。"
+      }
+    ]
+  },
+  {
+    "id": "oi_ex_class_miss",
+    "phase": "MIDTERM_EXAM",
+    "cfRatingMin": 1600,
+    "cfRatingMax": 1899,
+    "title": "打CF导致课堂摸鱼",
+    "description": "你昨晚熬夜打了CF教育场，今天数学课直接睡着，被老师提问时一脸懵逼，同学都在偷笑。",
+    "type": "negative",
+    "choices": [
+      {
+        "text": "诚恳道歉，课后补数学",
+        "effect": {
+          "health": -2,
+          "experience": 5
+        },
+        "resultDescription": "老师看在你态度好没追究，你下课后猛补数学，期末数学成绩居然没掉。"
+      },
+      {
+        "text": "强装清醒瞎回答",
+        "effect": {
+          "luck": -3,
+          "experience": -2
+        },
+        "resultDescription": "你胡乱回答惹哄堂大笑，被罚站一节课，晚上又被班主任约谈，影响心情。"
+      },
+      {
+        "text": "跟老师解释OI训练",
+        "effect": {
+          "experience": 3,
+          "mindset": 5
+        },
+        "resultDescription": "老师理解你备赛辛苦，允许你上课补觉但要在作业上弥补，你心生感激。"
+      }
+    ]
+  },
+  {
+    "id": "oi_ex_team_contest",
+    "phase": "SEMESTER_1",
+    "cfRatingMin": 1600,
+    "cfRatingMax": 1899,
+    "title": "组队赛队友摆烂",
+    "description": "你和两个队友参加ICPC网络模拟赛，其中一人全程划水，另一人代码风格狂野，你夹在中间痛苦不堪。",
+    "type": "negative",
+    "choices": [
+      {
+        "text": "主动扛起Coding大旗",
+        "effect": {
+          "oi_misc": 10,
+          "health": -6
+        },
+        "resultDescription": "你一个人写了三题的代码，累得半死但排名还不错，之后你决定下次好好选队友。"
+      },
+      {
+        "text": "督促划水队友干活",
+        "effect": {
+          "experience": 3,
+          "luck": -2
+        },
+        "resultDescription": "队友不情不愿地做了一题，但bug百出，debug占用大量时间，成绩一般。"
+      },
+      {
+        "text": "赛后开喷，分道扬镳",
+        "effect": {
+          "experience": -5,
+          "mindset": 2
+        },
+        "resultDescription": "你发泄了一通，但得罪了同学，之后机房气氛尴尬，你选择单飞。"
+      }
+    ]
+  },
+  {
+    "id": "oi_ex_library_study",
+    "phase": "WINTER",
+    "cfRatingMin": 1600,
+    "cfRatingMax": 1899,
+    "title": "图书馆自习遇大神",
+    "description": "你在图书馆啃《算法竞赛入门经典》，旁边坐着一个退役OIer，他看你卡在一道DP题上，主动过来指点你。",
+    "type": "positive",
+    "choices": [
+      {
+        "text": "虚心请教，记下笔记",
+        "effect": {
+          "oi_dp": 12,
+          "experience": 6
+        },
+        "resultDescription": "大神给你讲了DP优化的几种套路，还留了联系方式，你感觉打通了任督二脉。"
+      },
+      {
+        "text": "礼貌拒绝，自己研究",
+        "effect": {
+          "oi_dp": 3,
+          "efficiency": -3
+        },
+        "resultDescription": "你逞强自己琢磨了两个小时，虽然也懂了，但效率低，错过了和大神交流的机会。"
+      },
+      {
+        "text": "跟他交换题目经验",
+        "effect": {
+          "oi_dp": 8,
+          "oi_graph": 6
+        },
+        "resultDescription": "你们互相分享了一些神题，你学到了网络流建模的技巧，他也对你的搜索思路感兴趣。"
+      }
+    ]
+  },
+  {
+    "id": "oi_ex_sleep_after_contest",
+    "phase": "CSP_EXAM",
+    "cfRatingMin": 1600,
+    "cfRatingMax": 1899,
+    "title": "赛后虚脱狂补觉",
+    "description": "CSP-S第一天结束，你为了备战第二天，晚上喝了三杯咖啡强行刷题，结果躺在床上翻来覆去睡不着。",
+    "type": "negative",
+    "choices": [
+      {
+        "text": "起来做点放松活动",
+        "effect": {
+          "health": 5,
+          "efficiency": -2
+        },
+        "resultDescription": "你听了半小时轻音乐，做了眼保健操，终于睡着，第二天精神稍好。"
+      },
+      {
+        "text": "继续刷题到天亮",
+        "effect": {
+          "oi_misc": 5,
+          "health": -12,
+          "luck": -5
+        },
+        "resultDescription": "你通宵刷了几道模板题，第二天比赛中睡着了，发挥失常，后悔莫及。"
+      },
+      {
+        "text": "吃助眠药强行入睡",
+        "effect": {
+          "health": 2,
+          "luck": -2
+        },
+        "resultDescription": "你吃了半片褪黑素，终于睡着，但第二天头有点晕，不过勉强撑住了。"
+      }
+    ]
+  },
+  {
+    "id": "oi_ex_breakthrough",
+    "phase": "NOIP_EXAM",
+    "cfRatingMin": 1600,
+    "cfRatingMax": 1899,
+    "title": "突破瓶颈的瞬间",
+    "description": "你一直对动态DP（DDP）感到畏惧，但在某天放学后，你盯着矩阵乘法发呆时，突然理解了如何用线段树维护DP转移。",
+    "type": "positive",
+    "choices": [
+      {
+        "text": "立刻写下AC代码",
+        "effect": {
+          "oi_dp": 15,
+          "oi_ds": 10,
+          "experience": 8
+        },
+        "resultDescription": "你成功AC了一道DDP模板题，从此对动态DP豁然开朗，信心大增。"
+      },
+      {
+        "text": "跟好朋友分享思路",
+        "effect": {
+          "oi_dp": 8,
+          "oi_misc": 5
+        },
+        "resultDescription": "你拉着朋友讲了一遍，发现对方也听懂了，两人一起进步，还讨论了变种。"
+      },
+      {
+        "text": "再刷五道相关题巩固",
+        "effect": {
+          "oi_dp": 12,
+          "oi_ds": 8,
+          "health": -3
+        },
+        "resultDescription": "你趁热打铁连刷五题，手速和思维都上了一个台阶，但脖子酸得不行。"
+      }
+    ]
+  },
+  {
+    "id": "oi_cm_constant_optimization",
+    "phase": "SUMMER",
+    "cfRatingMin": 1900,
+    "cfRatingMax": 2099,
+    "title": "卡常调参的一夜",
+    "description": "你在洛谷交了一道紫题，本以为算法复杂度没问题，结果TLE了三个点。你猜到是常数太大，开始疯狂优化：把STL换成手写、循环展开、加register、改数组顺序……现在你盯着评测机的黄色条，心里默念“快点啊”。",
+    "type": "neutral",
+    "choices": [
+      {
+        "text": "继续硬调，用汇编优化",
+        "effect": {
+          "oi_misc": 5,
+          "health": -10,
+          "experience": 5
+        },
+        "resultDescription": "你甚至用内联汇编重写了核心循环，评测机绿了！但你的头发也掉了好几根，第二天上课直接梦游。"
+      },
+      {
+        "text": "换成更高效的算法",
+        "effect": {
+          "oi_ds": 8,
+          "oi_dp": 5,
+          "efficiency": 5
+        },
+        "resultDescription": "你重新审视题目，发现可以用分块代替线段树，复杂度降了一个log，AC后神清气爽。"
+      },
+      {
+        "text": "认输，去看题解",
+        "effect": {
+          "luck": -5,
+          "experience": 2,
+          "mindset": -3
+        },
+        "resultDescription": "看了题解才发现，原来正解是O(n)的贪心，你后悔没早想清楚，但学到了新思路。"
+      },
+      {
+        "text": "放弃这道题，先搞别的",
+        "effect": {
+          "health": 5,
+          "efficiency": 3,
+          "oi_misc": -3
+        },
+        "resultDescription": "你保存代码去刷水题放松，效率高了不少，但心里总惦记着那道紫题。"
+      }
+    ]
+  },
+  {
+    "id": "oi_cm_link_cut_tree",
+    "phase": "SUMMER",
+    "cfRatingMin": 1900,
+    "cfRatingMax": 2099,
+    "title": "LCT入门之痛",
+    "description": "你终于决定攻克Link-Cut Tree，打开了洛谷P3690。看了三篇博客，手敲了一遍模板，结果RE到怀疑人生。你的脑细胞和AC代码之间仿佛隔了一个森林。",
+    "type": "negative",
+    "choices": [
+      {
+        "text": "逐行debug，开对拍",
+        "effect": {
+          "oi_ds": 10,
+          "oi_misc": 5,
+          "health": -3
+        },
+        "resultDescription": "你在小数据上手动模拟，发现是splay的rotate写反了，修改后终于过了模板题，开心到飞起。"
+      },
+      {
+        "text": "去B站看视频讲解",
+        "effect": {
+          "oi_ds": 5,
+          "experience": 3,
+          "efficiency": 5
+        },
+        "resultDescription": "看了半小时动画演示，你突然理解了access操作的本质，代码也很快调通了。"
+      },
+      {
+        "text": "先放放，过两天再来",
+        "effect": {
+          "health": 5,
+          "oi_ds": -3,
+          "luck": -2
+        },
+        "resultDescription": "两天后你回来时已经忘了一半，又得从头学，浪费了时间。"
+      }
+    ]
+  },
+  {
+    "id": "oi_cm_cf_div1_attempt",
+    "phase": "MIDTERM_EXAM",
+    "cfRatingMin": 1900,
+    "cfRatingMax": 2099,
+    "title": "冲击Div.1的勇气",
+    "description": "你的CF rating已经2099，再打一场就能上Candidate Master。你看到今晚有一场Div.1，心一横报了名。比赛开始，A题是2100分的交互题，你有点慌。",
+    "type": "positive",
+    "choices": [
+      {
+        "text": "稳扎稳打，先写暴力找规律",
+        "effect": {
+          "oi_misc": 8,
+          "mindset": 5,
+          "oi_dp": 3
+        },
+        "resultDescription": "你花15分钟猜出了交互策略，A题一遍过，信心大增。"
+      },
+      {
+        "text": "直接猜结论，赌一把",
+        "effect": {
+          "luck": 8,
+          "health": -5,
+          "oi_ds": -2
+        },
+        "resultDescription": "你蒙了一个看起来对的输出，竟然AC了，但心跳加速，后面答题手都在抖。"
+      },
+      {
+        "text": "先看B题，回头再想A",
+        "effect": {
+          "oi_string": 5,
+          "experience": 5,
+          "efficiency": 3
+        },
+        "resultDescription": "B题是字符串哈希，你很快秒掉，再回头看A时思路更清晰，也顺利AC了。"
+      }
+    ]
+  },
+  {
+    "id": "oi_cm_provincial_select_sim",
+    "phase": "SUMMER",
+    "cfRatingMin": 1900,
+    "cfRatingMax": 2099,
+    "title": "省选模拟的滑铁卢",
+    "description": "学校组织了一场省选模拟赛，全场180分钟三道题。你发现自己第二题（树剖+线段树）只会暴力，第三题（毒瘤DP）毫无头绪。时间过半，你看着第一题的满分和后面的空白，血压升高。",
+    "type": "negative",
+    "choices": [
+      {
+        "text": "先保第二题部分分",
+        "effect": {
+          "oi_ds": 5,
+          "oi_dp": -3,
+          "mindset": -5
+        },
+        "resultDescription": "你写了30分的树上差分部分分，但第三题完全放弃，总分不高，排名中游。"
+      },
+      {
+        "text": "死磕第三题到结束",
+        "effect": {
+          "oi_dp": 8,
+          "health": -8,
+          "experience": 2
+        },
+        "resultDescription": "你花费2小时推出第三题的状态转移，但最后10分钟没写完代码，草草交了暴力，心态崩了。"
+      },
+      {
+        "text": "放弃第二题，专攻第三题",
+        "effect": {
+          "oi_dp": 10,
+          "oi_ds": -5,
+          "luck": -3
+        },
+        "resultDescription": "你放弃第二题部分分，全力冲第三题，结果写出来了60分DP，但第二题0分，总分离预期差一截。"
+      }
+    ]
+  },
+  {
+    "id": "oi_cm_luogu_water_post",
+    "phase": "SEMESTER_1",
+    "cfRatingMin": 1900,
+    "cfRatingMax": 2099,
+    "title": "犇犇上的膜拜风波",
+    "description": "你在洛谷犇犇上发了一条“今天切了紫题，开心”（附代码截图），结果引来一堆萌新“Orz”，也有同段位的oier质疑你的做法不够优。你有点不爽，想回怼。",
+    "type": "neutral",
+    "choices": [
+      {
+        "text": "耐心回复，讲解优化思路",
+        "effect": {
+          "oi_misc": 5,
+          "mindset": 5,
+          "oi_ds": 3
+        },
+        "resultDescription": "你详细解释了为什么自己的做法是当前最优，对方豁然开朗，你多了个粉丝。"
+      },
+      {
+        "text": "开喷“你行你上”",
+        "effect": {
+          "mindset": -8,
+          "health": -3,
+          "luck": -5
+        },
+        "resultDescription": "你被管理员警告，帖子被删，心情差了一整天。"
+      },
+      {
+        "text": "悄悄删帖，当无事发生",
+        "effect": {
+          "experience": 2,
+          "health": 5,
+          "oi_misc": -3
+        },
+        "resultDescription": "你删帖后继续刷题，眼不见为净，但心里还是有点憋屈。"
+      }
+    ]
+  },
+  {
+    "id": "oi_cm_purple_problem_solved",
+    "phase": "MIDTERM_EXAM",
+    "cfRatingMin": 1900,
+    "cfRatingMax": 2099,
+    "title": "紫题首杀纪念",
+    "description": "你盯了洛谷P3225（紫题）三天，终于用树形DP关掉了这道题。评测机绿了的一瞬间，你激动得想嚎叫，但旁边是正在自习的同学。",
+    "type": "positive",
+    "choices": [
+      {
+        "text": "偷偷在桌下握拳庆祝",
+        "effect": {
+          "oi_dp": 10,
+          "mindset": 8,
+          "luck": 3
+        },
+        "resultDescription": "你压制住兴奋，在草稿纸上画了个笑脸，接下来的课都听得特别认真。"
+      },
+      {
+        "text": "当即去犇犇吹水",
+        "effect": {
+          "oi_misc": 3,
+          "health": -5,
+          "efficiency": -5
+        },
+        "resultDescription": "你在犇犇上发帖炫耀，引来一群膜拜，但浪费了下午的黄金刷题时间。"
+      },
+      {
+        "text": "继续刷下一道紫题",
+        "effect": {
+          "oi_ds": 5,
+          "oi_dp": 5,
+          "health": -3
+        },
+        "resultDescription": "你趁热打铁，又找了一道紫题开始啃，但晚上困得不行。"
+      }
+    ]
+  },
+  {
+    "id": "oi_cm_provincial_top_discussion",
+    "phase": "NOIP_EXAM",
+    "cfRatingMin": 1900,
+    "cfRatingMax": 2099,
+    "title": "与省队大佬的交流",
+    "description": "你偶遇了省队rank1的大佬，他看你正在做后缀自动机，主动过来聊了两句。你紧张得手心出汗，不知道说什么好。",
+    "type": "positive",
+    "choices": [
+      {
+        "text": "虚心请教SAM的套路",
+        "effect": {
+          "oi_string": 12,
+          "experience": 5,
+          "mindset": 3
+        },
+        "resultDescription": "大佬给你画了张图，讲了几个经典应用，你茅塞顿开，还加了他的QQ。"
+      },
+      {
+        "text": "吹捧大佬，求带飞",
+        "effect": {
+          "luck": 5,
+          "oi_misc": -3,
+          "mindset": 2
+        },
+        "resultDescription": "大佬礼貌地笑了笑，说“好好练吧”，然后走了，你有点尴尬但得到了动力。"
+      },
+      {
+        "text": "装大佬，讨论深层技巧",
+        "effect": {
+          "oi_ds": 8,
+          "mindset": -5,
+          "health": -2
+        },
+        "resultDescription": "你强撑着讨论了一些高深话题，但被问倒了一个细节，大佬微微一笑，你暗下决心要补短板。"
+      }
+    ]
+  },
+  {
+    "id": "oi_cm_noip_preparation_plan",
+    "phase": "NOIP_EXAM",
+    "cfRatingMin": 1900,
+    "cfRatingMax": 2099,
+    "title": "NOIP前的复习抉择",
+    "description": "距NOIP只剩两周，你发现自己的弱项——计数DP和min-max容斥还没搞定。是选择刷专项题单，还是打几场模拟赛找手感？",
+    "type": "neutral",
+    "choices": [
+      {
+        "text": "刷10道计数DP巩固",
+        "effect": {
+          "oi_dp": 10,
+          "oi_math": 5,
+          "efficiency": 3
+        },
+        "resultDescription": "你刷了专题，终于搞懂了容斥原理的套路，模拟赛里碰到类似题直接秒杀。"
+      },
+      {
+        "text": "打三场CF模拟赛",
+        "effect": {
+          "oi_misc": 8,
+          "mindset": 3,
+          "health": -5
+        },
+        "resultDescription": "你打了三场，rating涨了，但发现弱项还是没补，有点焦虑。"
+      },
+      {
+        "text": "劳逸结合，调整状态",
+        "effect": {
+          "health": 10,
+          "mindset": 5,
+          "oi_dp": -3
+        },
+        "resultDescription": "你早睡早起跑步，状态好了，但做题量减少，心里没底。"
+      }
+    ]
+  },
+  {
+    "id": "oi_cm_atcoder_abc_advance",
+    "phase": "WINTER",
+    "cfRatingMin": 1900,
+    "cfRatingMax": 2099,
+    "title": "AtCoder ABC的冲击",
+    "description": "你参加了AtCoder Beginner Contest，发现最后两题难度跃升，接近一般ARC。你卡在E题（图论+DP）上，暴力只能过一半。时间还剩30分钟。",
+    "type": "negative",
+    "choices": [
+      {
+        "text": "冲F题，放弃E",
+        "effect": {
+          "oi_graph": 5,
+          "oi_dp": -3,
+          "luck": -5
+        },
+        "resultDescription": "你看了F题，是数学题，但最后没推出来，E和F都没分，rating掉。"
+      },
+      {
+        "text": "优化E题部分分",
+        "effect": {
+          "oi_dp": 8,
+          "oi_misc": 3,
+          "health": -2
+        },
+        "resultDescription": "你写了一个剪枝+记忆化，过了80%数据，得到不错分数，弥补了rating下滑。"
+      },
+      {
+        "text": "看E题题解，硬抄",
+        "effect": {
+          "experience": -5,
+          "oi_dp": 2,
+          "mindset": -3
+        },
+        "resultDescription": "你百度到了思路，强行写出来，但没理解透，比赛中ac，赛后却发现很多细节不会。"
+      }
+    ]
+  },
+  {
+    "id": "oi_cm_afo_thoughts",
+    "phase": "MIDTERM_EXAM",
+    "cfRatingMin": 1900,
+    "cfRatingMax": 2099,
+    "title": "AFO的念头闪过",
+    "description": "连续几次模拟赛都爆零，你心理压力极大，觉得再努力也进不了省队，甚至想AFO回去搞文化课。你坐在机房最后一排，看着窗外的天空发呆。",
+    "type": "negative",
+    "choices": [
+      {
+        "text": "逼自己再战一场",
+        "effect": {
+          "mindset": -10,
+          "health": -5,
+          "oi_misc": 5
+        },
+        "resultDescription": "你硬撑着打完一场CF，血崩掉分，情绪彻底崩溃，请了三天假。"
+      },
+      {
+        "text": "找教练谈心",
+        "effect": {
+          "mindset": 10,
+          "experience": 5,
+          "luck": 3
+        },
+        "resultDescription": "教练用自己当年的经历安慰你，并帮你分析了问题，你重燃希望，决定调整策略。"
+      },
+      {
+        "text": "暂时离开OI，休息一周",
+        "effect": {
+          "health": 10,
+          "mindset": 8,
+          "oi_dp": -5
+        },
+        "resultDescription": "你回班级上课、打球，一周后再回到机房，发现状态好多了，做题思路也清晰了。"
+      }
+    ]
+  },
+  {
+    "id": "oi_cm_cultural_balance",
+    "phase": "MIDTERM_EXAM",
+    "cfRatingMin": 1900,
+    "cfRatingMax": 2099,
+    "title": "文化课与OI的修罗场",
+    "description": "期中考试后，你的数学物理成绩掉到了班级中游，班主任找你谈话，暗示你如果OI再不出成绩，就得退出竞赛班。你面临两难选择。",
+    "type": "negative",
+    "choices": [
+      {
+        "text": "缩减OI时间，补文化课",
+        "effect": {
+          "oi_misc": -10,
+          "oi_dp": -5,
+          "health": 5
+        },
+        "resultDescription": "你每天只刷1道题，文化课成绩回升，但OI手感生疏，模拟赛生无可恋。"
+      },
+      {
+        "text": "跟班主任立军令状",
+        "effect": {
+          "mindset": 8,
+          "oi_ds": 5,
+          "luck": -3
+        },
+        "resultDescription": "你保证下次模考数学进前10，同时OI拿省一。你压力山大，但动力十足。"
+      },
+      {
+        "text": "先放文化课，全力冲NOIP",
+        "effect": {
+          "oi_misc": 10,
+          "health": -10,
+          "mindset": -5
+        },
+        "resultDescription": "你每天刷题到凌晨，文化课成绩继续下滑，但OI水平突飞猛进，成功拿到省一等奖。"
+      }
+    ]
+  },
+  {
+    "id": "oi_cm_python_TLE",
+    "phase": "SEMESTER_1",
+    "cfRatingMin": 1900,
+    "cfRatingMax": 2099,
+    "title": "用Python写题被卡常",
+    "description": "你在Codeforces上切一道1900分的图论题，用Python写了优雅的代码，结果被TLE到怀疑人生。你发现C++只需要1/10的时间，气得想砸键盘。",
+    "type": "negative",
+    "choices": [
+      {
+        "text": "重写C++版",
+        "effect": {
+          "oi_graph": 5,
+          "oi_ds": 3,
+          "experience": 5
+        },
+        "resultDescription": "你花半小时翻译成C++，提交AC，心情转好，但意识到Python在竞赛中的劣势。"
+      },
+      {
+        "text": "用PyPy优化试试",
+        "effect": {
+          "oi_misc": 3,
+          "luck": -3,
+          "health": -2
+        },
+        "resultDescription": "你换成PyPy，再加上各种输入优化，还是TLE，浪费了一个小时。"
+      },
+      {
+        "text": "放弃这道题，换简单题",
+        "effect": {
+          "health": 5,
+          "oi_dp": -2,
+          "mindset": -5
+        },
+        "resultDescription": "你换了一道1500分的题，秒掉，但心情依然郁闷，对Python失去了信心。"
+      }
+    ]
+  },
+  {
+    "id": "oi_cm_randomized_algorithm",
+    "phase": "SEMESTER_2",
+    "cfRatingMin": 1900,
+    "cfRatingMax": 2099,
+    "title": "乱搞算法的奇效",
+    "description": "你遇到一道构造题，想了半小时没有正解思路。你试着写了一个随机化贪心，竟然在CF上过了pretest！你忍不住笑出声。",
+    "type": "positive",
+    "choices": [
+      {
+        "text": "提交，祈祷system test",
+        "effect": {
+          "luck": 10,
+          "oi_misc": 3,
+          "mindset": 5
+        },
+        "resultDescription": "System test奇迹般地全绿，你靠随机化涨了rating，还发帖分享“玄学算法”。"
+      },
+      {
+        "text": "再优化随机策略",
+        "effect": {
+          "oi_misc": 8,
+          "oi_ds": 3,
+          "health": -3
+        },
+        "resultDescription": "你加入了模拟退火，结果反而变慢了，pretest超时，你后悔没直接交。"
+      },
+      {
+        "text": "尝试写出确定性算法",
+        "effect": {
+          "oi_dp": 5,
+          "oi_math": 5,
+          "efficiency": -5
+        },
+        "resultDescription": "你花了2小时推导出贪心证明，但写出来发现不如随机化好，又改回去了。"
+      }
+    ]
+  },
+  {
+    "id": "oi_cm_team_selection_training",
+    "phase": "SEMESTER_2",
+    "cfRatingMin": 1900,
+    "cfRatingMax": 2099,
+    "title": "集训队选拔模拟",
+    "description": "学校内部选拔省队集训队名额，你和另一位神犇分数并列，需要加赛一场。你和他在机房对视一眼，空气中弥漫着火药味。",
+    "type": "neutral",
+    "choices": [
+      {
+        "text": "闭目养神，保持心态",
+        "effect": {
+          "mindset": 8,
+          "health": 3,
+          "luck": 2
+        },
+        "resultDescription": "你以平稳心态开打，发挥正常，险胜对方入选。"
+      },
+      {
+        "text": "偷偷看他写的代码",
+        "effect": {
+          "luck": -10,
+          "mindset": -8,
+          "oi_ds": 3
+        },
+        "resultDescription": "你偷偷看了他屏幕，发现他在做另一道题，心里乱了阵脚，做题节奏被打乱，最终落选。"
+      },
+      {
+        "text": "开赛后全力输出",
+        "effect": {
+          "oi_misc": 10,
+          "health": -5,
+          "experience": 5
+        },
+        "resultDescription": "你三题全写，但第二题有个bug没调出来，总分略低，遗憾落败。"
+      }
+    ]
+  },
+  {
+    "id": "oi_cm_debug_with_duipai",
+    "phase": "SEMESTER_2",
+    "cfRatingMin": 1900,
+    "cfRatingMax": 2099,
+    "title": "对拍器捉虫记",
+    "description": "你写了一道洛谷黑题（SDOI2010），但样例过了却总WA。你写了一个对拍器（暴力+随机数据），跑了半小时，终于发现是莫队排序的关键字顺序错了。",
+    "type": "positive",
+    "choices": [
+      {
+        "text": "修复后AC，爽！",
+        "effect": {
+          "oi_ds": 10,
+          "oi_misc": 5,
+          "mindset": 8
+        },
+        "resultDescription": "你提交后AC，感觉对拍器真是debug神器，以后再也不怕WA了。"
+      },
+      {
+        "text": "研究更深层原因",
+        "effect": {
+          "oi_math": 5,
+          "oi_dp": 3,
+          "health": -5
+        },
+        "resultDescription": "你发现是因为排序时用了全局变量导致混乱，深入理解了莫队原理，但熬夜到2点。"
+      },
+      {
+        "text": "发帖炫耀对拍技巧",
+        "effect": {
+          "oi_misc": 3,
+          "experience": 2,
+          "efficiency": -3
+        },
+        "resultDescription": "你在洛谷发帖，收到了不少赞，但也有人指出你的对拍脚本有bug，尴尬。"
+      }
+    ]
+  },
+  {
+    "id": "oi_cm_original_problem_encounter",
+    "phase": "NOIP_EXAM",
+    "cfRatingMin": 1900,
+    "cfRatingMax": 2099,
+    "title": "NOIP遇到原题了",
+    "description": "NOIP第一天第二题，你一看题目描述就蒙了——这不是你上周在洛谷刷过的黑题吗？连样例都一样！你心跳加速，握笔的手微微颤抖。",
+    "type": "positive",
+    "choices": [
+      {
+        "text": "冷静写代码，确保无误",
+        "effect": {
+          "oi_dp": 8,
+          "oi_ds": 5,
+          "mindset": 5
+        },
+        "resultDescription": "你凭借记忆写出正解，一遍AC，心里暗爽，下午的题也充满信心。"
+      },
+      {
+        "text": "快速写完，检查其他题",
+        "effect": {
+          "oi_misc": 5,
+          "efficiency": 10,
+          "health": -3
+        },
+        "resultDescription": "你10分钟写完，用剩余时间攻克第三题，最终总分爆表。"
+      },
+      {
+        "text": "担心是陷阱，反复验证",
+        "effect": {
+          "experience": 3,
+          "oi_ds": -2,
+          "luck": -5
+        },
+        "resultDescription": "你怀疑有坑，花太多时间验证，导致后面时间不足，遗憾。"
+      }
+    ]
+  },
+  {
+    "id": "oi_cm_generating_function_intro",
+    "phase": "SUMMER",
+    "cfRatingMin": 1900,
+    "cfRatingMax": 2099,
+    "title": "生成函数入门之壁",
+    "description": "你听说生成函数是省选必备，打开《具体数学》开始啃。看到形式幂级数、卷积，你感觉脑子要炸了。你合上书，决定先刷基础题。",
+    "type": "neutral",
+    "choices": [
+      {
+        "text": "先做几道生成函数入门题",
+        "effect": {
+          "oi_math": 10,
+          "oi_dp": 5,
+          "health": -2
+        },
+        "resultDescription": "你从斐波那契数列生成函数做起，慢慢理解了，再做两道题巩固，感觉打开了新世界。"
+      },
+      {
+        "text": "放弃，先搞多项式",
+        "effect": {
+          "oi_math": 3,
+          "oi_ds": 5,
+          "experience": 3
+        },
+        "resultDescription": "你转去学FFT/NTT，发现生成函数和多项式紧密结合，后来再返回学就简单了。"
+      },
+      {
+        "text": "死磕数学推导",
+        "effect": {
+          "oi_math": 8,
+          "mindset": -10,
+          "health": -8
+        },
+        "resultDescription": "你啃了三天书，推导从入门到入土，最后懂了，但也累垮了。"
+      }
+    ]
+  },
+  {
+    "id": "oi_cm_dp_quadrangle_inequality",
+    "phase": "MIDTERM_EXAM",
+    "cfRatingMin": 1900,
+    "cfRatingMax": 2099,
+    "title": "四边形不等式优化",
+    "description": "你遇到一道区间DP，复杂度O(n^3)直接T飞。你知道可以用四边形不等式优化到O(n^2)，但证明和代码实现让你头大。",
+    "type": "negative",
+    "choices": [
+      {
+        "text": "硬背板子，套进去",
+        "effect": {
+          "oi_dp": 8,
+          "oi_misc": 3,
+          "mindset": -2
+        },
+        "resultDescription": "你记住了决策单调性的写法，过掉了题，但没理解原理，下次换种形式就不会了。"
+      },
+      {
+        "text": "找一篇证明详细的博客",
+        "effect": {
+          "oi_dp": 10,
+          "oi_math": 5,
+          "efficiency": 3
+        },
+        "resultDescription": "你花了2小时搞懂证明，自己手推了一遍，从此四边形不等式信手拈来。"
+      },
+      {
+        "text": "放弃优化，写暴力骗分",
+        "effect": {
+          "oi_dp": -3,
+          "health": 5,
+          "experience": 2
+        },
+        "resultDescription": "你写了O(n^3)暴力，提交后只拿了部分分，但心情轻松，没太沮丧。"
+      }
+    ]
+  },
+  {
+    "id": "oi_cm_network_flow_app",
+    "phase": "SEMESTER_2",
+    "cfRatingMin": 1900,
+    "cfRatingMax": 2099,
+    "title": "网络流建模烧脑",
+    "description": "老师讲了一道“志愿者招募”的流建模，要求用最小费用最大流。你盯着黑板上的分层图，完全听不懂，旁边的神犇已经开始写代码了。",
+    "type": "negative",
+    "choices": [
+      {
+        "text": "课后问老师，抄下思路",
+        "effect": {
+          "oi_graph": 10,
+          "oi_ds": 3,
+          "experience": 5
+        },
+        "resultDescription": "你追着老师问了两遍，终于明白如何用差分约束建图，回去又练了几道同类题。"
+      },
+      {
+        "text": "自己翻书《算法竞赛进阶指南》",
+        "effect": {
+          "oi_graph": 8,
+          "oi_misc": 3,
+          "health": -5
+        },
+        "resultDescription": "你花了整个晚自习看书，终于搞懂了，但错过了晚练时间。"
+      },
+      {
+        "text": "放弃，去刷数据结构",
+        "effect": {
+          "oi_ds": 5,
+          "oi_graph": -5,
+          "luck": 2
+        },
+        "resultDescription": "你放弃了网络流，转向线段树，结果下次考试考了网络流，你后悔不已。"
+      }
+    ]
+  },
+  {
+    "id": "oi_cm_geometry_precision",
+    "phase": "SEMESTER_2",
+    "cfRatingMin": 1900,
+    "cfRatingMax": 2099,
+    "title": "计算几何精度爆炸",
+    "description": "你写了一道计算几何模板题，判断点是否在凸包内。你用double，结果被卡精度到WA；换成long double，TLE。你抓耳挠腮，考虑用分数类。",
+    "type": "negative",
+    "choices": [
+      {
+        "text": "用整数运算+叉积",
+        "effect": {
+          "oi_math": 8,
+          "oi_misc": 5,
+          "health": -2
+        },
+        "resultDescription": "你把所有坐标乘以一个大数变成整数，避免了浮点误差，AC了，但代码变得又长又丑。"
+      },
+      {
+        "text": "用EPS比较法",
+        "effect": {
+          "oi_misc": 5,
+          "luck": -5,
+          "experience": 3
+        },
+        "resultDescription": "你加入eps=1e-9，测试了多组数据，侥幸AC，但知道并不稳健。"
+      },
+      {
+        "text": "换用Python的Decimal",
+        "effect": {
+          "oi_string": 2,
+          "health": 5,
+          "oi_ds": -3
+        },
+        "resultDescription": "你用高精度浮点数，过了样例但交上去TLE到飞起，放弃。"
+      }
+    ]
+  },
+  {
+    "id": "oi_nb_compile_error",
+    "phase": "SEMESTER_2",
+    "cfRatingMin": 0,
+    "cfRatingMax": 1199,
+    "title": "A+B编译错误",
+    "description": "你信心满满地在洛谷提交A+B Problem，结果CE了，原来是没写using namespace std。你盯着屏幕上的红线，感觉太难了。",
+    "type": "negative",
+    "choices": [
+      {
+        "text": "老老实实补上命名空间",
+        "effect": {
+          "oi_misc": 5,
+          "efficiency": 5
+        },
+        "resultDescription": "你补了using namespace std;，AC了，但花了十分钟才发现这个低级错误。"
+      },
+      {
+        "text": "百度搜索std是什么",
+        "effect": {
+          "oi_misc": 8,
+          "health": -2
+        },
+        "resultDescription": "你看了半小时C++基础教程，终于理解了命名空间，但错过了午睡时间。"
+      },
+      {
+        "text": "直接放弃去打游戏",
+        "effect": {
+          "efficiency": -10,
+          "health": 5
+        },
+        "resultDescription": "你打开手机玩了一局王者，心情好了，但OI进度完全停滞。"
+      }
+    ]
+  },
+  {
+    "id": "oi_nb_luogu_daily",
+    "phase": "SUMMER",
+    "cfRatingMin": 0,
+    "cfRatingMax": 1199,
+    "title": "洛谷每日一题",
+    "description": "你打开洛谷今日推荐，是一道红题“考拉兹猜想”，你连循环都不会写，看着题解发愣。",
+    "type": "neutral",
+    "choices": [
+      {
+        "text": "硬着头皮抄题解",
+        "effect": {
+          "oi_misc": 2,
+          "experience": 3
+        },
+        "resultDescription": "你照着题解敲了一遍，虽然没理解，但AC了，排名上升了一点点。"
+      },
+      {
+        "text": "自己尝试写for循环",
+        "effect": {
+          "oi_misc": 6,
+          "health": -3,
+          "efficiency": -2
+        },
+        "resultDescription": "你琢磨了半小时终于写出了循环，但因为没考虑边界，WA了三次才过。"
+      },
+      {
+        "text": "跳过换一道水题",
+        "effect": {
+          "oi_misc": 1,
+          "experience": -2
+        },
+        "resultDescription": "你找了一道A+B换了个输入输出格式的题，虽然AC了但毫无提升。"
+      }
+    ]
+  },
+  {
+    "id": "oi_nb_cf_practice",
+    "phase": "SUMMER",
+    "cfRatingMin": 0,
+    "cfRatingMax": 1199,
+    "title": "怒打CF Round",
+    "description": "你鼓起勇气参加了Codeforces Round #800，结果第一题就卡住，连样例都过不去，时间只剩20分钟。",
+    "type": "negative",
+    "choices": [
+      {
+        "text": "死磕第一题",
+        "effect": {
+          "oi_misc": 4,
+          "health": -5,
+          "experience": 2
+        },
+        "resultDescription": "你最终没做出来，但学到了一个输出格式的技巧，rating掉了50。"
+      },
+      {
+        "text": "直接看第二题",
+        "effect": {
+          "oi_misc": 1,
+          "efficiency": -5
+        },
+        "resultDescription": "第二题更难，你连题意都没读懂，整场比赛爆零。"
+      },
+      {
+        "text": "提前退出不打了",
+        "effect": {
+          "health": 3,
+          "mindset": -2
+        },
+        "resultDescription": "你关掉网页去睡觉，但心里一直惦记着那道题，失眠了。"
+      }
+    ]
+  },
+  {
+    "id": "oi_nb_teacher_catch",
+    "phase": "WINTER",
+    "cfRatingMin": 0,
+    "cfRatingMax": 1199,
+    "title": "机房摸鱼被抓",
+    "description": "OI课上你偷偷用机房电脑刷B站，结果班主任突然推门进来，直接站在你身后。",
+    "type": "negative",
+    "choices": [
+      {
+        "text": "赶紧切到Dev-C++",
+        "effect": {
+          "efficiency": -3,
+          "mindset": -5
+        },
+        "resultDescription": "你手忙脚乱打开了编译器，但B站视频还在播放，被班主任训了一顿，写了500字检讨。"
+      },
+      {
+        "text": "装模作样敲代码",
+        "effect": {
+          "oi_misc": 1,
+          "experience": -2
+        },
+        "resultDescription": "你随便敲了几个cout，班主任看了一眼没说话，但你的心虚让你整节课没听进去。"
+      },
+      {
+        "text": "坦白承认错误",
+        "effect": {
+          "mindset": 5,
+          "efficiency": 2
+        },
+        "resultDescription": "班主任让你课后补做一道题作为惩罚，你反而静下心来认真学了一个小时。"
+      }
+    ]
+  },
+  {
+    "id": "oi_nb_math_homework",
+    "phase": "MIDTERM_EXAM",
+    "cfRatingMin": 0,
+    "cfRatingMax": 1199,
+    "title": "数学课与OI冲突",
+    "description": "数学老师布置了一堆圆锥曲线题，但你想抓紧时间刷洛谷的循环练习题，时间不够用了。",
+    "type": "neutral",
+    "choices": [
+      {
+        "text": "先完成数学作业",
+        "effect": {
+          "oi_misc": -3,
+          "mindset": 3
+        },
+        "resultDescription": "你花了一小时做完数学，但OI练习时间被挤占，今晚又要熬夜。"
+      },
+      {
+        "text": "用OI方法解数学题",
+        "effect": {
+          "oi_misc": 5,
+          "oi_math": 5,
+          "efficiency": -2
+        },
+        "resultDescription": "你尝试用C++写程序算圆锥曲线，结果因为精度问题WA了，但数学老师没发现。"
+      },
+      {
+        "text": "抄同桌数学作业",
+        "effect": {
+          "mindset": -5,
+          "efficiency": 5
+        },
+        "resultDescription": "你很快抄完作业，用省下的时间刷了两道水题，但内心非常不安。"
+      }
+    ]
+  },
+  {
+    "id": "oi_nb_longlong_wa",
+    "phase": "NOIP_EXAM",
+    "cfRatingMin": 0,
+    "cfRatingMax": 1199,
+    "title": "没开long long痛失30分",
+    "description": "NOIP第一题很简单，你用int存了求和，结果两个1e5相加爆int，WA了三个点，出了考场才意识到。",
+    "type": "negative",
+    "choices": [
+      {
+        "text": "懊恼地记笔记",
+        "effect": {
+          "oi_misc": 8,
+          "experience": -5,
+          "health": -3
+        },
+        "resultDescription": "你在笔记本上写了大大的“开long long”，但这次失误导致你离省一线差5分。"
+      },
+      {
+        "text": "安慰自己下次注意",
+        "effect": {
+          "mindset": 3,
+          "efficiency": 2
+        },
+        "resultDescription": "你调整心态准备下午的比赛，但心里始终有一根刺。"
+      },
+      {
+        "text": "怪评测机太慢",
+        "effect": {
+          "luck": -2,
+          "mindset": -4
+        },
+        "resultDescription": "你抱怨洛谷评测机不给力，但没有反思自己，下次比赛大概率还会犯类似错误。"
+      }
+    ]
+  },
+  {
+    "id": "oi_nb_csp_beginner",
+    "phase": "CSP_EXAM",
+    "cfRatingMin": 0,
+    "cfRatingMax": 1199,
+    "title": "CSP-J爆零想AFO",
+    "description": "CSP-J考完，你发现自己连第一题都写错了，编译通过但全WA，预估0分，萌生了退役的念头。",
+    "type": "negative",
+    "choices": [
+      {
+        "text": "决定继续坚持",
+        "effect": {
+          "mindset": 10,
+          "experience": 5,
+          "health": -5
+        },
+        "resultDescription": "你报名了寒假OI集训班，决定从语法开始重新学，但牺牲了不少娱乐时间。"
+      },
+      {
+        "text": "暂时AFO去搞文化课",
+        "effect": {
+          "oi_misc": -15,
+          "mindset": 5,
+          "efficiency": 5
+        },
+        "resultDescription": "你把精力全部投入到文化课，期末排名上升了10名，但心里总放不下OI。"
+      },
+      {
+        "text": "疯狂刷水题找自信",
+        "effect": {
+          "oi_misc": 3,
+          "mindset": -2,
+          "efficiency": -5
+        },
+        "resultDescription": "你刷了一晚上A+B和Hello World，虽然AC了不少，但内心明白这毫无意义。"
+      }
+    ]
+  },
+  {
+    "id": "oi_nb_competitive_talk",
+    "phase": "WINTER",
+    "cfRatingMin": 0,
+    "cfRatingMax": 1199,
+    "title": "与同学讨论题目",
+    "description": "同桌也是OIer，他给你看一道“P1000 超级玛丽”，你觉得太简单，但他指出你的代码有未定义行为（数组越界）。",
+    "type": "neutral",
+    "choices": [
+      {
+        "text": "虚心请教并修改",
+        "effect": {
+          "oi_misc": 6,
+          "experience": 3
+        },
+        "resultDescription": "你学会检查数组大小，以后很少再犯越界错误。"
+      },
+      {
+        "text": "不服气争论",
+        "effect": {
+          "mindset": -3,
+          "oi_misc": -2
+        },
+        "resultDescription": "你和同桌吵了一架，最后发现他是对的，你尴尬地改代码，但关系变僵了。"
+      },
+      {
+        "text": "自己上网查资料",
+        "effect": {
+          "oi_misc": 4,
+          "efficiency": -4
+        },
+        "resultDescription": "你花了半小时看CSDN才弄懂，但效率很低，不过知识学得更扎实。"
+      }
+    ]
+  },
+  {
+    "id": "oi_nb_overtime_code",
+    "phase": "SEMESTER_2",
+    "cfRatingMin": 0,
+    "cfRatingMax": 1199,
+    "title": "熬夜刷题第二天迟到",
+    "description": "你昨晚为了AC一道洛谷红题，熬到凌晨2点，第二天第一节课直接睡过头，被老师点名批评。",
+    "type": "negative",
+    "choices": [
+      {
+        "text": "向老师道歉并做检讨",
+        "effect": {
+          "health": -2,
+          "mindset": 2,
+          "efficiency": 3
+        },
+        "resultDescription": "老师原谅了你，但让你晚上早点睡，你不得不调整作息，OI时间减少。"
+      },
+      {
+        "text": "偷偷补觉",
+        "effect": {
+          "health": -5,
+          "efficiency": -8
+        },
+        "resultDescription": "你被老师抓到第二次，直接叫家长，OI练习被禁止两周。"
+      },
+      {
+        "text": "找理由搪塞",
+        "effect": {
+          "mindset": -4,
+          "experience": -2
+        },
+        "resultDescription": "你说自己生病了，但班主任不信，反而更关注你的出勤，你每天如坐针毡。"
+      }
+    ]
+  },
+  {
+    "id": "oi_nb_template_mistake",
+    "phase": "SUMMER",
+    "cfRatingMin": 0,
+    "cfRatingMax": 1199,
+    "title": "抄模板抄错了",
+    "description": "你从洛谷题解复制了一个快速排序模板，结果输入数组名写错，排了一堆废数据，输出全是乱码。",
+    "type": "negative",
+    "choices": [
+      {
+        "text": "逐行对比查错",
+        "effect": {
+          "oi_misc": 7,
+          "efficiency": -5,
+          "mindset": 1
+        },
+        "resultDescription": "你花了40分钟终于找到bug，学到了变量命名规范的重要性。"
+      },
+      {
+        "text": "重新自己手写快排",
+        "effect": {
+          "oi_misc": 10,
+          "health": -3
+        },
+        "resultDescription": "你完全理解了快排原理，虽然写得慢但以后不用抄模板了。"
+      },
+      {
+        "text": "换一个模板再试",
+        "effect": {
+          "oi_misc": 1,
+          "experience": -3
+        },
+        "resultDescription": "你复制了另一个模板，这次运气好AC了，但依然不懂原理。"
+      }
+    ]
+  },
+  {
+    "id": "oi_nb_girlfriend_disturb",
+    "phase": "WINTER",
+    "cfRatingMin": 0,
+    "cfRatingMax": 1199,
+    "title": "女友约你出去玩",
+    "description": "周末女朋友约你去看电影，但你正卡在一道普及-的模拟题上，想AC了再去。",
+    "type": "neutral",
+    "choices": [
+      {
+        "text": "先AC题再赴约",
+        "effect": {
+          "oi_misc": 4,
+          "mindset": 2,
+          "health": -3,
+          "luck": -2
+        },
+        "resultDescription": "你花了2小时AC了题，但迟到了，女友有点生气，不过你还是陪她看了后半场。"
+      },
+      {
+        "text": "放下先去约会",
+        "effect": {
+          "mindset": 5,
+          "efficiency": -5,
+          "experience": -2
+        },
+        "resultDescription": "你开心地看了电影，但回到宿舍发现那道题思路忘了，又要从头想。"
+      },
+      {
+        "text": "约女友一起看题",
+        "effect": {
+          "mindset": -3,
+          "efficiency": -1,
+          "oi_misc": 2
+        },
+        "resultDescription": "女友陪你看了半小时代码，觉得无聊自己先走了，你既没AC又失了约会。"
+      }
+    ]
+  },
+  {
+    "id": "oi_nb_false_ranklist",
+    "phase": "MIDTERM_EXAM",
+    "cfRatingMin": 0,
+    "cfRatingMax": 1199,
+    "title": "排名虚高得意忘形",
+    "description": "你在一次校内小测试中AC了2题，排到机房第五，但实际上题目太简单，你开始骄傲了。",
+    "type": "positive",
+    "choices": [
+      {
+        "text": "继续努力乘胜追击",
+        "effect": {
+          "oi_misc": 5,
+          "experience": 3,
+          "mindset": 2
+        },
+        "resultDescription": "你保持了勤奋，下次测试虽然题目难了，但还是AC了一题，进步看得见。"
+      },
+      {
+        "text": "停下放松一天",
+        "effect": {
+          "health": 5,
+          "efficiency": -3,
+          "mindset": -2
+        },
+        "resultDescription": "你休息了一天，但再回到机房发现其他人已经超过你了，你有些懊恼。"
+      },
+      {
+        "text": "嘲笑其他同学",
+        "effect": {
+          "mindset": -8,
+          "experience": -4,
+          "luck": -3
+        },
+        "resultDescription": "你到处显摆，结果被大佬一道难题吊打，同学们都疏远了你。"
+      }
+    ]
+  },
+  {
+    "id": "oi_nb_atcoder_begin",
+    "phase": "SEMESTER_2",
+    "cfRatingMin": 0,
+    "cfRatingMax": 1199,
+    "title": "AtCoder入门战",
+    "description": "你第一次参加AtCoder ABC，只看得懂A题，B题完全不知道怎么输入多组数据，直接交了错误代码。",
+    "type": "negative",
+    "choices": [
+      {
+        "text": "赛后看官方题解",
+        "effect": {
+          "oi_misc": 6,
+          "experience": 4,
+          "efficiency": -2
+        },
+        "resultDescription": "你花了一个小时理解日文题解，学会了while(scanf)输入法，收获很大。"
+      },
+      {
+        "text": "放弃去查排名",
+        "effect": {
+          "mindset": -3,
+          "health": 2
+        },
+        "resultDescription": "你看到自己排名垫底，直接关了页面，心情低落了很久。"
+      },
+      {
+        "text": "疯狂吐槽题目",
+        "effect": {
+          "mindset": -5,
+          "luck": -2
+        },
+        "resultDescription": "你在群里说AtCoder太垃圾，结果被大佬怼了，群主禁言你一天。"
+      }
+    ]
+  },
+  {
+    "id": "oi_nb_string_bomb",
+    "phase": "SEMESTER_1",
+    "cfRatingMin": 0,
+    "cfRatingMax": 1199,
+    "title": "字符串处理炸了",
+    "description": "你尝试用char数组处理带空格的字符串，但忘记把cin换成getline，结果只读了单词，整个程序运行结果全错。",
+    "type": "negative",
+    "choices": [
+      {
+        "text": "学习字符串输入方法",
+        "effect": {
+          "oi_string": 8,
+          "efficiency": -3
+        },
+        "resultDescription": "你花了半天把cin.getline、fgets、string都学了一遍，以后再也不会犯。"
+      },
+      {
+        "text": "改用cin和string",
+        "effect": {
+          "oi_string": 4,
+          "oi_misc": 2
+        },
+        "resultDescription": "你切换成C++ string，勉强过了，但是遇到空格还是出问题。"
+      },
+      {
+        "text": "直接放弃这题",
+        "effect": {
+          "experience": -4,
+          "mindset": -2
+        },
+        "resultDescription": "你跳过这题换了一道，但心里一直放不下，下次还是不会。"
+      }
+    ]
+  },
+  {
+    "id": "oi_nb_cheat_in_exam",
+    "phase": "CSP_EXAM",
+    "cfRatingMin": 0,
+    "cfRatingMax": 1199,
+    "title": "考场作弊未遂",
+    "description": "CSP-J考试时，你旁边的神犇在飞快敲代码，你想偷瞄一眼他的输出，但被监考老师发现了。",
+    "type": "negative",
+    "choices": [
+      {
+        "text": "立即认错并转头",
+        "effect": {
+          "mindset": 3,
+          "experience": -5,
+          "luck": -2
+        },
+        "resultDescription": "老师警告了你，没有取消成绩，但你后面几题心态崩了，只AC了一题。"
+      },
+      {
+        "text": "死不承认",
+        "effect": {
+          "mindset": -10,
+          "experience": -10,
+          "luck": -5
+        },
+        "resultDescription": "老师调出监控，你被取消成绩并通报批评，OI生涯蒙上污点。"
+      },
+      {
+        "text": "装作没听见继续看",
+        "effect": {
+          "mindset": -8,
+          "luck": -8
+        },
+        "resultDescription": "你被直接请出考场，CSP成绩为0，还连累学校被批评。"
+      }
+    ]
+  },
+  {
+    "id": "oi_nb_first_ac",
+    "phase": "SEMESTER_2",
+    "cfRatingMin": 0,
+    "cfRatingMax": 1199,
+    "title": "人生第一次AC",
+    "description": "你花了一个小时，终于把洛谷P1001 A+B做出来了，虽然用了愚蠢的循环加法，但AC的那一刻你激动得跳了起来。",
+    "type": "positive",
+    "choices": [
+      {
+        "text": "发朋友圈庆祝",
+        "effect": {
+          "mindset": 8,
+          "experience": 2,
+          "efficiency": -2
+        },
+        "resultDescription": "你收获了20个赞，但被大佬评论“这么简单也发”，不过你还是很开心。"
+      },
+      {
+        "text": "继续做下一题",
+        "effect": {
+          "oi_misc": 6,
+          "efficiency": 5,
+          "health": -3
+        },
+        "resultDescription": "你趁热打铁又AC了两道题，但晚上太兴奋睡不着。"
+      },
+      {
+        "text": "发帖求助更优解法",
+        "effect": {
+          "oi_misc": 4,
+          "experience": 5
+        },
+        "resultDescription": "你学到了直接用std::cin cout更快，但被喷说这是浪费论坛资源。"
+      }
+    ]
+  },
+  {
+    "id": "oi_nb_library_book",
+    "phase": "WINTER",
+    "cfRatingMin": 0,
+    "cfRatingMax": 1199,
+    "title": "图书馆偶遇神犇",
+    "description": "你去图书馆自习，看到一位大佬在看《算法竞赛入门经典》，你凑过去发现他正在看莫队算法，你完全不懂。",
+    "type": "neutral",
+    "choices": [
+      {
+        "text": "厚脸皮请教基础",
+        "effect": {
+          "oi_misc": 8,
+          "mindset": 3
+        },
+        "resultDescription": "大佬给你讲了半个小时C++语法和基础算法，你受益匪浅，还加了他QQ。"
+      },
+      {
+        "text": "默默走开不打扰",
+        "effect": {
+          "experience": -2,
+          "mindset": 0
+        },
+        "resultDescription": "你回到自己座位，但总忍不住偷看他，一个小时没看进去书。"
+      },
+      {
+        "text": "嘲讽他说算法过时",
+        "effect": {
+          "mindset": -6,
+          "luck": -4
+        },
+        "resultDescription": "大佬没理你，但旁边的人都在笑话你，你灰溜溜地走了。"
+      }
+    ]
+  },
+  {
+    "id": "oi_nb_debug_forever",
+    "phase": "MIDTERM_EXAM",
+    "cfRatingMin": 0,
+    "cfRatingMax": 1199,
+    "title": "debug一整天无果",
+    "description": "一道循环嵌套的题，你总觉得逻辑没问题，但就是输出不对，从下午4点枯坐到晚上10点。",
+    "type": "negative",
+    "choices": [
+      {
+        "text": "打印中间变量",
+        "effect": {
+          "oi_misc": 7,
+          "efficiency": -4,
+          "experience": 5
+        },
+        "resultDescription": "你加了cout输出，发现循环变量多了一次，改完AC，但已经很晚了。"
+      },
+      {
+        "text": "重写代码",
+        "effect": {
+          "oi_misc": 4,
+          "efficiency": -8,
+          "mindset": -3
+        },
+        "resultDescription": "你删掉重写，结果还是同样错误，而且时间更晚了，你崩溃大哭。"
+      },
+      {
+        "text": "求助oi群友",
+        "effect": {
+          "experience": 3,
+          "efficiency": 5,
+          "mindset": 2
+        },
+        "resultDescription": "群友一眼看出是数组下标越界，你改好AC了，但被群友调侃“萌新日常”。"
+      }
+    ]
+  },
+  {
+    "id": "oi_nb_health_collapse",
+    "phase": "SEMESTER_2",
+    "cfRatingMin": 0,
+    "cfRatingMax": 1199,
+    "title": "久坐导致腰疼",
+    "description": "你连续在机房坐了3个小时没动，站起来突然腰酸背痛，感觉腰要断了。",
+    "type": "negative",
+    "choices": [
+      {
+        "text": "起来活动十分钟",
+        "effect": {
+          "health": 8,
+          "efficiency": 3,
+          "mindset": 2
+        },
+        "resultDescription": "你做了拉伸，喝了水，回来思路反而清晰了，很快AC了一题。"
+      },
+      {
+        "text": "坚持不动继续刷",
+        "effect": {
+          "health": -10,
+          "oi_misc": 2
+        },
+        "resultDescription": "你完成了4道水题，但腰疼得第二天直不起来，去了医院花了200。"
+      },
+      {
+        "text": "买靠垫和支架",
+        "effect": {
+          "health": 5,
+          "money": -3
+        },
+        "resultDescription": "你花费30元买了靠垫，之后久坐情况有所改善，但被同学笑称“养生选手”。"
+      }
+    ]
+  },
+  {
+    "id": "oi_nb_luogu_rank_up",
+    "phase": "NOIP_EXAM",
+    "cfRatingMin": 0,
+    "cfRatingMax": 1199,
+    "title": "洛谷排名上升激动",
+    "description": "你发现洛谷AC数终于突破了50，排名从10万开外涨到了8万，虽然还是菜，但你感觉很棒。",
+    "type": "positive",
+    "choices": [
+      {
+        "text": "截图发到群里",
+        "effect": {
+          "mindset": 5,
+          "experience": -2
+        },
+        "resultDescription": "群友纷纷表示恭喜，但也有人劝你别太在意排名，你有些受挫。"
+      },
+      {
+        "text": "加练100题计划",
+        "effect": {
+          "oi_misc": 6,
+          "efficiency": 4,
+          "health": -5
+        },
+        "resultDescription": "你制定了刷题计划，但执行三天就累了，不过仍坚持了一半。"
+      },
+      {
+        "text": "给自己买个键盘奖励",
+        "effect": {
+          "mindset": 4,
+          "money": -8,
+          "efficiency": 2
+        },
+        "resultDescription": "你买了新机械键盘，打字快了，但被父母说乱花钱。"
+      }
+    ]
+  }
+]
