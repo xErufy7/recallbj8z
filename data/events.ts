@@ -48,54 +48,18 @@ const SUMMER_EVENTS_RAW: GameEvent[] = [
         choices: [
             { 
                 text: '信息竞赛(OI)', 
-                action: (s) => ({ 
+                action: (s) => ({
                 competition: 'OI', 
                 log: [...s.log, { message: "你选择了信息竞赛(OI)。注意：这条线会丧失很多普通事件，且周末自由时间减少", type: 'warning', timestamp: Date.now() }],
                 general: { ...s.general, experience: s.general.experience + 10 },
-                oiStats: { ...s.oiStats, misc: 5 },
-                activeProjects: [...s.activeProjects, {
-                    id: 'proj_summer_oi',
-                    title: '洛谷新手村通关',
-                    description: '既然选择了OI，那就在开学前把基础语法练好吧。',
-                    type: 'OI',
-                    deadlinePhase: Phase.SUMMER,
-                    deadlineWeek: 8,
-                    progress: 0,
-                    requiredProgress: 100,
-                    rewardsDescription: '全OI基础属性提升，经验+15',
-                    onComplete: (st) => ({
-                        oiStats: modifyOI(st, { dp: 2, ds: 2, math: 2, string: 2, graph: 2, misc: 2 }),
-                        general: { ...st.general, experience: st.general.experience + 15 }
-                    }),
-                    onFail: (st) => ({
-                        general: { ...st.general, mindset: st.general.mindset - 10 }
-                    })
-                }]
+                oiStats: { ...s.oiStats, misc: 5 }
                 }) 
             },
-            { 
+            {
                 text: '专注课内综合', 
                 action: (s) => ({ 
                 competition: 'None', 
-                general: { ...s.general, efficiency: s.general.efficiency + 2 },
-                activeProjects: [...s.activeProjects, {
-                    id: 'proj_summer_reading',
-                    title: '暑期名著阅读',
-                    description: '老师要求在开学前读完两本名著。这是你高中的第一个课题。',
-                    type: 'ACADEMIC',
-                    deadlinePhase: Phase.SUMMER,
-                    deadlineWeek: 8,
-                    progress: 0,
-                    requiredProgress: 100,
-                    rewardsDescription: '语文能力大幅提升，心态+10',
-                    onComplete: (st) => ({
-                        subjects: modifySub(st, ['chinese'], 3),
-                        general: { ...st.general, mindset: st.general.mindset + 10 }
-                    }),
-                    onFail: (st) => ({
-                        general: { ...st.general, mindset: st.general.mindset - 5, efficiency: st.general.efficiency - 2 }
-                    })
-                }]
+                general: { ...s.general, efficiency: s.general.efficiency + 2 }
                 }) 
             },
             {

@@ -42,7 +42,7 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ state, onShowGuide }) => {
         <div className="flex justify-between items-center mb-2">
           <span className="text-xs font-bold text-indigo-800">班级: {state.className || '待分班'}</span>
           <span className="text-xs font-bold text-indigo-800">
-              效率: {effectiveEfficiency.toFixed(1)} 
+              效率: {state.difficulty === 'REALITY' ? (effectiveEfficiency >= 15 ? '高' : effectiveEfficiency >= 8 ? '中' : '低') : effectiveEfficiency.toFixed(1)} 
               {effectiveEfficiency > state.general.efficiency && <span className="text-emerald-500 text-[10px] ml-1">(+{ (effectiveEfficiency - state.general.efficiency).toFixed(0) })</span>}
           </span>
         </div>
@@ -57,12 +57,12 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ state, onShowGuide }) => {
             <i className="fas fa-chart-bar"></i> 基础属性
         </h3>
         <div className="grid grid-cols-2 gap-2">
-            <StatMini icon="fa-brain" label="心态" value={state.general.mindset} color="text-indigo-500" />
-            <StatMini icon="fa-heartbeat" label="健康" value={state.general.health} color="text-emerald-500" />
-            <StatMini icon="fa-coins" label="金钱" value={state.general.money} color="text-yellow-600" />
-            <StatMini icon="fa-book" label="经验" value={state.general.experience} color="text-blue-500" />
-            <StatMini icon="fa-star" label="幸运" value={state.general.luck} color="text-amber-500" />
-            <StatMini icon="fa-heart" label="桃花" value={state.general.romance} color="text-pink-500" />
+            <StatMini icon="fa-brain" label="心态" value={state.general.mindset} color="text-indigo-500" hideValue={state.difficulty === 'REALITY'} />
+            <StatMini icon="fa-heartbeat" label="健康" value={state.general.health} color="text-emerald-500" hideValue={state.difficulty === 'REALITY'} />
+            <StatMini icon="fa-coins" label="金钱" value={state.general.money} color="text-yellow-600" hideValue={state.difficulty === 'REALITY'} />
+            <StatMini icon="fa-book" label="经验" value={state.general.experience} color="text-blue-500" hideValue={state.difficulty === 'REALITY'} />
+            <StatMini icon="fa-star" label="幸运" value={state.general.luck} color="text-amber-500" hideValue={state.difficulty === 'REALITY'} />
+            <StatMini icon="fa-heart" label="桃花" value={state.general.romance} color="text-pink-500" hideValue={state.difficulty === 'REALITY'} />
         </div>
       </div>
 
@@ -97,7 +97,7 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ state, onShowGuide }) => {
                         <span className="font-bold text-slate-700">{SUBJECT_NAMES[key]}</span>
                         {isSelected && <span className="bg-indigo-100 text-indigo-600 px-1.5 py-0.5 rounded text-[9px] font-bold">选考</span>}
                     </div>
-                    <span className="text-slate-400">天赋 {state.subjects[key].aptitude} | 水平 {state.subjects[key].level.toFixed(1)}</span>
+                    <span className="text-slate-400">{state.difficulty === 'REALITY' ? '' : `天赋 ${state.subjects[key].aptitude} | 水平 ${state.subjects[key].level.toFixed(1)}`}</span>
                   </div>
                   <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden border border-slate-200">
                     <div 
@@ -114,12 +114,21 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ state, onShowGuide }) => {
   );
 };
 
-const StatMini = ({ icon, label, value, color }: { icon: string, label: string, value: number, color: string }) => (
-  <div className="bg-slate-50 rounded-lg p-2 flex flex-col items-center justify-center border border-slate-100 hover:border-indigo-200 transition-colors">
-    <i className={`fas ${icon} ${color} text-sm mb-1`}></i>
-    <span className="text-[10px] text-slate-500">{label}</span>
-    <span className={`text-xs font-bold ${color}`}>{value.toFixed(0)}</span>
-  </div>
-);
+const StatMini = ({ icon, label, value, color, hideValue }: { icon: string, label: string, value: number, color: string, hideValue?: boolean }) => {
+  const getVagueLabel = (v: number) => {
+    if (v >= 80) return '极高';
+    if (v >= 60) return '较高';
+    if (v >= 40) return '一般';
+    if (v >= 20) return '较低';
+    return '极低';
+  };
+  return (
+    <div className="bg-slate-50 rounded-lg p-2 flex flex-col items-center justify-center border border-slate-100 hover:border-indigo-200 transition-colors">
+      <i className={`fas ${icon} ${color} text-sm mb-1`}></i>
+      <span className="text-[10px] text-slate-500">{label}</span>
+      <span className={`text-xs font-bold ${color}`}>{hideValue ? getVagueLabel(value) : value.toFixed(0)}</span>
+    </div>
+  );
+};
 
 export default StatsPanel;

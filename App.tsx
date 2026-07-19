@@ -137,8 +137,14 @@ const App: React.FC = () => {
          return { rank: "F", title: "退学离场", comment: "遗憾离场...", score: 0 };
      }
 
-     let score = (state.general.knowledge + state.general.thinking + state.general.memory) / 3;
-     score += (state.general.charisma + state.general.luck) * 0.1;
+      // Calculate score from subject levels (main academic measure)
+      const subjectAvg = Object.values(state.subjects).reduce((sum, s) => sum + s.level, 0) / Object.keys(state.subjects).length;
+      // Combine with general stats
+      let score = subjectAvg * 1.5 + state.general.experience * 0.3 + state.general.efficiency * 0.4;
+      // Exam performance bonus
+      if (state.examResult?.totalScore) score += state.examResult.totalScore / 20;
+      // Clamp to 0-100 range
+      score = Math.min(100, Math.max(0, score));
 
      let noiMedal = state.flags.noi_medal;
      let provincialTeam = state.flags.provincial_team;

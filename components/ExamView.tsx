@@ -17,9 +17,9 @@ const ExamView: React.FC<ExamViewProps> = ({ title, state, onFinish }) => {
 
   // Determine which subjects to test based on phase
   const getSubjectsToTest = (): string[] => {
-    if (state.phase === Phase.CSP_EXAM || state.phase === Phase.NOIP_EXAM) {
-      // Pick 4 random OI problems
-      return ['oi_prob_1', 'oi_prob_2', 'oi_prob_3', 'oi_prob_4'];
+    if ([Phase.CSP_EXAM, Phase.NOIP_EXAM, Phase.WC_EXAM, Phase.PROVINCIAL_EXAM, Phase.APIO_EXAM, Phase.NOI_EXAM].includes(state.phase)) {
+      const problemCount = [Phase.NOI_EXAM].includes(state.phase) ? 8 : [Phase.WC_EXAM, Phase.PROVINCIAL_EXAM, Phase.APIO_EXAM].includes(state.phase) ? 6 : 4;
+      return Array.from({length: problemCount}, (_, i) => `oi_prob_${i+1}`);
     }
     if (state.phase === Phase.PLACEMENT_EXAM || state.phase === Phase.MIDTERM_EXAM || state.phase === Phase.FINAL_EXAM || state.phase === Phase.MIDTERM_EXAM_2 || state.phase === Phase.FINAL_EXAM_2) {
       if (state.selectedSubjects.length === 3) {
@@ -32,10 +32,10 @@ const ExamView: React.FC<ExamViewProps> = ({ title, state, onFinish }) => {
 
   const [subjectsToTest] = useState(getSubjectsToTest());
   const [oiProblems] = useState<OIProblem[]>(() => {
-       if (state.phase === Phase.CSP_EXAM || state.phase === Phase.NOIP_EXAM) {
-           // Randomly select 4 distinct problems
+       if ([Phase.CSP_EXAM, Phase.NOIP_EXAM, Phase.WC_EXAM, Phase.PROVINCIAL_EXAM, Phase.APIO_EXAM, Phase.NOI_EXAM].includes(state.phase)) {
+           const problemCount = [Phase.NOI_EXAM].includes(state.phase) ? 8 : [Phase.WC_EXAM, Phase.PROVINCIAL_EXAM, Phase.APIO_EXAM].includes(state.phase) ? 6 : 4;
            const shuffled = [...OI_PROBLEMS].sort(() => 0.5 - Math.random());
-           return shuffled.slice(0, 4);
+           return shuffled.slice(0, problemCount);
        }
        return [];
   });
@@ -175,10 +175,11 @@ const ExamView: React.FC<ExamViewProps> = ({ title, state, onFinish }) => {
       
       let comment = "继续努力。";
       // Comments based on relative performance (Phase sensitive)
-      const maxTotal = subjectsToTest.reduce((acc, s) => acc + (['chinese', 'math', 'english'].includes(s) ? 150 : 100), 0);
+      const isOIExam = [Phase.CSP_EXAM, Phase.NOIP_EXAM, Phase.WC_EXAM, Phase.PROVINCIAL_EXAM, Phase.APIO_EXAM, Phase.NOI_EXAM].includes(state.phase);
+      const maxTotal = isOIExam ? subjectsToTest.length * 100 : subjectsToTest.reduce((acc, s) => acc + (['chinese', 'math', 'english'].includes(s) ? 150 : 100), 0);
       const ratio = total / maxTotal;
 
-      if (state.phase === Phase.CSP_EXAM || state.phase === Phase.NOIP_EXAM) {
+      if ([Phase.CSP_EXAM, Phase.NOIP_EXAM, Phase.WC_EXAM, Phase.PROVINCIAL_EXAM, Phase.APIO_EXAM, Phase.NOI_EXAM].includes(state.phase)) {
           if (total >= 300) comment = "神乎其技，你就是机房的传说！";
           else if (total >= 200) comment = "发挥稳定，应该能拿奖。";
           else if (total >= 100) comment = "有些遗憾，明年再战。";
@@ -224,9 +225,9 @@ const ExamView: React.FC<ExamViewProps> = ({ title, state, onFinish }) => {
           <div className="flex gap-4 items-center">
             <span className="text-slate-400">[{new Date().toLocaleTimeString()}]</span>
             <span className="text-slate-500 font-bold">
-               {state.phase === Phase.CSP_EXAM || state.phase === Phase.NOIP_EXAM 
-                  ? `正在攻克 ${oiProblems[examStep]?.name || 'Unknown Problem'}...` 
-                  : `正在进行 ${SUBJECT_NAMES[subjectsToTest[examStep] as SubjectKey]} 考试...`}
+               {[Phase.CSP_EXAM, Phase.NOIP_EXAM, Phase.WC_EXAM, Phase.PROVINCIAL_EXAM, Phase.APIO_EXAM, Phase.NOI_EXAM].includes(state.phase)
+                   ? `正在攻克 ${oiProblems[examStep]?.name || 'Unknown Problem'}...` 
+                   : `正在进行 ${SUBJECT_NAMES[subjectsToTest[examStep] as SubjectKey]} 考试...`}
             </span>
             <span className="w-2 h-2 bg-indigo-500 rounded-full animate-ping"></span>
           </div>
@@ -237,7 +238,7 @@ const ExamView: React.FC<ExamViewProps> = ({ title, state, onFinish }) => {
         {subjectsToTest.map((sub, idx) => (
           <div key={sub} className="bg-white rounded-xl p-3 border border-slate-200 shadow-sm text-center">
             <div className="text-[10px] text-slate-500 uppercase truncate mb-1">
-                {state.phase === Phase.CSP_EXAM || state.phase === Phase.NOIP_EXAM ? oiProblems[idx]?.name : SUBJECT_NAMES[sub as SubjectKey]}
+                {[Phase.CSP_EXAM, Phase.NOIP_EXAM, Phase.WC_EXAM, Phase.PROVINCIAL_EXAM, Phase.APIO_EXAM, Phase.NOI_EXAM].includes(state.phase) ? oiProblems[idx]?.name : SUBJECT_NAMES[sub as SubjectKey]}
             </div>
             <div className="text-xl font-black text-indigo-600">{currentScores[sub] ?? '--'}</div>
           </div>

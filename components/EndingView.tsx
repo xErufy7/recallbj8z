@@ -8,8 +8,14 @@ interface EndingViewProps {
 const EndingView: React.FC<EndingViewProps> = ({ state }) => {
 
   const { rank, title, message, details } = useMemo(() => {
-    let score = (state.general.knowledge + state.general.thinking + state.general.memory) / 3;
-    score += (state.general.charisma + state.general.luck) * 0.1;
+    // Calculate score from subject levels (main academic measure)
+    const subjectAvg = Object.values(state.subjects).reduce((sum, s) => sum + s.level, 0) / Object.keys(state.subjects).length;
+    // Combine with general stats
+    let score = subjectAvg * 1.5 + state.general.experience * 0.3 + state.general.efficiency * 0.4;
+    // Exam performance bonus
+    if (state.examResult?.totalScore) score += state.examResult.totalScore / 20;
+    // Clamp to 0-100 range
+    score = Math.min(100, Math.max(0, score));
 
     let noiMedal = state.flags.noi_medal;
     let provincialTeam = state.flags.provincial_team;
@@ -61,10 +67,10 @@ const EndingView: React.FC<EndingViewProps> = ({ state }) => {
     }
 
     const d = [
-      { label: '学识', value: Math.round(state.general.knowledge) },
-      { label: '思维', value: Math.round(state.general.thinking) },
-      { label: '记忆', value: Math.round(state.general.memory) },
-      { label: '魅力', value: Math.round(state.general.charisma) },
+      { label: '心态', value: Math.round(state.general.mindset) },
+      { label: '经验', value: Math.round(state.general.experience) },
+      { label: '效率', value: Math.round(state.general.efficiency) },
+      { label: '幸运', value: Math.round(state.general.luck) },
       { label: '桃花运', value: Math.round(state.general.romance) },
     ];
 

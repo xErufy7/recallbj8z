@@ -120,7 +120,7 @@ export const SEMESTER_2_EVENTS: GameEvent[] = [
         type: 'negative',
         once: true,
         triggerType: 'CONDITIONAL',
-        condition: (s) => s.phase === Phase.SEMESTER_2 && s.week >= 11 && s.selectedSubjects.some(sub => s.subjects[sub].level < 40),
+        condition: (s) => s.phase === Phase.SEMESTER_2 && s.week >= 11 && s.selectedSubjects.some(sub => s.subjects[sub].level < 10 && s.subjects[sub].aptitude < 30),
         choices: [
             { 
                 text: '坚持原本的选择', 

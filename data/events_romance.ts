@@ -8,7 +8,7 @@ export const ROMANCE_EVENTS: GameEvent[] = [
         description: '你抱着一摞作业本匆匆走过拐角，不小心撞到了TA。几本书掉在了地上。',
         type: 'neutral',
         triggerType: 'RANDOM',
-        condition: (s) => (s.flags.ta_favorability || 0) < 30 && Math.random() < 0.1,
+        condition: (s) => (s.flags.ta_favorability || 0) < 30 && Math.random() < (0.15 + s.general.romance * 0.005),
         choices: [
             {
                 id: 'help_pick_up',
@@ -46,7 +46,7 @@ export const ROMANCE_EVENTS: GameEvent[] = [
         description: '午休时间，你在座位上听歌，TA碰巧路过，看到了你手机屏幕上的播放界面。',
         type: 'positive',
         triggerType: 'RANDOM',
-        condition: (s) => (s.flags.ta_favorability || 0) > 5 && (s.flags.ta_favorability || 0) < 30 && Math.random() < 0.1,
+        condition: (s) => (s.flags.ta_favorability || 0) > 5 && (s.flags.ta_favorability || 0) < 30 && Math.random() < (0.15 + s.general.romance * 0.005),
         choices: [
             {
                 id: 'share_earbud',
@@ -74,7 +74,7 @@ export const ROMANCE_EVENTS: GameEvent[] = [
         description: '这节课的知识点很难，TA似乎没有完全听懂，正皱着眉头翻看课本。',
         type: 'neutral',
         triggerType: 'RANDOM',
-        condition: (s) => (s.flags.ta_favorability || 0) > 10 && (s.flags.ta_favorability || 0) < 30 && Math.random() < 0.1,
+        condition: (s) => (s.flags.ta_favorability || 0) > 10 && (s.flags.ta_favorability || 0) < 30 && Math.random() < (0.15 + s.general.romance * 0.005),
         choices: [
             {
                 id: 'offer_notes',
@@ -105,7 +105,7 @@ export const ROMANCE_EVENTS: GameEvent[] = [
         description: '周末在首都图书馆，你正准备找个座位，抬头发现TA也在这里，正向许招手。',
         type: 'positive',
         triggerType: 'RANDOM',
-        condition: (s) => (s.flags.ta_favorability || 0) >= 30 && (s.flags.ta_favorability || 0) < 70 && s.isWeekend && Math.random() < 0.2,
+        condition: (s) => (s.flags.ta_favorability || 0) >= 30 && (s.flags.ta_favorability || 0) < 70 && s.isWeekend && Math.random() < (0.25 + s.general.romance * 0.005),
         choices: [
             {
                 id: 'sit_together',
@@ -163,7 +163,7 @@ export const ROMANCE_EVENTS: GameEvent[] = [
         description: '已经过了零点，你正准备睡觉，手机屏幕亮了，是TA发来的消息：“睡了吗？有点睡不着。”',
         type: 'neutral',
         triggerType: 'RANDOM',
-        condition: (s) => (s.flags.ta_favorability || 0) >= 50 && (s.flags.ta_favorability || 0) < 70 && Math.random() < 0.15,
+        condition: (s) => (s.flags.ta_favorability || 0) >= 50 && (s.flags.ta_favorability || 0) < 70 && Math.random() < (0.20 + s.general.romance * 0.005),
         choices: [
             {
                 id: 'chat_all_night',
@@ -248,7 +248,7 @@ export const ROMANCE_EVENTS: GameEvent[] = [
         description: '今天是情人节。你打开课桌抽屉，发现里面静静地躺着一盒包装精致的巧克力，上面没有署名。',
         type: 'positive',
         triggerType: 'RANDOM',
-        condition: (s) => !s.romancePartner && s.general.romance > 40 && s.phase === Phase.SEMESTER_2 && s.week === 2 && Math.random() < 0.5,
+        condition: (s) => !s.romancePartner && s.general.romance > 40 && s.phase === Phase.SEMESTER_2 && s.week === 2 && Math.random() < (0.5 + s.general.romance * 0.003),
         choices: [
             {
                 id: 'guess_who',

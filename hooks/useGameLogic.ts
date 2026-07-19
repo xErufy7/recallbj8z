@@ -442,6 +442,17 @@ export const useGameLogic = () => {
             romance: Math.max(0, prevState.general.romance - penaltyRomance)
         };
 
+        // Gradual regression toward baseline values each week
+        const regress = (val: number, baseline: number, rate: number = 0.05) => {
+            const diff = val - baseline;
+            return val - diff * rate;
+        };
+        updatedGeneral.mindset = regress(updatedGeneral.mindset, 50);
+        updatedGeneral.health = regress(updatedGeneral.health, 70);
+        updatedGeneral.romance = Math.max(0, updatedGeneral.romance); // romance doesn't regress but has floor
+        updatedGeneral.luck = regress(updatedGeneral.luck, 50, 0.02); // luck regresses very slowly
+        updatedGeneral.efficiency = regress(updatedGeneral.efficiency, 10, 0.03);
+
         return { updatedGeneral, updatedStatuses: newStatuses };
     };
 
