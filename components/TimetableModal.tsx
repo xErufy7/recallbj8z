@@ -86,18 +86,18 @@ const TimetableModal: React.FC<Props> = ({ state, onConfirm }) => {
     };
 
     return (
-        <div className="absolute inset-0 z-[60] flex justify-center items-center bg-slate-900/60 backdrop-blur-sm p-4 animate-fadeIn">
-            <div className="bg-slate-50 rounded-[32px] max-w-6xl w-full h-[90vh] shadow-2xl flex flex-col md:flex-row overflow-hidden border border-slate-200">
+        <div className="absolute inset-0 z-[60] flex justify-center items-center bg-slate-900/60 backdrop-blur-sm p-2 md:p-4 animate-fadeIn">
+            <div className="bg-slate-50 rounded-[24px] md:rounded-[32px] max-w-6xl w-full h-[95vh] md:h-[90vh] shadow-2xl flex flex-col md:flex-row overflow-hidden border border-slate-200">
                 {/* Left: Timetable Grid */}
-                <div className="flex-1 p-6 flex flex-col h-full overflow-y-auto custom-scroll border-r border-slate-200 bg-white">
-                    <h2 className="text-2xl font-black text-slate-800 tracking-tight mb-2">周计划时间表</h2>
-                    <p className="text-sm text-slate-500 mb-6">规划你放学后和周末的时间。合理安排，劳逸结合。</p>
+                <div className="flex-1 p-4 md:p-6 flex flex-col min-h-0 overflow-y-auto custom-scroll md:border-r border-b md:border-b-0 border-slate-200 bg-white">
+                    <h2 className="text-xl md:text-2xl font-black text-slate-800 tracking-tight mb-1 md:mb-2">周计划时间表</h2>
+                    <p className="text-xs md:text-sm text-slate-500 mb-3 md:mb-6">规划你放学后和周末的时间。合理安排，劳逸结合。</p>
                     
-                    <div className="grid grid-cols-1 gap-4">
+                    <div className="grid grid-cols-1 gap-2 md:gap-4">
                         {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => (
-                            <div key={day} className="flex flex-col gap-2 p-4 bg-slate-50 rounded-xl border border-slate-100">
-                                <h3 className="font-bold text-slate-700 w-16">{day}</h3>
-                                <div className="flex flex-wrap gap-2">
+                            <div key={day} className="flex flex-col gap-1 md:gap-2 p-2 md:p-4 bg-slate-50 rounded-xl border border-slate-100">
+                                <h3 className="font-bold text-slate-700 text-sm md:text-base">{day}</h3>
+                                <div className="flex flex-wrap gap-1.5 md:gap-2">
                                     {SCHEDULE_SLOTS.filter(s => s.day === day).map(slot => {
                                         const isBlocked = isSlotBlocked(slot.id);
                                         const blocker = getBlocker(slot.id);
@@ -109,26 +109,26 @@ const TimetableModal: React.FC<Props> = ({ state, onConfirm }) => {
                                             <div 
                                                 key={slot.id} 
                                                 onClick={() => handleSlotClick(slot.id)}
-                                                className={`relative flex flex-col p-3 border-2 rounded-xl cursor-pointer transition-all w-32 h-20 ${
+                                                className={`relative flex flex-col p-2 md:p-3 border-2 rounded-xl cursor-pointer transition-all w-24 md:w-32 h-16 md:h-20 ${
                                                     isBlocked ? 'bg-slate-200 border-slate-300 opacity-50 cursor-not-allowed' :
                                                     isSelected ? 'border-indigo-500 bg-indigo-50' : 
                                                     act ? 'border-blue-300 bg-blue-50 hover:border-blue-400' : 
                                                     'border-slate-200 bg-white hover:border-slate-300'
                                                 }`}
                                             >
-                                                <span className="text-[10px] font-bold text-slate-400 mb-1">{slot.label}</span>
+                                                <span className="text-[9px] md:text-[10px] font-bold text-slate-400 mb-0.5 md:mb-1">{slot.label}</span>
                                                 {isBlocked ? (
-                                                    <span className="text-xs text-rose-500 font-bold leading-tight">被占用 ({blocker})</span>
+                                                    <span className="text-[10px] md:text-xs text-rose-500 font-bold leading-tight">被占用 ({blocker})</span>
                                                 ) : act ? (
                                                     <div className="flex justify-between items-start">
-                                                        <span className="text-xs font-bold text-blue-800 leading-tight">{act.name}</span>
+                                                        <span className="text-[10px] md:text-xs font-bold text-blue-800 leading-tight">{act.name}</span>
                                                         <button 
                                                             onClick={(e) => { e.stopPropagation(); handleClearSlot(slot.id); }}
                                                             className="text-slate-400 hover:text-rose-500"
                                                         ><i className="fas fa-times-circle"></i></button>
                                                     </div>
                                                 ) : (
-                                                    <span className="text-xs text-slate-300 font-bold">空闲</span>
+                                                    <span className="text-[10px] md:text-xs text-slate-300 font-bold">空闲</span>
                                                 )}
                                             </div>
                                         );
@@ -140,11 +140,11 @@ const TimetableModal: React.FC<Props> = ({ state, onConfirm }) => {
                 </div>
 
                 {/* Right: Activity Selection */}
-                <div className="w-full md:w-80 bg-slate-100 p-6 flex flex-col h-full">
+                <div className="w-full md:w-80 bg-slate-100 p-4 md:p-6 flex flex-col min-h-[200px] md:h-full shrink-0">
                     {selectedSlot ? (
                         <>
-                            <h3 className="text-lg font-bold text-slate-800 mb-4">选择活动 <span className="text-sm font-normal text-slate-500">({SCHEDULE_SLOTS.find(s=>s.id === selectedSlot)?.label})</span></h3>
-                            <div className="flex-1 overflow-y-auto custom-scroll space-y-2 pr-2">
+                            <h3 className="text-base md:text-lg font-bold text-slate-800 mb-3 md:mb-4">选择活动 <span className="text-xs md:text-sm font-normal text-slate-500">({SCHEDULE_SLOTS.find(s=>s.id === selectedSlot)?.label})</span></h3>
+                            <div className="flex-1 overflow-y-auto custom-scroll space-y-2 pr-1 md:pr-2 max-h-[30vh] md:max-h-none">
                                 <div 
                                     onClick={() => {
                                         const newS = {...schedule};
@@ -152,7 +152,7 @@ const TimetableModal: React.FC<Props> = ({ state, onConfirm }) => {
                                         setSchedule(newS);
                                         setSelectedSlot(null);
                                     }}
-                                    className="p-3 bg-white border border-slate-200 rounded-xl cursor-pointer hover:border-indigo-500 hover:shadow-md transition-all text-center text-slate-500 font-bold"
+                                    className="p-2 md:p-3 bg-white border border-slate-200 rounded-xl cursor-pointer hover:border-indigo-500 hover:shadow-md transition-all text-center text-slate-500 font-bold text-sm"
                                 >
                                     清空此时间段
                                 </div>
@@ -160,11 +160,11 @@ const TimetableModal: React.FC<Props> = ({ state, onConfirm }) => {
                                     <div 
                                         key={act.id}
                                         onClick={() => handleActivitySelect(act.id)}
-                                        className="p-4 bg-white border border-slate-200 rounded-xl cursor-pointer hover:border-indigo-500 hover:shadow-md transition-all group"
+                                        className="p-3 md:p-4 bg-white border border-slate-200 rounded-xl cursor-pointer hover:border-indigo-500 hover:shadow-md transition-all group"
                                     >
-                                        <div className="flex items-center gap-3 mb-1">
+                                        <div className="flex items-center gap-2 md:gap-3 mb-1">
                                             <i className={`fas ${act.icon} text-indigo-500 group-hover:scale-110 transition-transform`}></i>
-                                            <span className="font-bold text-slate-800">{act.name}</span>
+                                            <span className="font-bold text-slate-800 text-sm md:text-base">{act.name}</span>
                                         </div>
                                         <p className="text-[10px] text-slate-500 leading-relaxed">{act.description}</p>
                                     </div>
@@ -172,22 +172,22 @@ const TimetableModal: React.FC<Props> = ({ state, onConfirm }) => {
                             </div>
                         </>
                     ) : (
-                        <div className="flex-1 flex flex-col items-center justify-center text-slate-400 text-center">
-                            <i className="fas fa-hand-pointer text-4xl mb-4 opacity-50"></i>
-                            <p className="font-bold">点击左侧的时间段<br/>安排活动</p>
+                        <div className="flex-1 flex flex-col items-center justify-center text-slate-400 text-center py-4 md:py-0">
+                            <i className="fas fa-hand-pointer text-3xl md:text-4xl mb-3 md:mb-4 opacity-50"></i>
+                            <p className="font-bold text-sm md:text-base">点击上方的时间段<br/>安排活动</p>
                         </div>
                     )}
                     {state.isWeekend ? (
                     <button 
                         onClick={() => onConfirm(schedule)}
-                        className="w-full mt-6 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black text-lg shadow-lg hover:shadow-indigo-500/30 transition-all active:scale-95"
+                        className="w-full mt-4 md:mt-6 py-3 md:py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black text-base md:text-lg shadow-lg hover:shadow-indigo-500/30 transition-all active:scale-95"
                     >
                         执行本周计划 <i className="fas fa-play ml-2"></i>
                     </button>
                 ) : (
                     <button 
                         onClick={() => onConfirm(schedule)}
-                        className="w-full mt-6 py-4 bg-slate-600 hover:bg-slate-700 text-white rounded-2xl font-black text-lg shadow-lg transition-all active:scale-95"
+                        className="w-full mt-4 md:mt-6 py-3 md:py-4 bg-slate-600 hover:bg-slate-700 text-white rounded-2xl font-black text-base md:text-lg shadow-lg transition-all active:scale-95"
                     >
                         关闭 <i className="fas fa-times ml-2"></i>
                     </button>

@@ -348,11 +348,11 @@ export const WEEKEND_ACTIVITIES: WeekendActivity[] = [
         action: (s) => ({ oiStats: modifyOI(s, { dp: 0.2, ds: 0.2, misc: 0.2 }), general: { ...s.general, experience: s.general.experience + 1 } })
     },
     {
-        id: 'w_cf', name: '打 Codeforces', icon: 'fa-laptop-code', type: 'OI',
+        id: 'w_cf', name: '虚拟赛VP', icon: 'fa-laptop-code', type: 'OI',
         condition: (s) => s.competition === 'OI',
-        description: '提升思维能力，但可能会掉Rating影响心态。',
-        resultText: '打了一场 Div.2，被E题卡住了。',
-        action: (s) => ({ oiStats: modifyOI(s, { math: 0.5, misc: 0.5 }), general: { ...s.general, mindset: s.general.mindset - 4 } })
+        description: '打虚拟赛练手，不影响Rating。',
+        resultText: '打了一场VP，总结了不少经验。',
+        action: (s) => ({ oiStats: modifyOI(s, { math: 0.3, misc: 0.3, dp: 0.2 }), general: { ...s.general, mindset: s.general.mindset - 2 } })
     },
     {
         id: 'w_atc', name: '打 AtCoder', icon: 'fa-keyboard', type: 'OI',
@@ -378,21 +378,23 @@ export const WEEKEND_ACTIVITIES: WeekendActivity[] = [
 ];
 
 // Inject Codeforces activity
+// CF only available on weekends (isWeekend is always true in weekend activities context)
 WEEKEND_ACTIVITIES.push({
-    id: 'act_cf', name: '打Codeforces', icon: 'fa-code', type: 'OI',
-    condition: (s) => s.competition === 'OI',
-    description: '周六晚上22:35准时开打。熬夜打CF，周日上午注定要睡过去了。',
+    id: 'act_cf', name: '打Codeforces (周末赛)', icon: 'fa-code', type: 'OI',
+    condition: (s) => s.competition === 'OI' && s.isWeekend,
+    description: '周六晚上22:35准时开打Div.2。熬夜打CF，周日上午注定要睡过去了。',
     resultText: (s) => '你熬夜打了一场CF，收获颇丰！（由于熬夜，周日上午都在补觉。详情见历史记录）',
     action: (s) => {
         const baseRating = s.oiStats?.rating || 1200;
         const totalAptitude = s.oiStats ? (s.oiStats.dp + s.oiStats.ds + s.oiStats.math + s.oiStats.string + s.oiStats.graph + s.oiStats.misc) : 0;
         
-        // Perf is based on total stats (e.g. 0-600 total aptitude) mapped to rating (1200-3000)
-        // Add some RNG
-        const expectedPerf = 1200 + (totalAptitude * 2.5); 
-        const perf = Math.floor(expectedPerf + (Math.random() * 400 - 200));
+        // Rating formula: slower growth, higher variance
+        // totalAptitude ranges 0-600, maps to perf 1200-2100 (was 1200-2700)
+        const expectedPerf = 1200 + (totalAptitude * 1.5); 
+        const perf = Math.floor(expectedPerf + (Math.random() * 500 - 250));
         
-        const ratingChange = Math.floor((perf - baseRating) / 4);
+        // Slower rating change (divisor 6 instead of 4)
+        const ratingChange = Math.floor((perf - baseRating) / 6);
         const newRating = Math.max(0, baseRating + ratingChange);
         
         const historyRecord = {
@@ -408,10 +410,10 @@ WEEKEND_ACTIVITIES.push({
         else if (ratingChange > 0) rankStr = "小上分。";
 
         return {
-            general: { ...s.general, health: s.general.health - 5, mindset: s.general.mindset - 2 },
+            general: { ...s.general, health: s.general.health - 8, mindset: s.general.mindset - 3 },
             oiStats: s.oiStats ? { 
                 ...s.oiStats, 
-                dp: s.oiStats.dp + 3, graph: s.oiStats.graph + 3,
+                dp: s.oiStats.dp + 1, graph: s.oiStats.graph + 1,
                 rating: newRating,
                 history: [...(s.oiStats.history || []), historyRecord]
             } : s.oiStats,

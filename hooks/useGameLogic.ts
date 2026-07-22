@@ -151,7 +151,7 @@ export const useGameLogic = () => {
                 phase: nextPhase,
                 week: 1,
                 totalWeeksInPhase: weeks,
-                isPlaying: nextPhase !== Phase.ENDING && nextPhase !== Phase.SELECTION,
+                isPlaying: nextPhase !== Phase.ENDING && nextPhase !== Phase.SELECTION && nextPhase !== Phase.FINAL_EXAM && nextPhase !== Phase.FINAL_EXAM_2 && nextPhase !== Phase.PLACEMENT_EXAM,
                 log: [...prev.log, { message: `进入新阶段: ${nextPhase}`, type: 'info', timestamp: Date.now() }]
             };
         });

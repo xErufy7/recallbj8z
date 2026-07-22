@@ -415,7 +415,7 @@ const App: React.FC = () => {
                        ...prev, 
                        phase: nextPhase, 
                        isPlaying: prev.phase === Phase.SUBJECT_RESELECTION,
-                       totalWeeksInPhase: nextPhase === Phase.SEMESTER_1 ? 10 : 0
+                       totalWeeksInPhase: nextPhase === Phase.SEMESTER_1 ? 21 : 0
                    };
                })} className="bg-indigo-600 disabled:bg-slate-200 text-white px-12 py-4 rounded-2xl font-black text-xl shadow-xl">确认选择</button>
             </div>
