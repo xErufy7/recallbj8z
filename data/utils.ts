@@ -59,10 +59,15 @@ export const applyAiEffect = (s: GameState, effect: SerializableEffect): Partial
     if (effect.subjects) {
         Object.entries(effect.subjects).forEach(([key, val]) => {
             const subKey = key as SubjectKey;
-            updates.subjects![subKey] = { 
-                ...updates.subjects![subKey], 
-                level: Math.max(0, updates.subjects![subKey].level + (val as number)) 
-            };
+            if (updates.subjects![subKey]) {
+                const numVal = Number(val);
+                if (!isNaN(numVal)) {
+                    updates.subjects![subKey] = { 
+                        ...updates.subjects![subKey], 
+                        level: Math.max(0, updates.subjects![subKey].level + numVal) 
+                    };
+                }
+            }
         });
     }
 
@@ -70,7 +75,10 @@ export const applyAiEffect = (s: GameState, effect: SerializableEffect): Partial
         Object.entries(effect.oiStats).forEach(([key, val]) => {
             const oiKey = key as keyof OIStats;
             if (oiKey !== 'history') {
-                (updates.oiStats as any)[oiKey] = Math.max(0, ((updates.oiStats as any)[oiKey] || 0) + (val as number));
+                const numVal = Number(val);
+                if (!isNaN(numVal)) {
+                    (updates.oiStats as any)[oiKey] = Math.max(0, ((updates.oiStats as any)[oiKey] || 0) + numVal);
+                }
             }
         });
     }

@@ -21,7 +21,14 @@ const ExamView: React.FC<ExamViewProps> = ({ title, state, onFinish }) => {
       const problemCount = [Phase.NOI_EXAM].includes(state.phase) ? 8 : [Phase.WC_EXAM, Phase.PROVINCIAL_EXAM, Phase.APIO_EXAM].includes(state.phase) ? 6 : 4;
       return Array.from({length: problemCount}, (_, i) => `oi_prob_${i+1}`);
     }
-    if (state.phase === Phase.PLACEMENT_EXAM || state.phase === Phase.MIDTERM_EXAM || state.phase === Phase.FINAL_EXAM || state.phase === Phase.MIDTERM_EXAM_2 || state.phase === Phase.FINAL_EXAM_2) {
+    if (state.phase === Phase.PLACEMENT_EXAM) {
+        if (state.selectedSubjects && state.selectedSubjects.length === 3) {
+            return ['chinese', 'math', 'english', ...state.selectedSubjects];
+        }
+        // Fallback
+        return ['chinese', 'math', 'english', 'physics', 'chemistry', 'biology'];
+    }
+    if (state.phase === Phase.MIDTERM_EXAM || state.phase === Phase.FINAL_EXAM || state.phase === Phase.MIDTERM_EXAM_2 || state.phase === Phase.FINAL_EXAM_2) {
       if (state.selectedSubjects.length === 3) {
           return ['chinese', 'math', 'english', ...state.selectedSubjects];
       }
@@ -124,7 +131,7 @@ const ExamView: React.FC<ExamViewProps> = ({ title, state, onFinish }) => {
              let finalRatio = rawRatio * luckMultiplier;
              
              if (finalRatio >= 0.95) score = 100; 
-             else score = Math.floor(Math.min(100, finalRatio * 100));
+             else score = Math.max(0, Math.floor(Math.min(100, finalRatio * 100)));
              
              logMsg = `题目 "${prob.name}" 测试结束，获得 ${score} 分${extraLog}。`;
 
@@ -154,7 +161,7 @@ const ExamView: React.FC<ExamViewProps> = ({ title, state, onFinish }) => {
             let finalScoreRaw = basePercentage * luckMultiplier;
 
             // Cap at 100% relative
-            let finalPercentage = Math.min(100, Math.max(5, finalScoreRaw)) / 100;
+            let finalPercentage = Math.min(100, Math.max(0, finalScoreRaw)) / 100;
 
             score = Math.floor(finalPercentage * maxScore);
             logMsg = `${SUBJECT_NAMES[subject]} 考试结束，得分 ${score}/${maxScore}${extraLog}。`;

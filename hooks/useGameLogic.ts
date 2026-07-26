@@ -135,8 +135,6 @@ export const useGameLogic = () => {
                 case Phase.MIDTERM_EXAM: nextPhase = Phase.SUBJECT_RESELECTION; weeks = 0; break;
                 case Phase.SUBJECT_RESELECTION: nextPhase = Phase.SEMESTER_1; weeks = 21; break; 
                 case Phase.SEMESTER_1: nextPhase = Phase.FINAL_EXAM; weeks = 0; break;
-                case Phase.CSP_EXAM: nextPhase = Phase.SEMESTER_1; weeks = prev.totalWeeksInPhase; break; 
-                case Phase.NOIP_EXAM: nextPhase = Phase.SEMESTER_1; weeks = prev.totalWeeksInPhase; break;
                 case Phase.FINAL_EXAM: nextPhase = Phase.WINTER_BREAK; weeks = 5; break;
                 case Phase.WINTER_BREAK: nextPhase = Phase.SEMESTER_2; weeks = 21; break;
                 case Phase.MIDTERM_EXAM_2: nextPhase = Phase.SEMESTER_2; weeks = 21; break;
@@ -307,7 +305,8 @@ export const useGameLogic = () => {
                  const debt = Math.abs(state.general.money);
                  const prob = Math.min(1, Math.sqrt(debt) / 30);
                  if (Math.random() < prob && !state.recentEventIds.includes('debt_collection')) {
-                     weekEvents.push(BASE_EVENTS['debt_collection']);
+                     const evt = BASE_EVENTS['debt_collection'];
+                     if (evt) weekEvents.push(evt);
                  }
             }
 
@@ -391,19 +390,7 @@ export const useGameLogic = () => {
                 }
             }
 
-            // --- FIXED EVENTS FOR SEMESTER 2 ---
-            if (state.phase === Phase.SEMESTER_2) {
-                // April Fools (Week 5)
-                if (state.week === 5 && Math.random() < 0.7 && !state.triggeredEvents.includes('evt_april_fools')) {
-                    const evt = BASE_EVENTS['evt_april_fools'];
-                    if (evt) weekEvents.unshift(evt);
-                }
-                // Study Tour (Week 14)
-                if (state.week === 14 && !state.triggeredEvents.includes('evt_study_tour_start')) {
-                    const evt = BASE_EVENTS['evt_study_tour_start'];
-                    if (evt) weekEvents.unshift(evt);
-                }
-            }
+            // AI Branch Logic has been moved to offline pre-generation.
 
             const eventsToMark = weekEvents
                 .filter(e => (e.once || e.triggerType === 'FIXED') && e.id !== 'debt_collection')
@@ -882,7 +869,7 @@ export const useGameLogic = () => {
             const nextState = { ...prev, popupExamResult: null };
             
             if (prev.phase === Phase.MIDTERM_EXAM) {
-                 return { ...nextState, phase: Phase.SEMESTER_1, week: 12, isPlaying: true };
+                 return { ...nextState, phase: Phase.SUBJECT_RESELECTION, week: 11, isPlaying: true };
             }
             if (prev.phase === Phase.PLACEMENT_EXAM) {
                  return { ...nextState, phase: Phase.SEMESTER_1, week: 1, totalWeeksInPhase: 21, isPlaying: true };
@@ -902,16 +889,16 @@ export const useGameLogic = () => {
             if (prev.phase === Phase.WC_EXAM) {
                  // Push wc_result event and stop playing so the event pops up
                  const resultEvent = OI_EVENTS_POOL.find((e: GameEvent) => e.id === 'oi_wc_result') as GameEvent;
-                 return { ...nextState, phase: Phase.WINTER_BREAK, week: prev.week + 1, totalWeeksInPhase: 5, isPlaying: false, eventQueue: [...prev.eventQueue, resultEvent] };
+                 return { ...nextState, phase: Phase.WINTER_BREAK, week: prev.week + 1, totalWeeksInPhase: 5, isPlaying: true, eventQueue: [...prev.eventQueue, resultEvent] };
             }
             if ([Phase.PROVINCIAL_EXAM, Phase.APIO_EXAM].includes(prev.phase)) {
                  const resultEventId = prev.phase === Phase.PROVINCIAL_EXAM ? 'oi_provincial_result' : 'oi_apio_result';
                  const resultEvent = OI_EVENTS_POOL.find((e: GameEvent) => e.id === resultEventId) as GameEvent;
-                 return { ...nextState, phase: Phase.SEMESTER_2, week: prev.week + 1, totalWeeksInPhase: 21, isPlaying: false, eventQueue: [...prev.eventQueue, resultEvent] };
+                 return { ...nextState, phase: Phase.SEMESTER_2, week: prev.week + 1, totalWeeksInPhase: 21, isPlaying: true, eventQueue: [...prev.eventQueue, resultEvent] };
             }
             if (prev.phase === Phase.NOI_EXAM) {
                  const socialPractice = OI_EVENTS_POOL.find((e: GameEvent) => e.id === 'oi_noi_social_practice') as GameEvent;
-                 return { ...nextState, phase: Phase.SUMMER_BREAK, week: prev.week + 1, totalWeeksInPhase: 8, isPlaying: false, eventQueue: [...prev.eventQueue, socialPractice] };
+                 return { ...nextState, phase: Phase.SUMMER_BREAK, week: prev.week + 1, totalWeeksInPhase: 8, isPlaying: true, eventQueue: [...prev.eventQueue, socialPractice] };
             }
             return { ...nextState, isPlaying: true };
         });

@@ -1,10 +1,13 @@
-
 import { GameEvent } from '../types';
 import { modifySub } from './utils';
 import { STATUSES } from './mechanics';
 import { Phase } from '../types';
+import { STUDY_TOUR_EVENTS } from './events_study_tour';
+
+const studyTourDict = STUDY_TOUR_EVENTS.reduce((acc, e) => { acc[e.id] = e; return acc; }, {} as Record<string, GameEvent>);
 
 export const CHAINED_EVENTS: Record<string, GameEvent> = {
+    ...studyTourDict,
     'sum_confess_success': {
         id: 'sum_confess_success',
         title: '表白成功',

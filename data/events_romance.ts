@@ -180,7 +180,7 @@ export const ROMANCE_EVENTS: GameEvent[] = [
         description: '马上就是元旦了，班级里弥漫着节日的气氛。TA走到你座位旁，有些局促："跨年夜……你有什么安排吗？"',
         type: 'positive',
         triggerType: 'RANDOM',
-        condition: (s) => (s.flags.ta_favorability || 0) >= 70 && !s.romancePartner && s.phase === Phase.SEMESTER_1 && s.week === 18,
+        condition: (s) => (s.flags.ta_favorability || 0) >= 70 && !s.romancePartner && (s.phase === Phase.SEMESTER_1 || s.phase === Phase.SEMESTER_2) && s.week === 18,
         choices: [
             {
                 text: '"还没有，要一起去王府井倒数吗？"',

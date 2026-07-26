@@ -8,8 +8,9 @@ export const TALENTS: Talent[] = [
     { id: 'genius', name: '天生我才', description: '全学科天赋+10，效率+5。', rarity: 'legendary', cost: 4,
       effect: (s) => {
           const newSubs = { ...s.subjects };
-          // @ts-ignore
-          (Object.keys(newSubs)).forEach(k => newSubs[k].aptitude += 10);
+          (Object.keys(newSubs) as Array<keyof typeof newSubs>).forEach(k => {
+              newSubs[k] = { ...newSubs[k], aptitude: newSubs[k].aptitude + 10 };
+          });
           return { subjects: newSubs, general: { ...s.general, efficiency: s.general.efficiency + 5 } };
       }
     },
@@ -64,9 +65,9 @@ export const SHOP_ITEMS: Item[] = [
       effect: (s) => ({ general: { ...s.general, efficiency: s.general.efficiency + 2, health: s.general.health - 1, money: s.general.money - 15 } }) },
     { id: 'coffee', name: '瑞幸生椰拿铁', description: '我咖啡怎么变了？心态+3，效率+1。', price: 20, icon: 'fa-coffee',
       effect: (s) => ({ general: { ...s.general, mindset: s.general.mindset + 3, efficiency: s.general.efficiency + 1, money: s.general.money - 20 } }) },
-    { id: 'five_three', name: '五年高考三年模拟', description: '请输入文本。全科水平+4，心态-8。', price: 45, icon: 'fa-book',
+    { id: 'five_three', name: '五年高考三年模拟', description: '全科水平+0.5，心态-8。', price: 45, icon: 'fa-book',
       effect: (s) => ({ 
-          subjects: modifySub(s, ['chinese', 'math', 'english', 'physics', 'chemistry', 'biology'], 4), 
+          subjects: modifySub(s, ['chinese', 'math', 'english', 'physics', 'chemistry', 'biology'], 0.5), 
           general: { ...s.general, mindset: s.general.mindset - 8, money: s.general.money - 45 } 
       }) },
     { id: 'game_skin', name: '不要问为啥没有648，问就是放这里你买不了', description: '虽然不能变强，但心情变好了。心态+8。', price: 68, icon: 'fa-gamepad',
