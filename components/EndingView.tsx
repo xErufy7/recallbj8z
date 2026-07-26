@@ -24,7 +24,11 @@ const EndingView: React.FC<EndingViewProps> = ({ state }) => {
     let t = '普通高中生';
     let msg = '高一学年结束了。你的成绩中规中矩，没有太多的波澜。';
 
-    if (noiMedal === 'GOLD') {
+    if (state.general.health <= 0) {
+      r = '☠️';
+      t = '英年早逝';
+      msg = '因为过度的压力和劳累，你的身体彻底垮掉了。你的高中生活以一种悲剧的方式提前画上了句号...请牢记，身体才是革命的本钱。';
+    } else if (noiMedal === 'GOLD') {
       r = 'SSS';
       t = '清北保送生（OI 国集）';
       msg = '你在最高荣誉殿堂 NOI 中斩获金牌！一举保送清华北大，不仅如此，你的传说将在八中流传。高中的剩下的两年对你来说只是放假！';

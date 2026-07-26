@@ -160,7 +160,11 @@ const TimetableModal: React.FC<Props> = ({ state, onConfirm }) => {
                                     const MAX_SLOTS: Record<string, number> = { 'act_cf': 1, 'w_cf': 1, 'w_atc': 1, 'w_game_late': 1, 'w_game': 2 };
                                     const maxSlots = MAX_SLOTS[act.id] || 3;
                                     const currentCount = Object.values(schedule).filter(v => v === act.id).length;
-                                    const isAtLimit = currentCount >= maxSlots;
+                                    
+                                    const allowedSlots: Record<string, string[]> = { 'act_cf': ['Sat_Night'] };
+                                    const isAllowedSlot = !allowedSlots[act.id] || allowedSlots[act.id].includes(selectedSlot as string);
+                                    
+                                    const isAtLimit = currentCount >= maxSlots || !isAllowedSlot;
                                     
                                     return (
                                     <div 
@@ -176,6 +180,7 @@ const TimetableModal: React.FC<Props> = ({ state, onConfirm }) => {
                                             <i className={`fas ${act.icon} text-indigo-500 group-hover:scale-110 transition-transform`}></i>
                                             <span className="font-bold text-slate-800 text-sm md:text-base">{act.name}</span>
                                             {currentCount > 0 && <span className="text-[10px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full">{currentCount}/{maxSlots}</span>}
+                                            {!isAllowedSlot && <span className="text-[10px] bg-red-100 text-red-500 px-1.5 py-0.5 rounded-full">时间不符</span>}
                                         </div>
                                         <p className="text-[10px] text-slate-500 leading-relaxed">{act.description}</p>
                                     </div>
