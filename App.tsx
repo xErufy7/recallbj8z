@@ -391,8 +391,18 @@ const App: React.FC = () => {
                     <div className="bg-slate-50 rounded-2xl p-6 mb-8 border border-slate-100">
                         <div className="text-4xl font-black text-indigo-600 mb-2">{state.popupExamResult.totalScore}</div>
                         {state.popupExamResult.rank && state.popupExamResult.rank > 0 && (
-                            <div className="text-xl font-bold text-slate-500">年级排名: {state.popupExamResult.rank}</div>
+                            <div className="text-xl font-bold text-slate-500 mb-4">年级排名: {state.popupExamResult.rank}</div>
                         )}
+                        <div className="grid grid-cols-3 gap-2 mt-4 text-sm text-slate-700">
+                            {Object.entries(state.popupExamResult.scores).map(([subj, score]) => (
+                                <div key={subj} className="bg-white p-2 rounded border border-slate-200">
+                                    <span className="font-bold text-slate-600">{
+                                        {'chinese': '语文', 'math': '数学', 'english': '英语', 'physics': '物理', 'chemistry': '化学', 'biology': '生物', 'history': '历史', 'geography': '地理', 'politics': '政治'}[subj] || subj
+                                    }: </span>
+                                    <span className="text-indigo-600">{score}</span>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                     <button onClick={closeExamResult} className="bg-indigo-600 text-white px-12 py-4 rounded-2xl font-black text-xl hover:bg-indigo-700 shadow-xl w-full">继续</button>
                 </div>

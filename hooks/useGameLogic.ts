@@ -178,6 +178,7 @@ export const useGameLogic = () => {
         if (state.general.health >= 100) add('sports_star');
         if (state.general.mindset <= 0) add('emotional_damage');
         if (state.general.romance >= 80) add('popular');
+        if (state.flags.noip_score && state.flags.noip_score >= 195) add('oi_god');
 
         // Academic Achievements Check
         if (state.examResult) {
