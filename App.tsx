@@ -390,7 +390,9 @@ const App: React.FC = () => {
                     <h3 className="text-2xl md:text-3xl font-black text-slate-800 mt-6 mb-2">{state.popupExamResult.title}</h3>
                     <div className="bg-slate-50 rounded-2xl p-6 mb-8 border border-slate-100">
                         <div className="text-4xl font-black text-indigo-600 mb-2">{state.popupExamResult.totalScore}</div>
-                        <div className="text-xl font-bold text-slate-500">年级排名: {state.popupExamResult.rank}</div>
+                        {state.popupExamResult.rank && state.popupExamResult.rank > 0 && (
+                            <div className="text-xl font-bold text-slate-500">年级排名: {state.popupExamResult.rank}</div>
+                        )}
                     </div>
                     <button onClick={closeExamResult} className="bg-indigo-600 text-white px-12 py-4 rounded-2xl font-black text-xl hover:bg-indigo-700 shadow-xl w-full">继续</button>
                 </div>

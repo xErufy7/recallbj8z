@@ -49,12 +49,12 @@ const ExamView: React.FC<ExamViewProps> = ({ title, state, onFinish }) => {
           case Phase.FINAL_EXAM: return 1.5;     // 期末地狱难度，检验一学期成果
           case Phase.MIDTERM_EXAM_2: return 1.3; // 下半学期期中
           case Phase.FINAL_EXAM_2: return 1.6;   // 高一下期末
-          case Phase.CSP_EXAM: return 1.1;
-          case Phase.NOIP_EXAM: return 1.5;
-          case Phase.WC_EXAM: return 2.0;
-          case Phase.PROVINCIAL_EXAM: return 2.5;
-          case Phase.APIO_EXAM: return 2.2;
-          case Phase.NOI_EXAM: return 3.0;
+          case Phase.CSP_EXAM: return 1.0;
+          case Phase.NOIP_EXAM: return 1.3;
+          case Phase.WC_EXAM: return 1.5;
+          case Phase.PROVINCIAL_EXAM: return 1.8;
+          case Phase.APIO_EXAM: return 1.6;
+          case Phase.NOI_EXAM: return 2.0;
           default: return 1.0;
       }
   };
@@ -117,8 +117,8 @@ const ExamView: React.FC<ExamViewProps> = ({ title, state, onFinish }) => {
              ability += state.subjects.math.aptitude * 0.1; 
              ability += state.subjects.math.level * 0.5;
 
-             // Difficulty scaling applied to the requirement
-             const difficultyFactor = Math.max(1, required * 3.0 * difficultyMod); 
+             // Difficulty scaling: requirement * base_scale * difficulty_modifier
+             const difficultyFactor = Math.max(1, required * 1.5 * difficultyMod); 
              
              let rawRatio = ability / difficultyFactor;
              let finalRatio = rawRatio * luckMultiplier;

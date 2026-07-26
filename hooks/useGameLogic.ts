@@ -323,10 +323,24 @@ export const useGameLogic = () => {
             }
 
             // 3c. Regular Events (Phase Specific Randoms)
-            if (weekEvents.length === 0) {
+            // First: independently evaluate romance events (they have their own probability gating)
+            const romancePool = phasePool.filter(e =>
+                e.triggerType === 'RANDOM' &&
+                e.id.startsWith('romance_') &&
+                (!e.once || !state.triggeredEvents.includes(e.id)) &&
+                (!e.condition || e.condition(state)) &&
+                !state.recentEventIds.includes(e.id)
+            );
+            if (romancePool.length > 0) {
+                // Romance events already have probability checks in their conditions, so just pick one
+                weekEvents.push(romancePool[Math.floor(Math.random() * romancePool.length)]);
+            }
+
+            if (weekEvents.length === 0 || (weekEvents.length <= 1 && weekEvents[0]?.id?.startsWith('romance_'))) {
                 // Filter out recently triggered events to prevent repetition
                 const validRandoms = phasePool.filter(e => 
                     e.triggerType === 'RANDOM' &&
+                    !e.id.startsWith('romance_') && // already handled above
                     (!e.once || !state.triggeredEvents.includes(e.id)) &&
                     (!e.condition || e.condition(state)) &&
                     !state.recentEventIds.includes(e.id) // Anti-repetition check
@@ -408,7 +422,7 @@ export const useGameLogic = () => {
     }, [state.isPlaying, state.currentEvent, state.isWeekend, state.week, state.phase, state.eventQueue.length, state.midtermRank, advancePhase, state.competition, state.triggeredEvents, state.isAiGenerating, state.aiBuffer, state.recentEventIds]);
 
     const calculateWeeklyUpdates = (prevState: GameState) => {
-        let moneyChange = 2; // Base weekly money
+        let moneyChange = 1; // Base weekly money (reduced from 2)
         if (prevState.activeChallengeId === 'c_debt_king') {
             moneyChange -= 25; // Debt King Challenge: -25 money per week
         }
@@ -435,30 +449,46 @@ export const useGameLogic = () => {
             if (debtLevel === 5) { penaltyMindset = 80; penaltyRomance = 48; }
         }
 
+        // Weekly fatigue: health slowly drains from school pressure
+        const healthDrain = prevState.phase === Phase.SEMESTER_1 || prevState.phase === Phase.SEMESTER_2 ? 2 : 1;
+
         const updatedGeneral = {
             ...prevState.general,
             money: prevState.general.money + moneyChange, 
             mindset: Math.max(0, prevState.general.mindset - penaltyMindset),
-            romance: Math.max(0, prevState.general.romance - penaltyRomance)
+            romance: Math.max(0, prevState.general.romance - penaltyRomance),
+            health: Math.max(0, prevState.general.health - healthDrain)
         };
 
         // Gradual regression toward baseline values each week
         const regress = (val: number, baseline: number, rate: number = 0.05) => {
             const diff = val - baseline;
-            return val - diff * rate;
+            return Math.min(150, Math.max(0, val - diff * rate));
         };
         updatedGeneral.mindset = regress(updatedGeneral.mindset, 50);
-        updatedGeneral.health = regress(updatedGeneral.health, 70);
-        updatedGeneral.romance = Math.max(0, updatedGeneral.romance); // romance doesn't regress but has floor
-        updatedGeneral.luck = regress(updatedGeneral.luck, 50, 0.02); // luck regresses very slowly
-        updatedGeneral.efficiency = regress(updatedGeneral.efficiency, 10, 0.03);
+        updatedGeneral.health = regress(updatedGeneral.health, 60); // baseline lowered from 70 to 60
+        updatedGeneral.romance = Math.min(150, Math.max(0, updatedGeneral.romance));
+        updatedGeneral.luck = regress(updatedGeneral.luck, 50, 0.02);
+        updatedGeneral.efficiency = Math.min(30, regress(updatedGeneral.efficiency, 10, 0.03));
 
-        return { updatedGeneral, updatedStatuses: newStatuses };
+        // Subject level decay: unattended subjects slowly lose level
+        const updatedSubjects = { ...prevState.subjects };
+        for (const key of Object.keys(updatedSubjects)) {
+            const sub = updatedSubjects[key as keyof typeof updatedSubjects];
+            if (sub && sub.level > 5) {
+                updatedSubjects[key as keyof typeof updatedSubjects] = {
+                    ...sub,
+                    level: sub.level - 0.3 // Weekly decay of 0.3
+                };
+            }
+        }
+
+        return { updatedGeneral, updatedStatuses: newStatuses, updatedSubjects };
     };
 
     const applyWeeklyUpdates = (currentEvent: GameEvent, nextQueue: GameEvent[] = [], newTriggeredEvents: string[] = []) => {
         setState(prev => {
-            const { updatedGeneral, updatedStatuses } = calculateWeeklyUpdates(prev);
+            const { updatedGeneral, updatedStatuses, updatedSubjects } = calculateWeeklyUpdates(prev);
             
             // Update Anti-Repetition Buffer
             let newRecentIds = [...prev.recentEventIds];
@@ -468,10 +498,24 @@ export const useGameLogic = () => {
                 if (newRecentIds.length > 4) newRecentIds.shift(); // Keep last 4
             }
 
+            // Death check: health <= 0 means game over (猝死)
+            if (updatedGeneral.health <= 0) {
+                return {
+                    ...prev,
+                    general: updatedGeneral,
+                    phase: Phase.ENDING,
+                    currentEvent: null,
+                    eventQueue: [],
+                    isPlaying: false,
+                    log: [...prev.log, { message: '【猝死】你的健康值降到了0以下，身体再也承受不住了...游戏结束。', type: 'error', timestamp: Date.now() }]
+                };
+            }
+
             return {
                 ...prev,
                 activeStatuses: updatedStatuses,
                 general: updatedGeneral,
+                subjects: updatedSubjects,
                 currentEvent: currentEvent,
                 eventQueue: nextQueue,
                 triggeredEvents: [...prev.triggeredEvents, ...newTriggeredEvents],
@@ -723,9 +767,13 @@ export const useGameLogic = () => {
         let results = [];
         let hasSlept = false;
 
+        // Pre-build activity lookup map for O(1) access
+        const activityMap = new Map(WEEKEND_ACTIVITIES.map(a => [a.id, a]));
+        const batchLogs: typeof state.log = [];
+
         // Apply activities sequentially
         for (const [slotId, actId] of Object.entries(schedule)) {
-            const activity = WEEKEND_ACTIVITIES.find(a => a.id === actId);
+            const activity = activityMap.get(actId);
             if (!activity) continue;
 
             const oldS = { ...currentState };
@@ -737,14 +785,18 @@ export const useGameLogic = () => {
                 hasSlept = true;
             }
 
+            // Extract logs from updates before merging
+            if (updates.log) {
+                batchLogs.push(...updates.log);
+                delete updates.log;
+            }
             currentState = { ...currentState, ...updates };
             if (resultText) {
                 results.push(`[${slotId}] ${resultText}`);
             }
-            if (updates.log) {
-                currentState.log = [...(currentState.log || []), ...updates.log];
-            }
         }
+        // Apply batch logs once
+        currentState.log = [...(currentState.log || []), ...batchLogs];
 
         // Challenge Check
         if (currentState.activeChallengeId === 'c_sleep_king' && !hasSlept) {
@@ -767,10 +819,11 @@ export const useGameLogic = () => {
     };
 
     const calculateRank = (score: number, phase: Phase) => {
+        const ALL_OI_PHASES = [Phase.CSP_EXAM, Phase.NOIP_EXAM, Phase.WC_EXAM, Phase.PROVINCIAL_EXAM, Phase.APIO_EXAM, Phase.NOI_EXAM];
+        // OI exams don't have school rankings
+        if (ALL_OI_PHASES.includes(phase)) return -1;
+        
         let maxScore = 750;
-        if (phase === Phase.CSP_EXAM || phase === Phase.NOIP_EXAM) {
-            maxScore = 400; 
-        }
         
         const percentage = score / maxScore;
         const totalStudents = 633;
@@ -791,9 +844,10 @@ export const useGameLogic = () => {
     };
 
     const handleExamFinish = (result: ExamResult) => {
+        const ALL_OI_PHASES = [Phase.CSP_EXAM, Phase.NOIP_EXAM, Phase.WC_EXAM, Phase.PROVINCIAL_EXAM, Phase.APIO_EXAM, Phase.NOI_EXAM];
         const rank = calculateRank(result.totalScore, state.phase);
-        const isOI = [Phase.CSP_EXAM, Phase.NOIP_EXAM].includes(state.phase);
-        const resultWithRank: ExamResult = { ...result, rank, type: isOI ? 'COMPETITION' : 'ACADEMIC' };
+        const isOI = ALL_OI_PHASES.includes(state.phase);
+        const resultWithRank: ExamResult = { ...result, rank: isOI ? undefined : rank, type: isOI ? 'COMPETITION' : 'ACADEMIC' };
         
         let newClassName = state.className;
         if (state.phase === Phase.PLACEMENT_EXAM) {

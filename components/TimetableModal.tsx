@@ -156,19 +156,31 @@ const TimetableModal: React.FC<Props> = ({ state, onConfirm }) => {
                                 >
                                     清空此时间段
                                 </div>
-                                {availableActivities.map(act => (
+                                {availableActivities.map(act => {
+                                    const MAX_SLOTS: Record<string, number> = { 'act_cf': 1, 'w_cf': 1, 'w_atc': 1, 'w_game_late': 1, 'w_game': 2 };
+                                    const maxSlots = MAX_SLOTS[act.id] || 3;
+                                    const currentCount = Object.values(schedule).filter(v => v === act.id).length;
+                                    const isAtLimit = currentCount >= maxSlots;
+                                    
+                                    return (
                                     <div 
                                         key={act.id}
-                                        onClick={() => handleActivitySelect(act.id)}
-                                        className="p-3 md:p-4 bg-white border border-slate-200 rounded-xl cursor-pointer hover:border-indigo-500 hover:shadow-md transition-all group"
+                                        onClick={() => !isAtLimit && handleActivitySelect(act.id)}
+                                        className={`p-3 md:p-4 bg-white border rounded-xl transition-all group ${
+                                            isAtLimit 
+                                                ? 'border-slate-100 opacity-40 cursor-not-allowed' 
+                                                : 'border-slate-200 cursor-pointer hover:border-indigo-500 hover:shadow-md'
+                                        }`}
                                     >
                                         <div className="flex items-center gap-2 md:gap-3 mb-1">
                                             <i className={`fas ${act.icon} text-indigo-500 group-hover:scale-110 transition-transform`}></i>
                                             <span className="font-bold text-slate-800 text-sm md:text-base">{act.name}</span>
+                                            {currentCount > 0 && <span className="text-[10px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full">{currentCount}/{maxSlots}</span>}
                                         </div>
                                         <p className="text-[10px] text-slate-500 leading-relaxed">{act.description}</p>
                                     </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         </>
                     ) : (

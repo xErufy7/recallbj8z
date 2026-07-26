@@ -43,13 +43,13 @@ export const applyAiEffect = (s: GameState, effect: SerializableEffect): Partial
         oiStats: { ...s.oiStats }
     };
 
-    if (effect.mindset) updates.general!.mindset = Math.max(0, s.general.mindset + effect.mindset);
-    if (effect.health) updates.general!.health = Math.max(0, s.general.health + effect.health);
+    if (effect.mindset) updates.general!.mindset = Math.min(150, Math.max(0, s.general.mindset + effect.mindset));
+    if (effect.health) updates.general!.health = Math.min(150, Math.max(0, s.general.health + effect.health));
     if (effect.money) updates.general!.money = s.general.money + effect.money; // Money can be negative
-    if (effect.efficiency) updates.general!.efficiency = Math.max(1, s.general.efficiency + effect.efficiency);
-    if (effect.romance) updates.general!.romance = Math.max(0, s.general.romance + effect.romance);
-    if (effect.experience) updates.general!.experience = Math.max(0, s.general.experience + effect.experience);
-    if (effect.luck) updates.general!.luck = Math.max(0, s.general.luck + effect.luck);
+    if (effect.efficiency) updates.general!.efficiency = Math.min(30, Math.max(1, s.general.efficiency + effect.efficiency));
+    if (effect.romance) updates.general!.romance = Math.min(150, Math.max(0, s.general.romance + effect.romance));
+    if (effect.experience) updates.general!.experience = Math.min(150, Math.max(0, s.general.experience + effect.experience));
+    if (effect.luck) updates.general!.luck = Math.min(150, Math.max(0, s.general.luck + effect.luck));
 
     // AI Romance Logic
     if (effect.romancePartner) {
