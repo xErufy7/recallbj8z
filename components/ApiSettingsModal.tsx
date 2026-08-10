@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ApiSettings } from '../types';
-import { getApiSettings, saveApiSettings } from '../lib/gemini';
+import { getApiSettings, saveApiSettings } from '../lib/api';
 
 const DEFAULT_MODEL = "DeepSeek-v4-flash";
 

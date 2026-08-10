@@ -9,7 +9,7 @@ import { DIFFICULTY_PRESETS } from '../data/constants';
 import { PHASE_EVENTS, BASE_EVENTS, CHAINED_EVENTS, generateSummerLifeEvent, generateStudyEvent, generateOIEvent, generateRandomFlavorEvent } from '../data/events';
 import { WEEKEND_ACTIVITIES, STATUSES, ACHIEVEMENTS } from '../data/mechanics';
 import { modifyOI, modifySub, mapAiEventToGameEvent, getActiveTalentPassives, applyEfficiencyPassive, applyMoneyPassive, applyRomancePassive, applyHealthRecoveryPassive, applyExperiencePassive, applyStatCaps, getShopPriceMultiplier, hasNoWeeklyMoney, hasNoDebtEvents } from '../data/utils';
-import { generateBatchGameEvents } from '../lib/gemini';
+import { generateBatchGameEvents } from '../lib/api';
 import { getRandomWorldContext, CHARACTER_TEMPLATES } from '../data/world_context';
 import { getHistoricalEventsForWeek, loadCityEvents } from '../data/historical_events';
 import { OI_EVENTS_POOL } from '../data/events_oi';
