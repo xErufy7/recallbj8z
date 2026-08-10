@@ -151,6 +151,9 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
                              <button onClick={() => setShowAchievements(true)} className="px-4 py-3 bg-white text-slate-700 border border-slate-200 hover:border-indigo-300 rounded-xl font-bold text-sm shadow-sm hover:shadow-md transition-all flex items-center gap-2">
                                  <i className="fas fa-trophy text-yellow-500"></i> 查看成就墙 ({unlockedAchievements.length} / {Object.keys(ACHIEVEMENTS).length})
                              </button>
+                             <button onClick={() => setShowChangelog(true)} className="px-4 py-3 bg-white text-slate-700 border border-slate-200 hover:border-indigo-300 rounded-xl font-bold text-sm shadow-sm hover:shadow-md transition-all flex items-center gap-2">
+                                 <i className="fas fa-clipboard-list text-indigo-500"></i> 更新日志
+                             </button>
                              {onShowLeaderboard && (
                                  <button onClick={onShowLeaderboard} className="px-4 py-3 bg-amber-50 border border-amber-200 text-amber-700 rounded-xl font-bold text-sm hover:bg-amber-100 transition-all flex items-center gap-2">
                                      <i className="fas fa-medal"></i> 名人堂
