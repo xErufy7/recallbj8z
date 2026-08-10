@@ -12,8 +12,6 @@ const ApiSettingsModal: React.FC<Props> = ({ onClose }) => {
   const [settings, setSettings] = useState<ApiSettings>(getApiSettings);
   const [saved, setSaved] = useState(false);
 
-  const hasCustomApi = !!settings.apiKey.trim();
-
   const handleSave = () => {
     saveApiSettings(settings);
     setSaved(true);
@@ -93,16 +91,11 @@ const ApiSettingsModal: React.FC<Props> = ({ onClose }) => {
           </div>
 
           {/* Custom Prompt Toggle + Editor */}
-          <div className={`p-4 rounded-2xl border transition-all ${hasCustomApi ? 'bg-indigo-50/50 border-indigo-100' : 'bg-slate-50 border-slate-100 opacity-60'}`}>
+          <div className="p-4 rounded-2xl border bg-indigo-50/50 border-indigo-100">
             <div className="flex items-center justify-between mb-1">
               <label className="text-xs font-black text-slate-500 uppercase tracking-wider">
                 <i className="fas fa-edit mr-1"></i>自定义提示词
               </label>
-              {!hasCustomApi && (
-                <span className="text-[10px] text-amber-500 font-bold bg-amber-50 px-2 py-0.5 rounded-full">
-                  <i className="fas fa-lock mr-1"></i>需先配置 API Key
-                </span>
-              )}
             </div>
             <p className="text-[10px] text-slate-400 mb-3 leading-relaxed">
               你可以自定义 AI 生成事件的提示词。支持变量插槽：
@@ -111,17 +104,14 @@ const ApiSettingsModal: React.FC<Props> = ({ onClose }) => {
             <textarea
               value={settings.customPrompt}
               onChange={e => update('customPrompt', e.target.value)}
-              disabled={!hasCustomApi}
-              placeholder={hasCustomApi ? "在此输入自定义提示词...\n\n留空则使用默认提示词。\n\n可用的变量占位符：\n{{phase}} - 当前阶段\n{{week}} - 当前周数\n{{talents}} - 天赋列表\n{{mindset}} - 心态值\n..." : "请先在上方填写 API Key"}
+              placeholder={"在此输入自定义提示词...\n\n留空则使用默认提示词。\n\n可用的变量占位符：\n{{phase}} - 当前阶段\n{{week}} - 当前周数\n{{talents}} - 天赋列表\n{{mindset}} - 心态值\n..."}
               rows={6}
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-xs font-mono focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all resize-y disabled:bg-slate-100 disabled:text-slate-400"
+              className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-xs font-mono focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all resize-y"
             />
           </div>
 
           {/* Info */}
           <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4 text-xs text-amber-700 leading-relaxed space-y-2">
-            <p><i className="fas fa-info-circle mr-1"></i>
-            <strong>注意：</strong>自定义提示词功能仅在配置了自己的 API Key 后可用。这是为了防止滥用默认 API。</p>
             <p><i className="fas fa-exclamation-triangle mr-1"></i>
             <strong>CORS 提醒：</strong>浏览器可能拦截对 API 的直接请求。如果请求失败，可以尝试使用代理地址或浏览器插件关闭 CORS。</p>
           </div>

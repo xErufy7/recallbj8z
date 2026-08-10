@@ -154,7 +154,7 @@ export const generateBatchGameEvents = async (state: GameState) => {
 
   const systemPrompt = buildSystemPrompt(
     state,
-    settings.apiKey ? settings.customPrompt : undefined // Only use custom prompt with custom API
+    settings.customPrompt
   );
 
   let timeoutId: ReturnType<typeof setTimeout>;
