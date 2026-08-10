@@ -227,10 +227,8 @@ const App: React.FC = () => {
                 setState(p => ({ ...p, unlockedAchievements: [] }));
               }}
               onShowLeaderboard={() => setShowLeaderboard(true)}
-              onShowApiSettings={() => setShowApiSettings(true)}
             />
             {showLeaderboard && <LeaderboardModal onClose={() => setShowLeaderboard(false)} initialChallengeId={state.activeChallengeId} />}
-            {showApiSettings && <ApiSettingsModal onClose={() => setShowApiSettings(false)} />}
           </>
       );
   }
