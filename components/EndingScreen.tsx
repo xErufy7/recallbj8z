@@ -166,21 +166,21 @@ const EndingScreen: React.FC<EndingScreenProps> = ({ state, endingData, onRestar
                                  </div>
                              </div>
                              
-                             <div className="flex gap-3 flex-wrap">
-                                 <button onClick={onRestart} className="flex-1 bg-slate-900 text-white py-4 rounded-2xl font-black text-lg hover:bg-slate-800 transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1 flex items-center justify-center gap-2">
+                             <div className="flex gap-2 pb-6">
+                                 <button onClick={onRestart} className="flex-1 bg-slate-900 text-white px-4 py-3.5 rounded-2xl font-black text-sm whitespace-nowrap hover:bg-slate-800 transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1 flex items-center justify-center gap-2">
                                      <i className="fas fa-home"></i> 返回主页
                                  </button>
                                  {onShowLeaderboard && (
-                                 <button onClick={onShowLeaderboard} className="flex-1 bg-amber-500 text-white py-4 rounded-2xl font-black text-lg hover:bg-amber-600 transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1 flex items-center justify-center gap-2">
+                                 <button onClick={onShowLeaderboard} className="flex-1 bg-amber-500 text-white px-4 py-3.5 rounded-2xl font-black text-sm whitespace-nowrap hover:bg-amber-600 transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1 flex items-center justify-center gap-2">
                                      <i className="fas fa-trophy"></i> 排行榜
                                  </button>
                                  )}
                                  {uploadStatus === 'ok' ? (
-                                 <button disabled className="flex-1 bg-emerald-500 text-white py-4 rounded-2xl font-black text-lg flex items-center justify-center gap-2 opacity-80 cursor-not-allowed">
+                                 <button disabled className="flex-1 bg-emerald-500 text-white px-4 py-3.5 rounded-2xl font-black text-sm whitespace-nowrap flex items-center justify-center gap-2 opacity-80 cursor-not-allowed">
                                      <i className="fas fa-check-circle"></i> 已上传
                                  </button>
                                  ) : !showUpload ? (
-                                 <button onClick={() => setShowUpload(true)} className="flex-1 bg-indigo-500 text-white py-4 rounded-2xl font-black text-lg hover:bg-indigo-600 transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1 flex items-center justify-center gap-2">
+                                 <button onClick={() => setShowUpload(true)} className="flex-1 bg-indigo-500 text-white px-4 py-3.5 rounded-2xl font-black text-sm whitespace-nowrap hover:bg-indigo-600 transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1 flex items-center justify-center gap-2">
                                      <i className="fas fa-cloud-upload-alt"></i> 上传分数
                                  </button>
                                  ) : (

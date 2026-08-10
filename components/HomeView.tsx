@@ -59,7 +59,7 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
                 <div className="absolute bottom-10 right-10 text-[12rem] font-black -rotate-12 text-slate-900">OI</div>
             </div>
 
-            <div className="w-full max-w-4xl z-10 mx-auto">
+            <div className="w-full max-w-4xl z-10 mx-auto relative">
 
                 {/* Hero Card */}
                 <div className="bg-white rounded-[2.5rem] p-8 md:p-10 shadow-xl shadow-indigo-100/50 border border-slate-100 flex flex-col justify-between min-h-[420px] relative overflow-hidden">
@@ -129,12 +129,11 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
                             {/* Divider */}
                             <div className="border-t border-slate-100 my-5"></div>
 
-                            {/* CTA Buttons + Visitor */}
-                            <div className="flex items-end justify-between gap-4">
+                            {/* CTA Buttons */}
                             <div className="flex gap-4">
                                 <button
                                     onClick={onStart}
-                                    className="bg-slate-900 text-white px-10 py-4 rounded-2xl font-black text-xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all flex items-center justify-center gap-3"
+                                    className="bg-slate-900 text-white px-16 py-4 rounded-2xl font-black text-xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all flex items-center justify-center gap-3"
                                 >
                                     <i className="fas fa-play text-indigo-400"></i> 开启新学期
                                 </button>
@@ -145,17 +144,6 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
                                     </button>
                                 )}
                             </div>
-
-                            {/* Visitor badge in bottom-right */}
-                            <div className="hidden md:flex items-center gap-2 bg-white/80 backdrop-blur-sm border border-slate-100 px-3 py-1.5 rounded-full shadow-sm flex-shrink-0">
-                                <span className="relative flex h-2 w-2">
-                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                                </span>
-                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Visitors</span>
-                                <img src="https://api.visitorbadge.io/api/visitors?path=https%3A%2F%2Fgithub.com%2Fliuenyin%2Frecallbj8z&label=&countColor=%234f46e5&style=flat&labelStyle=none" alt="views" className="h-4" />
-                            </div>
-                        </div>
 
                         {/* Warnings */}
                         {selectedDifficulty !== 'REALITY' && selectedDifficulty !== 'AI_STORY' && (
@@ -168,7 +156,18 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
                                 <i className="fas fa-robot"></i> AI叙事模式：事件由 AI 实时生成，请确保已在设置中配置 API Key。
                             </div>
                         )}
+
                     </div>
+                </div>
+
+                {/* Visitor badge - absolute bottom-right of hero card wrapper */}
+                <div className="hidden md:flex items-center gap-2.5 bg-white/90 backdrop-blur-sm border border-slate-200 px-4 py-2 rounded-full shadow-md absolute bottom-10 right-10 md:bottom-12 md:right-12 z-10">
+                    <span className="relative flex h-2.5 w-2.5">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                    </span>
+                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Visitors</span>
+                    <img src="https://api.visitorbadge.io/api/visitors?path=https%3A%2F%2Fgithub.com%2Fliuenyin%2Frecallbj8z&label=&countColor=%234f46e5&style=flat&labelStyle=none" alt="views" className="h-5" />
                 </div>
             </div>
 
