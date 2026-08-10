@@ -1,9 +1,6 @@
 
 import { GameState, SUBJECT_NAMES, SubjectKey, ApiSettings, Phase } from '../types';
 
-const DEFAULT_API_URL = "https://api.deepseek.com/chat/completions";
-const DEFAULT_MODEL = "DeepSeek-v4-flash";
-
 const STORAGE_KEY_API = 'bj8z_api_settings';
 
 export const getApiSettings = (): ApiSettings => {
@@ -145,9 +142,8 @@ const normalizeApiUrl = (url: string): string => {
 
 export const generateBatchGameEvents = async (state: GameState) => {
   const settings = getApiSettings();
-  const rawUrl = settings.apiUrl.trim() || DEFAULT_API_URL;
-  const apiUrl = normalizeApiUrl(rawUrl);
-  const modelName = settings.modelName || DEFAULT_MODEL;
+  const apiUrl = normalizeApiUrl(settings.apiUrl.trim());
+  const modelName = settings.modelName;
 
   const apiKey = settings.apiKey;
 
