@@ -2,20 +2,47 @@
 import React, { useState } from 'react';
 import { GameState, Phase } from '../types';
 import { DIFFICULTY_PRESETS } from '../data/constants';
+import { uploadScore, getUseNewDb } from '../lib/supabase';
 
 interface EndingScreenProps {
     state: GameState;
     endingData: { rank: string, title: string, comment: string, score: number };
     onRestart: () => void;
     onViewHistory: () => void;
+    onShowLeaderboard?: () => void;
 }
 
-const EndingScreen: React.FC<EndingScreenProps> = ({ state, endingData, onRestart, onViewHistory }) => {
-            
-    
-    
+const EndingScreen: React.FC<EndingScreenProps> = ({ state, endingData, onRestart, onViewHistory, onShowLeaderboard }) => {
+    const [showUpload, setShowUpload] = useState(false);
+    const [playerName, setPlayerName] = useState('');
+    const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'ok' | 'err'>('idle');
+    const [uploadMsg, setUploadMsg] = useState('');
+
+    const handleUpload = async () => {
+        if (!playerName.trim()) return;
+        setUploadStatus('uploading');
+        setUploadMsg('上传中...');
+        try {
+            const useNew = getUseNewDb();
+            await uploadScore({
+                player_name: playerName.trim(),
+                score: Math.floor(endingData.score),
+                challenge_id: state.activeChallengeId || null,
+                difficulty: state.difficulty,
+                details: { title: endingData.title, rank: endingData.rank },
+            }, useNew);
+            setUploadStatus('ok');
+            setUploadMsg('上传成功！');
+            setShowUpload(false);
+        } catch (e: any) {
+            setUploadStatus('err');
+            setUploadMsg('上传失败: ' + (e.message || e));
+        }
+    };
+
+
     return (
-        <div className="fixed inset-0 z-[100] bg-slate-900/80 backdrop-blur-md text-slate-800 flex flex-col items-center justify-center p-4 md:p-6 animate-fadeIn overflow-y-auto">
+        <div className="fixed inset-0 z-[100] bg-slate-900/80 backdrop-blur-md text-slate-800 flex flex-col items-center justify-center p-4 md:p-6 animate-fadeIn overflow-y-auto custom-scroll">
                 <div className="bg-white rounded-[40px] shadow-2xl w-full max-w-4xl flex flex-col md:flex-row overflow-hidden border-4 border-slate-800 relative shrink-0">
                     
                     {/* Rank Stamp */}
@@ -139,12 +166,51 @@ const EndingScreen: React.FC<EndingScreenProps> = ({ state, endingData, onRestar
                                  </div>
                              </div>
                              
-                             <div className="flex gap-3">
+                             <div className="flex gap-3 flex-wrap">
                                  <button onClick={onRestart} className="flex-1 bg-slate-900 text-white py-4 rounded-2xl font-black text-lg hover:bg-slate-800 transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1 flex items-center justify-center gap-2">
-                                     <i className="fas fa-redo-alt"></i> 再来一年
+                                     <i className="fas fa-home"></i> 返回主页
                                  </button>
-                                 
-                                 
+                                 {onShowLeaderboard && (
+                                 <button onClick={onShowLeaderboard} className="flex-1 bg-amber-500 text-white py-4 rounded-2xl font-black text-lg hover:bg-amber-600 transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1 flex items-center justify-center gap-2">
+                                     <i className="fas fa-trophy"></i> 排行榜
+                                 </button>
+                                 )}
+                                 {uploadStatus === 'ok' ? (
+                                 <button disabled className="flex-1 bg-emerald-500 text-white py-4 rounded-2xl font-black text-lg flex items-center justify-center gap-2 opacity-80 cursor-not-allowed">
+                                     <i className="fas fa-check-circle"></i> 已上传
+                                 </button>
+                                 ) : !showUpload ? (
+                                 <button onClick={() => setShowUpload(true)} className="flex-1 bg-indigo-500 text-white py-4 rounded-2xl font-black text-lg hover:bg-indigo-600 transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1 flex items-center justify-center gap-2">
+                                     <i className="fas fa-cloud-upload-alt"></i> 上传分数
+                                 </button>
+                                 ) : (
+                                 <div className="w-full flex flex-col gap-2">
+                                     <div className="flex gap-2">
+                                         <input
+                                             type="text"
+                                             value={playerName}
+                                             onChange={e => setPlayerName(e.target.value)}
+                                             placeholder="输入玩家名称"
+                                             className="flex-1 px-4 py-3 rounded-xl border border-slate-200 text-sm font-bold outline-none focus:border-indigo-400"
+                                             disabled={uploadStatus === 'uploading'}
+                                             onKeyDown={e => e.key === 'Enter' && handleUpload()}
+                                         />
+                                         <button onClick={handleUpload} disabled={uploadStatus === 'uploading' || !playerName.trim()}
+                                             className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold text-sm hover:bg-indigo-700 disabled:opacity-50 transition-all">
+                                             {uploadStatus === 'uploading' ? '上传中...' : '确认上传'}
+                                         </button>
+                                         <button onClick={() => { setShowUpload(false); setUploadStatus('idle'); setUploadMsg(''); }}
+                                             className="px-3 py-3 text-slate-400 hover:text-slate-600 transition-colors">
+                                             <i className="fas fa-times"></i>
+                                         </button>
+                                     </div>
+                                     {uploadMsg && (
+                                         <p className={`text-xs font-bold ${uploadStatus === 'ok' ? 'text-emerald-600' : uploadStatus === 'err' ? 'text-rose-500' : 'text-slate-400'}`}>
+                                             {uploadMsg}
+                                         </p>
+                                     )}
+                                 </div>
+                                 )}
                              </div>
                         </div>
                     </div>

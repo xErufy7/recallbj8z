@@ -12,7 +12,8 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ state, onShowGuide }) => {
   const effectiveEfficiency = getEffectiveEfficiency(state);
 
   return (
-    <div className="bg-white/70 backdrop-blur-xl rounded-2xl shadow-xl p-5 space-y-6 h-full border border-white/40 overflow-y-auto custom-scroll flex flex-col transition-colors duration-300">
+    <div className="bg-white/70 backdrop-blur-xl rounded-2xl shadow-xl border border-white/40 overflow-hidden h-full transition-colors duration-300">
+      <div className="p-5 space-y-6 h-full overflow-y-auto custom-scroll flex flex-col">
       {/* 状态概览 */}
       <div>
         {state.worldContext && (
@@ -109,6 +110,7 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ state, onShowGuide }) => {
              );
           })}
         </div>
+      </div>
       </div>
     </div>
   );

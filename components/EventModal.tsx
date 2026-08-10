@@ -28,8 +28,9 @@ const EventModal: React.FC<EventModalProps> = ({ event, state, eventResult, onCh
                   initial={{ scale: 0.9, y: 20, opacity: 0 }}
                   animate={{ scale: 1, y: 0, opacity: 1 }}
                   transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                  className="bg-white/80 backdrop-blur-xl rounded-[2rem] shadow-2xl p-6 md:p-10 max-w-xl w-full border border-white/50 max-h-[85vh] overflow-y-auto custom-scroll"
+                  className="bg-white/80 backdrop-blur-xl rounded-[2rem] shadow-2xl max-w-xl w-full border border-white/50 max-h-[85vh] overflow-hidden flex flex-col"
                >
+                  <div className="p-6 md:p-10 overflow-y-auto custom-scroll flex-1 min-h-0">
                   {!eventResult ? (
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }}>
                       <div className="flex justify-between items-start mb-6">
@@ -89,6 +90,7 @@ const EventModal: React.FC<EventModalProps> = ({ event, state, eventResult, onCh
                       </motion.button>
                     </motion.div>
                   )}
+                  </div>
                </motion.div>
             </motion.div>
             </AnimatePresence>

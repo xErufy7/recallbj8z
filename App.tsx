@@ -3,7 +3,8 @@ import React, { useState, useRef } from 'react';
 import { Difficulty, GeneralStats, Talent, Phase, GameState, Challenge } from './types';
 import { DIFFICULTY_PRESETS } from './data/constants';
 import { CLUBS, SHOP_ITEMS, ACHIEVEMENTS, TALENTS } from './data/mechanics';
-import { useGameLogic } from './hooks/useGameLogic';
+import { getShopPriceMultiplier } from './data/utils';
+import { useGameLogic, ACHIEVEMENTS_KEY, PHASE_NAMES } from './hooks/useGameLogic';
 
 // Component Imports
 import StatsPanel from './components/StatsPanel';
@@ -17,6 +18,8 @@ import EndingScreen from './components/EndingScreen';
 import EventModal from './components/EventModal';
 import FloatingTextLayer, { FloatingTextItem } from './components/FloatingTextLayer';
 import RealityGuideModal from './components/RealityGuideModal';
+import LeaderboardModal from './components/LeaderboardModal';
+import ApiSettingsModal from './components/ApiSettingsModal';
 
 import { SUBJECT_NAMES, SubjectKey } from './types';
 
@@ -27,6 +30,7 @@ const App: React.FC = () => {
   const [view, setView] = useState<'HOME' | 'TALENTS' | 'GAME'>('HOME');
   const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty>('NORMAL');
   const [customStats, setCustomStats] = useState<GeneralStats>({ mindset: 50, experience: 10, luck: 50, romance: 10, health: 80, money: 20, efficiency: 10 });
+  const [useCustomStats, setUseCustomStats] = useState(false);
   const [showClubSelection, setShowClubSelection] = useState(false);
   const [showShop, setShowShop] = useState(false);
   const [showRealityGuide, setShowRealityGuide] = useState(false);
@@ -34,6 +38,8 @@ const App: React.FC = () => {
   const [showAchievements, setShowAchievements] = useState(false);
   const [showSchedule, setShowSchedule] = useState(false);
   const [showContestHistory, setShowContestHistory] = useState(false);
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [showApiSettings, setShowApiSettings] = useState(false);
   const [pendingChallenge, setPendingChallenge] = useState<Challenge | null>(null);
   const logEndRef = useRef<HTMLDivElement>(null);
 
@@ -76,11 +82,12 @@ const App: React.FC = () => {
        return diffs;
   };
 
-  const { 
-      state, setState, hasSave, saveGame, loadGame,
-      startGameState, handleChoice, handleEventConfirm, handleClubSelect, handleShopPurchase, 
+  const {
+      state, setState, weekendResult, setWeekendResult, hasSave, checkHasSave, saveGame, loadGame,
+      startGameState, handleChoice, handleEventConfirm, handleClubSelect, handleShopPurchase,
+      handleWeekendActivityClick, confirmWeekendActivity,
       executeTimetable, handleExamFinish, closeCompetitionPopup, closeExamResult, closeMiniGame,
-      weekendOptions 
+      weekendOptions
   } = useGameLogic();
 
   React.useEffect(() => {
@@ -97,21 +104,32 @@ const App: React.FC = () => {
   const [selectedTalents, setSelectedTalents] = useState<Talent[]>([]);
   const [talentPoints, setTalentPoints] = useState(3);
 
+  const handleDifficultyChange = (diff: Difficulty) => {
+      setSelectedDifficulty(diff);
+      setUseCustomStats(false);
+  };
+
+  const handleCustomStatsConfirm = () => {
+      setUseCustomStats(true);
+  };
+
   const prepareGame = (challenge?: Challenge) => {
-      setShowClubSelection(false); setShowRealityGuide(false);
+      setWeekendResult(null); setShowClubSelection(false); setShowRealityGuide(false);
       setPendingChallenge(challenge || null);
-      
+
       const pool = [...TALENTS];
       const buffs = pool.filter(t => t.cost > 0).sort(() => 0.5 - Math.random()).slice(0, 5);
       const debuffs = pool.filter(t => t.cost < 0).sort(() => 0.5 - Math.random()).slice(0, 4);
       setAvailableTalents([...buffs, ...debuffs].sort(() => 0.5 - Math.random()));
       setSelectedTalents([]);
-      setTalentPoints(selectedDifficulty === 'HARD' ? 1 : (selectedDifficulty === 'REALITY' ? 0 : 3));
+      const effectiveDifficulty = useCustomStats ? 'CUSTOM' : selectedDifficulty;
+      setTalentPoints(effectiveDifficulty === 'HARD' ? 1 : (effectiveDifficulty === 'REALITY' ? 0 : 3));
       setView('TALENTS');
   };
 
   const handleStartGame = () => {
-      startGameState(selectedDifficulty, customStats, selectedTalents, pendingChallenge);
+      const effectiveDifficulty = useCustomStats ? 'CUSTOM' : selectedDifficulty;
+      startGameState(effectiveDifficulty, customStats, selectedTalents, pendingChallenge);
       setView('GAME');
   };
 
@@ -127,8 +145,10 @@ const App: React.FC = () => {
   };
 
   const handleLoadGame = () => {
-      if (loadGame()) setView('GAME');
+      if (loadGame(selectedDifficulty)) setView('GAME');
   };
+
+  const difficultyHasSave = checkHasSave(selectedDifficulty);
 
   const calculateProgress = () => state.totalWeeksInPhase === 0 ? 0 : Math.min(100, (state.week / state.totalWeeksInPhase) * 100);
   
@@ -138,7 +158,7 @@ const App: React.FC = () => {
      }
 
       // Calculate score from subject levels (main academic measure)
-      const subjectAvg = Object.values(state.subjects).reduce((sum, s) => sum + s.level, 0) / Object.keys(state.subjects).length;
+      const subjectAvg = (Object.values(state.subjects) as any[]).reduce((sum: number, s: any) => sum + (s.level || 0), 0) / Object.keys(state.subjects).length;
       // Combine with general stats
       let score = subjectAvg * 1.5 + state.general.experience * 0.3 + state.general.efficiency * 0.4;
       // Exam performance bonus
@@ -196,12 +216,22 @@ const App: React.FC = () => {
 
   if (view === 'HOME') {
       return (
-          <HomeView 
-            selectedDifficulty={selectedDifficulty} onDifficultyChange={setSelectedDifficulty}
-            customStats={customStats} onCustomStatsChange={setCustomStats}
-            onStart={prepareGame} hasSave={hasSave} onLoadGame={handleLoadGame}
-            unlockedAchievements={state.unlockedAchievements}
-          />
+          <>
+            <HomeView
+              selectedDifficulty={selectedDifficulty} onDifficultyChange={handleDifficultyChange}
+              customStats={customStats} onCustomStatsChange={setCustomStats} onCustomStatsConfirm={handleCustomStatsConfirm}
+              onStart={prepareGame} hasSave={difficultyHasSave} onLoadGame={handleLoadGame}
+              unlockedAchievements={state.unlockedAchievements}
+              onResetAchievements={() => {
+                localStorage.removeItem(ACHIEVEMENTS_KEY);
+                setState(p => ({ ...p, unlockedAchievements: [] }));
+              }}
+              onShowLeaderboard={() => setShowLeaderboard(true)}
+              onShowApiSettings={() => setShowApiSettings(true)}
+            />
+            {showLeaderboard && <LeaderboardModal onClose={() => setShowLeaderboard(false)} initialChallengeId={state.activeChallengeId} />}
+            {showApiSettings && <ApiSettingsModal onClose={() => setShowApiSettings(false)} />}
+          </>
       );
   }
   
@@ -232,6 +262,8 @@ const App: React.FC = () => {
   return (
     <div className={`h-[100dvh] transition-all duration-1000 ${getAtmosphereTheme()} ${state.general.mindset <= 20 ? 'grayscale-[0.9] contrast-125 transition-all duration-[3000ms]' : ''} flex flex-col md:flex-row p-2 md:p-4 gap-2 md:gap-4 overflow-hidden font-sans text-slate-900 relative`}>
             {showContestHistory && <ContestHistoryModal state={state} onClose={() => setShowContestHistory(false)} />}
+      {showLeaderboard && <LeaderboardModal onClose={() => setShowLeaderboard(false)} initialChallengeId={state.activeChallengeId} />}
+      {showApiSettings && <ApiSettingsModal onClose={() => setShowApiSettings(false)} />}
       <div className={`fixed inset-0 pointer-events-none z-[50] transition-all duration-1000 ${state.general.health < 30 ? 'opacity-100' : 'opacity-0'}`} style={{ boxShadow: 'inset 0 0 100px rgba(255, 0, 0, 0.3)' }}></div>
       <FloatingTextLayer items={floatingTexts} />
       
@@ -273,7 +305,7 @@ const App: React.FC = () => {
       
 
       {/* Main Area */}
-      <main className="flex-1 flex flex-col gap-2 md:gap-4 relative h-full overflow-hidden">
+      <main className="flex-1 flex flex-col gap-2 md:gap-4 relative h-full overflow-hidden rounded-2xl">
         
         {/* Mobile Toolbar */}
         <div className="flex md:hidden gap-2 overflow-x-auto pb-1 flex-shrink-0">
@@ -299,7 +331,7 @@ const App: React.FC = () => {
                <div className="flex items-center justify-between mt-0 md:mt-8">
                    <div className="flex flex-col gap-1 w-full mr-4">
                        <h2 className="font-black text-slate-800 text-lg flex items-center gap-2 uppercase tracking-tight truncate">
-                            <span className={`w-2 h-2 rounded-full flex-shrink-0 ${state.isSick ? 'bg-red-500 animate-pulse' : 'bg-indigo-500'}`}></span> {state.phase} 
+                            <span className={`w-2 h-2 rounded-full flex-shrink-0 ${state.isSick ? 'bg-red-500 animate-pulse' : 'bg-indigo-500'}`}></span> {PHASE_NAMES[state.phase] || state.phase}
                         </h2>
                         <div className="flex gap-2 items-center flex-wrap">
                             {state.activeStatuses.map(s => (
@@ -316,8 +348,8 @@ const App: React.FC = () => {
                    </div>
                    <button 
                       onClick={() => setState(p => ({ ...p, isPlaying: !p.isPlaying }))} 
-                      disabled={!!state.currentEvent || state.isWeekend }
-                      className={`w-14 h-14 md:w-16 md:h-16 rounded-full flex-shrink-0 flex items-center justify-center shadow-xl transition-all ${state.currentEvent || state.isWeekend  ? 'bg-slate-100 text-slate-300' : state.isPlaying ? 'bg-amber-400 text-white hover:bg-amber-500' : 'bg-indigo-600 text-white hover:bg-indigo-700'}`}
+                      disabled={!!state.currentEvent || state.isWeekend || !!weekendResult}
+                      className={`w-14 h-14 md:w-16 md:h-16 rounded-full flex-shrink-0 flex items-center justify-center shadow-xl transition-all ${state.currentEvent || state.isWeekend || weekendResult ? 'bg-slate-100 text-slate-300' : state.isPlaying ? 'bg-amber-400 text-white hover:bg-amber-500' : 'bg-indigo-600 text-white hover:bg-indigo-700'}`}
                    >
                       <i className={`fas ${state.isPlaying ? 'fa-pause' : 'fa-play'} text-xl`}></i>
                    </button>
@@ -331,13 +363,15 @@ const App: React.FC = () => {
         </header>
 
         {/* Log */}
-        <div className="flex-1 bg-white/70 backdrop-blur-xl rounded-2xl p-4 md:p-6 shadow-sm border border-white/40 overflow-y-auto custom-scroll space-y-3 relative">
+        <div className="flex-1 bg-white/70 backdrop-blur-xl rounded-2xl shadow-sm border border-white/40 overflow-hidden relative">
+          <div className="h-full p-4 md:p-6 overflow-y-auto custom-scroll space-y-3">
              {state.log.map((l, i) => (
                 <div key={i} className={`p-3 rounded-xl border-l-4 animate-fadeIn ${l.type === 'event' ? 'bg-indigo-50 border-indigo-400' : l.type === 'success' ? 'bg-emerald-50 border-emerald-400' : l.type === 'error' ? 'bg-rose-50 border-rose-400' : 'bg-slate-50 border-slate-300'}`}>
                    <p className="text-sm font-medium text-slate-800">{l.message}</p>
                 </div>
              ))}
              <div ref={logEndRef} />
+          </div>
         </div>
 
         {/* --- Overlays & Modals --- */}
@@ -474,12 +508,16 @@ const App: React.FC = () => {
                      </div>
                      <div className="flex-1 overflow-y-auto custom-scroll p-6 md:p-8">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pb-safe">
-                             {SHOP_ITEMS.map(item => (
-                                 <button key={item.id} onClick={() => handleShopPurchase(item, () => spawnFloatingText(`-${item.price}`, window.innerWidth/2, window.innerHeight/2, 'money'))} disabled={state.general.money < item.price} className="p-4 rounded-xl border border-slate-100 hover:border-indigo-500 hover:bg-indigo-50 transition-all text-left flex items-center gap-4 group disabled:opacity-50 active:scale-95">
+                             {SHOP_ITEMS.map(item => {
+                                 const multiplier = getShopPriceMultiplier(state);
+                                 const actualPrice = Math.floor(item.price * multiplier);
+                                 return (
+                                 <button key={item.id} onClick={() => handleShopPurchase(item, () => spawnFloatingText(`-${actualPrice}`, window.innerWidth/2, window.innerHeight/2, 'money'))} disabled={state.general.money < actualPrice} className="p-4 rounded-xl border border-slate-100 hover:border-indigo-500 hover:bg-indigo-50 transition-all text-left flex items-center gap-4 group disabled:opacity-50 active:scale-95">
                                      <div className="w-12 h-12 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500 group-hover:bg-white group-hover:text-indigo-600"><i className={`fas ${item.icon} text-xl`}></i></div>
-                                     <div className="flex-1"><div className="flex justify-between items-center"><span className="font-bold text-slate-800">{item.name}</span><span className="text-sm font-bold text-yellow-600">{item.price} G</span></div><p className="text-xs text-slate-400 mt-1">{item.description}</p></div>
+                                     <div className="flex-1"><div className="flex justify-between items-center"><span className="font-bold text-slate-800">{item.name}</span><span className="text-sm font-bold text-yellow-600">{actualPrice} G</span></div><p className="text-xs text-slate-400 mt-1">{item.description}</p></div>
                                  </button>
-                             ))}
+                                 );
+                             })}
                         </div>
                      </div>
                  </div>
@@ -532,11 +570,12 @@ const App: React.FC = () => {
         
         {/* Ending */}
         {(state.phase === Phase.ENDING || state.phase === Phase.WITHDRAWAL) && (
-            <EndingScreen 
+            <EndingScreen
                 state={state}
                 endingData={getEndingData()}
                 onRestart={() => setView('HOME')}
                 onViewHistory={() => setShowHistory(true)}
+                onShowLeaderboard={() => setShowLeaderboard(true)}
             />
         )}
 

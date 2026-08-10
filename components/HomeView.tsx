@@ -11,10 +11,14 @@ interface HomeViewProps {
     onDifficultyChange: (diff: Difficulty) => void;
     customStats: GeneralStats;
     onCustomStatsChange: (stats: GeneralStats) => void;
-    onStart: (challenge?: Challenge) => void; 
+    onCustomStatsConfirm?: () => void;
+    onStart: (challenge?: Challenge) => void;
     hasSave: boolean;
     onLoadGame: () => void;
     unlockedAchievements: string[];
+    onResetAchievements?: () => void;
+    onShowLeaderboard?: () => void;
+    onShowApiSettings?: () => void;
 }
 
 const SPONSORS = [
@@ -30,7 +34,7 @@ const UtilityButton: React.FC<{ icon: string, label: string, onClick: () => void
     </button>
 );
 
-const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyChange, customStats, onCustomStatsChange, onStart, hasSave, onLoadGame, unlockedAchievements }) => {
+const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyChange, customStats, onCustomStatsChange, onCustomStatsConfirm, onStart, hasSave, onLoadGame, unlockedAchievements, onResetAchievements, onShowLeaderboard, onShowApiSettings }) => {
     const [showChangelog, setShowChangelog] = React.useState(false);
     const [showSponsor, setShowSponsor] = React.useState(false);
     const [showSettings, setShowSettings] = React.useState(false);
@@ -142,11 +146,26 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
                              </div>
                          )}
                          
-                         {/* Achievement Meta Progression */}
-                         <div className="mt-8">
-                             <button onClick={() => setShowAchievements(true)} className="px-6 py-3 bg-white text-slate-700 border border-slate-200 hover:border-indigo-300 rounded-xl font-bold shadow-sm hover:shadow-md transition-all flex items-center gap-2">
+                         {/* Achievement Meta Progression + Utility Buttons */}
+                         <div className="mt-8 flex items-center gap-2 flex-wrap">
+                             <button onClick={() => setShowAchievements(true)} className="px-4 py-3 bg-white text-slate-700 border border-slate-200 hover:border-indigo-300 rounded-xl font-bold text-sm shadow-sm hover:shadow-md transition-all flex items-center gap-2">
                                  <i className="fas fa-trophy text-yellow-500"></i> 查看成就墙 ({unlockedAchievements.length} / {Object.keys(ACHIEVEMENTS).length})
                              </button>
+                             {onShowLeaderboard && (
+                                 <button onClick={onShowLeaderboard} className="px-4 py-3 bg-amber-50 border border-amber-200 text-amber-700 rounded-xl font-bold text-sm hover:bg-amber-100 transition-all flex items-center gap-2">
+                                     <i className="fas fa-medal"></i> 名人堂
+                                 </button>
+                             )}
+                             {onShowApiSettings && (
+                                 <button onClick={onShowApiSettings} className="px-4 py-3 bg-indigo-50 border border-indigo-200 text-indigo-700 rounded-xl font-bold text-sm hover:bg-indigo-100 transition-all flex items-center gap-2">
+                                     <i className="fas fa-robot"></i> AI 设置
+                                 </button>
+                             )}
+                             {onResetAchievements && (
+                                 <button onClick={onResetAchievements} className="px-4 py-3 bg-rose-50 border border-rose-200 text-rose-600 rounded-xl font-bold text-sm hover:bg-rose-100 transition-all flex items-center gap-2">
+                                     <i className="fas fa-undo"></i> 重置成就
+                                 </button>
+                             )}
                          </div>
 
                          <div className="flex gap-4 mt-8">
@@ -166,15 +185,14 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
                              )}
                          </div>
                          
-                         {/* Hints */}
-                         {selectedDifficulty !== 'REALITY'  && (
+                         {selectedDifficulty !== 'REALITY' && selectedDifficulty !== 'AI_STORY' && (
                              <div className="mt-4 text-xs text-amber-500 font-bold flex items-center gap-1.5 bg-amber-50 w-fit px-3 py-1 rounded-full">
                                  <i className="fas fa-exclamation-triangle"></i> 仅在【现实】难度下可解锁成就
                              </div>
                          )}
-                         {false && (
+                         {selectedDifficulty === 'AI_STORY' && (
                              <div className="mt-4 text-xs text-indigo-600 font-bold flex items-center gap-1.5 bg-indigo-50 w-fit px-3 py-1 rounded-full border border-indigo-100">
-                                 <i className="fas fa-robot"></i> 实验性功能：事件将由 DeepSeek API 实时生成，请确保网络通畅。
+                                 <i className="fas fa-robot"></i> AI叙事模式：事件将由 AI 实时生成，请确保已在设置中配置 API Key。
                              </div>
                          )}
                      </div>

@@ -77,7 +77,7 @@ export interface CompetitionResultData {
     award: string;
 }
 
-export type Difficulty = 'CUSTOM' | 'NORMAL' | 'HARD' | 'REALITY' ;
+export type Difficulty = 'CUSTOM' | 'NORMAL' | 'HARD' | 'REALITY' | 'AI_STORY';
 
 export interface Achievement {
   id: string;
@@ -120,13 +120,36 @@ export interface WeekendActivity {
     action: (state: GameState) => Partial<GameState>;
 }
 
+export interface TalentPassiveEffects {
+    shopDiscount?: number;
+    moneyGainMultiplier?: number;
+    efficiencyChangeMod?: {
+        positiveMultiplier: number;
+        negativeMultiplier: number;
+    };
+    healthCap?: number;
+    luckCap?: number;
+    noWeeklyMoney?: boolean;
+    romanceGainMultiplier?: number;
+    healthRecoveryMultiplier?: number;
+    examScoreMultiplier?: number;
+    romanceEventChanceMultiplier?: number;
+    noDebtEvents?: boolean;
+    mindsetFloor?: number;
+    luckFloor?: number;
+    efficiencyCap?: number;
+    shopPriceMultiplier?: number;
+    experienceGainMultiplier?: number;
+}
+
 export interface Talent {
     id: string;
     name: string;
     description: string;
     rarity: 'common' | 'rare' | 'legendary' | 'mythical' | 'cursed';
-    cost: number; 
-    effect?: (state: GameState) => Partial<GameState>; 
+    cost: number;
+    effect?: (state: GameState) => Partial<GameState>;
+    passive?: TalentPassiveEffects;
 }
 
 export interface Item {
@@ -139,6 +162,13 @@ export interface Item {
 }
 
 export type Theme = 'light' | 'dark';
+
+export interface ApiSettings {
+  apiUrl: string;
+  apiKey: string;
+  modelName: string;
+  customPrompt: string;
+}
 
 export interface Challenge {
     id: string;
@@ -209,9 +239,10 @@ export interface GameState {
   activeProjects: Project[]; 
   completedProjects: string[]; 
   isPlaying: boolean; 
-  isAiGenerating?: boolean; 
-  eventQueue: GameEvent[]; 
-  pendingHistoricalEvents: GameEvent[]; 
+  isAiGenerating?: boolean;
+  eventQueue: GameEvent[];
+  aiBuffer: GameEvent[];
+  pendingHistoricalEvents: GameEvent[];
   recentEventIds: string[]; 
   phase: Phase;
   week: number;
@@ -247,6 +278,7 @@ export interface GameState {
   difficulty: Difficulty;
   activeChallengeId: string | null; 
   isWeekend: boolean;
+  weekendActionPoints: number;
   lastWeekSchedule: Record<string, string>;
   lastHistoricalWeek: number;
   weekendProcessed: boolean; 
@@ -267,7 +299,7 @@ export interface GameLogEntry {
   timestamp: number;
 }
 
-export type EventTriggerType = 'RANDOM' | 'CONDITIONAL' | 'FIXED';
+export type EventTriggerType = 'RANDOM' | 'CONDITIONAL' | 'FIXED' | 'CHAINED';
 
 export interface GameEvent {
   id: string;

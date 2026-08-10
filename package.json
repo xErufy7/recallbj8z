@@ -1,14 +1,16 @@
 {
   "name": "八中重开模拟器",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.5.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "start": "vite preview --host 0.0.0.0 --port 8080",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.39.0",
     "framer-motion": "^12.42.2",
     "react": "^19.2.3",
     "react-dom": "^19.2.3"
