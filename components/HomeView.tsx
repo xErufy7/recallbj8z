@@ -62,7 +62,7 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
             <div className="w-full max-w-4xl z-10 mx-auto relative">
 
                 {/* Hero Card */}
-                <div className="bg-white rounded-[2.5rem] p-8 md:p-10 shadow-xl shadow-indigo-100/50 border border-slate-100 flex flex-col justify-between min-h-[420px] relative overflow-hidden">
+                <div className="bg-white rounded-[2.5rem] p-8 md:p-10 shadow-xl shadow-indigo-100/50 border border-slate-100 flex flex-col justify-between min-h-[540px] relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-50 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
                     <div className="absolute bottom-0 left-0 w-80 h-80 bg-emerald-50 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
 
@@ -133,13 +133,13 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
                             <div className="flex gap-4">
                                 <button
                                     onClick={onStart}
-                                    className="bg-slate-900 text-white px-16 py-4 rounded-2xl font-black text-xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all flex items-center justify-center gap-3"
+                                    className="bg-slate-900 text-white flex-1 py-4 rounded-2xl font-black text-xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all flex items-center justify-center gap-3"
                                 >
                                     <i className="fas fa-play text-indigo-400"></i> 开启新学期
                                 </button>
 
                                 {hasSave && (
-                                    <button onClick={onLoadGame} className="px-8 py-4 bg-white text-emerald-600 border-2 border-emerald-100 hover:border-emerald-300 rounded-2xl font-black text-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all flex items-center justify-center gap-2" title="继续上次的进度">
+                                    <button onClick={onLoadGame} className="flex-[0.5] py-4 bg-white text-emerald-600 border-2 border-emerald-100 hover:border-emerald-300 rounded-2xl font-black text-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all flex items-center justify-center gap-2" title="继续上次的进度">
                                         <i className="fas fa-save"></i> 继续游戏
                                     </button>
                                 )}
