@@ -70,7 +70,7 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ state, onShowGuide }) => {
 
   return (
     <div className="bg-white/70 backdrop-blur-xl rounded-2xl shadow-xl border border-white/40 overflow-hidden h-full transition-colors duration-300">
-      <div className="p-5 space-y-6 h-full overflow-y-auto custom-scroll flex flex-col">
+      <div className="p-5 space-y-4 h-full overflow-y-auto custom-scroll flex flex-col">
       {/* 状态概览 */}
       <div>
         {state.worldContext && (
@@ -83,7 +83,7 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ state, onShowGuide }) => {
                 </div>
             </div>
         )}
-        <div className="flex justify-between items-center mb-3">
+        <div className="flex justify-between items-center mb-1">
             <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
               <i className="fas fa-user-circle"></i> 个人档案
             </h3>
@@ -108,6 +108,8 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ state, onShowGuide }) => {
           <div className="h-full bg-indigo-600" style={{ width: `${Math.min(100, effectiveEfficiency * 5)}%` }}></div>
         </div>
       </div>
+
+      <div className="border-t border-slate-200"></div>
 
       {/* 6大基础属性 */}
       <div>
@@ -139,6 +141,8 @@ const StatsPanel: React.FC<StatsPanelProps> = ({ state, onShowGuide }) => {
                </div>
            </div>
        )}
+
+      <div className="border-t border-slate-200"></div>
 
       {/* 学科属性 */}
       <div className="flex-1 pb-4">
