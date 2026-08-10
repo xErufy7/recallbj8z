@@ -718,7 +718,7 @@ export const useGameLogic = () => {
         }
 
         if (activeChallenge) {
-            if (activeChallenge.conditions.initialStats) {
+            if (activeChallenge.conditions?.initialStats) {
                 initialGeneral = { ...initialGeneral, ...activeChallenge.conditions.initialStats };
             }
             if (activeChallenge.id === 'c_sleep_king') {

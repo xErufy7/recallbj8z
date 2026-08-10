@@ -25,7 +25,7 @@ const TalentView: React.FC<TalentViewProps> = ({ availableTalents, selectedTalen
                         </div>
                         <span className="text-xs text-slate-400">选择负面天赋以获取更多点数</span>
                     </div>
-                    <span className="text-xs font-medium text-slate-500 lg:ml-auto">点击选择天赋 / 再次点击取消</span>
+                    <span className="text-xs font-medium text-slate-500 lg:ml-auto">点击选择/取消天赋</span>
                 </div>
             </header>
 
@@ -52,11 +52,8 @@ const TalentView: React.FC<TalentViewProps> = ({ availableTalents, selectedTalen
                                         <span className={`text-[10px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded ${talent.rarity === 'cursed' ? 'bg-rose-100 text-rose-600' : 'bg-slate-100 text-slate-500'}`}>
                                             {talent.rarity}
                                         </span>
-                                        {isDebuff && (
-                                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-rose-100 text-rose-600">负面</span>
-                                        )}
                                     </div>
-                                    <span className={`text-xs font-black px-2 py-1 rounded-full ${talent.cost > 0 ? 'bg-slate-100 text-red-500' : 'bg-emerald-100 text-emerald-600'}`}>
+                                    <span className={`text-xs font-black px-2 py-1 rounded-full ${talent.cost > 0 ? 'bg-slate-100 text-red-500' : 'bg-slate-100 text-emerald-600'}`}>
                                         {talent.cost > 0 ? `-${talent.cost}` : `+${Math.abs(talent.cost)}`}
                                     </span>
                                 </div>
@@ -72,14 +69,9 @@ const TalentView: React.FC<TalentViewProps> = ({ availableTalents, selectedTalen
                                         ? 'bg-rose-100/95 text-rose-600'
                                         : 'bg-indigo-50/95 text-indigo-600'
                                 }`}>
-                                    {isSelected ? '再次点击取消' : '点击选择'}
+                                    {isSelected ? '点击取消' : '点击选择'}
                                 </div>
 
-                                {isSelected && (
-                                    <div className="absolute bottom-2 right-2 z-10 w-5 h-5 bg-white text-indigo-600 rounded-full flex items-center justify-center shadow-sm">
-                                        <i className="fas fa-check text-[10px]"></i>
-                                    </div>
-                                )}
                             </button>
                         );
                     })}
