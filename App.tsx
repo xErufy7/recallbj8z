@@ -344,13 +344,18 @@ const App: React.FC = () => {
                             ))}
                         </div>
                    </div>
-                   <button 
-                      onClick={() => setState(p => ({ ...p, isPlaying: !p.isPlaying }))} 
-                      disabled={!!state.currentEvent || state.isWeekend || !!weekendResult}
-                      className={`w-14 h-14 md:w-16 md:h-16 rounded-full flex-shrink-0 flex items-center justify-center shadow-xl transition-all ${state.currentEvent || state.isWeekend || weekendResult ? 'bg-slate-100 text-slate-300' : state.isPlaying ? 'bg-amber-400 text-white hover:bg-amber-500' : 'bg-indigo-600 text-white hover:bg-indigo-700'}`}
-                   >
-                      <i className={`fas ${state.isPlaying ? 'fa-pause' : 'fa-play'} text-xl`}></i>
-                   </button>
+                   <div className="flex flex-col items-center gap-1">
+                      <button
+                         onClick={() => setState(p => ({ ...p, isPlaying: !p.isPlaying }))}
+                         disabled={!!state.currentEvent || state.isWeekend || !!weekendResult}
+                         className={`w-14 h-14 md:w-16 md:h-16 rounded-full flex-shrink-0 flex items-center justify-center shadow-xl transition-all ${state.currentEvent || state.isWeekend || weekendResult ? 'bg-slate-100 text-slate-300' : state.isPlaying ? 'bg-amber-400 text-white hover:bg-amber-500' : 'bg-indigo-600 text-white hover:bg-indigo-700'}`}
+                      >
+                         <i className={`fas ${state.isPlaying ? 'fa-pause' : 'fa-play'} text-xl`}></i>
+                      </button>
+                      {!state.currentEvent && !state.isWeekend && !weekendResult && (
+                         <span className="text-[10px] font-bold text-slate-400">{state.isPlaying ? '进行中' : '点击开始'}</span>
+                      )}
+                   </div>
                </div>
                <div className="flex items-center gap-2 w-full">
                     <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
@@ -363,11 +368,18 @@ const App: React.FC = () => {
         {/* Log */}
         <div className="flex-1 bg-white/70 backdrop-blur-xl rounded-2xl shadow-sm border border-white/40 overflow-hidden relative">
           <div className="h-full p-4 md:p-6 overflow-y-auto custom-scroll space-y-3">
-             {state.log.map((l, i) => (
-                <div key={i} className={`p-3 rounded-xl border-l-4 animate-fadeIn ${l.type === 'event' ? 'bg-indigo-50 border-indigo-400' : l.type === 'success' ? 'bg-emerald-50 border-emerald-400' : l.type === 'error' ? 'bg-rose-50 border-rose-400' : 'bg-slate-50 border-slate-300'}`}>
+             {state.log.map((l, i) => {
+                const iconMap: Record<string, string> = { event: 'fa-bolt', success: 'fa-check-circle', error: 'fa-times-circle', warning: 'fa-exclamation-triangle', info: 'fa-info-circle' };
+                const colorMap: Record<string, string> = { event: 'text-indigo-500', success: 'text-emerald-500', error: 'text-rose-500', warning: 'text-amber-500', info: 'text-slate-400' };
+                return (
+                <div key={i} className={`group p-3 rounded-xl border-l-4 animate-fadeIn ${l.type === 'event' ? 'bg-indigo-50 border-indigo-400' : l.type === 'success' ? 'bg-emerald-50 border-emerald-400' : l.type === 'error' ? 'bg-rose-50 border-rose-400' : l.type === 'warning' ? 'bg-amber-50 border-amber-400' : 'bg-slate-50 border-slate-300'}`}>
+                   <div className="flex items-center gap-2 mb-0.5">
+                      <i className={`fas ${iconMap[l.type] || 'fa-circle'} text-[10px] ${colorMap[l.type] || 'text-slate-400'}`}></i>
+                      <span className="text-[10px] font-bold text-slate-400">第{state.week}周</span>
+                   </div>
                    <p className="text-sm font-medium text-slate-800">{l.message}</p>
                 </div>
-             ))}
+             )})}
              <div ref={logEndRef} />
           </div>
         </div>

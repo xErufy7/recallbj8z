@@ -1,7 +1,8 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { GameState, ExamResult, SubjectKey, SUBJECT_NAMES, Phase, OIProblem, OIStats } from '../types';
 import { OI_PROBLEMS } from '../data/oi_data';
+import { PHASE_NAMES } from '../hooks/useGameLogic';
 
 interface ExamViewProps {
   title: string;
@@ -66,12 +67,24 @@ const ExamView: React.FC<ExamViewProps> = ({ title, state, onFinish }) => {
       }
   };
 
+  const isOIExam = [Phase.CSP_EXAM, Phase.NOIP_EXAM, Phase.WC_EXAM, Phase.PROVINCIAL_EXAM, Phase.APIO_EXAM, Phase.NOI_EXAM].includes(state.phase);
+
+  // In-game time label for log timestamps, e.g. "[第8周·期中考试]"
+  const getInGameTime = (): string => `[第${state.week}周·${PHASE_NAMES[state.phase] || state.phase}]`;
+
+  // Running total shown in the header
+  const currentTotal = (Object.values(currentScores) as number[]).reduce((a, b) => a + b, 0);
+  const maxTotal = isOIExam ? subjectsToTest.length * 100 : subjectsToTest.reduce((acc, s) => acc + (['chinese', 'math', 'english'].includes(s) ? 150 : 100), 0);
+
+  // Ref for the currently-being-tested card so it can be scrolled into view on mobile
+  const activeCardRef = useRef<HTMLDivElement | null>(null);
+
   useEffect(() => {
     if (examStep < subjectsToTest.length) {
       const subjectKey = subjectsToTest[examStep];
       const isOI = [Phase.CSP_EXAM, Phase.NOIP_EXAM, Phase.WC_EXAM, Phase.PROVINCIAL_EXAM, Phase.APIO_EXAM, Phase.NOI_EXAM].includes(state.phase);
       const difficultyMod = getDifficultyModifier(state.phase);
-      
+
       const timer = setTimeout(() => {
         let score = 0;
         let maxScore = 100;
@@ -81,13 +94,13 @@ const ExamView: React.FC<ExamViewProps> = ({ title, state, onFinish }) => {
         // --- LUCK MECHANIC REWORKED ---
         // 1. Base Multiplier: 0.9 ~ 1.1 (Standard Variance)
         let luckMultiplier = 1.0 + (Math.random() * 0.2 - 0.1);
-        
+
         // 2. Luck Stat Influence (Luck 0 -> -10%, Luck 100 -> +10%)
         luckMultiplier += (state.general.luck - 50) / 500;
 
         // 3. Critical Hit Mechanic (Lucky Shot)
         // Chance to crit increases with Luck. Luck 50 = 5% chance, Luck 100 = 15% chance.
-        const critChance = Math.max(0, state.general.luck - 20) / 500; 
+        const critChance = Math.max(0, state.general.luck - 20) / 500;
         if (Math.random() < critChance) {
             luckMultiplier += 0.25; // Huge bonus
             extraLog = ' (超常发挥！)';
@@ -110,29 +123,29 @@ const ExamView: React.FC<ExamViewProps> = ({ title, state, onFinish }) => {
              const prob = oiProblems[examStep];
              maxScore = 100;
              const stats = state.oiStats;
-             
+
              let ability = 0;
              let required = 0;
-             
+
              if (prob.difficulty.dp > 0) { ability += stats.dp; required += prob.difficulty.dp; }
              if (prob.difficulty.ds > 0) { ability += stats.ds; required += prob.difficulty.ds; }
              if (prob.difficulty.math > 0) { ability += stats.math; required += prob.difficulty.math; }
              if (prob.difficulty.string > 0) { ability += stats.string; required += prob.difficulty.string; }
              if (prob.difficulty.graph > 0) { ability += stats.graph; required += prob.difficulty.graph; }
              if (prob.difficulty.misc > 0) { ability += stats.misc; required += prob.difficulty.misc; }
-             
-             ability += state.subjects.math.aptitude * 0.1; 
+
+             ability += state.subjects.math.aptitude * 0.1;
              ability += state.subjects.math.level * 0.5;
 
              // Difficulty scaling: requirement * base_scale * difficulty_modifier
-             const difficultyFactor = Math.max(1, required * 1.5 * difficultyMod); 
-             
+             const difficultyFactor = Math.max(1, required * 1.5 * difficultyMod);
+
              let rawRatio = ability / difficultyFactor;
              let finalRatio = rawRatio * luckMultiplier;
-             
-             if (finalRatio >= 0.95) score = 100; 
+
+             if (finalRatio >= 0.95) score = 100;
              else score = Math.max(0, Math.floor(Math.min(100, finalRatio * 100)));
-             
+
              logMsg = `题目 "${prob.name}" 测试结束，获得 ${score} 分${extraLog}。`;
 
         } else {
@@ -140,16 +153,16 @@ const ExamView: React.FC<ExamViewProps> = ({ title, state, onFinish }) => {
             const subject = subjectKey as SubjectKey;
             const isMainSubject = ['chinese', 'math', 'english'].includes(subject);
             maxScore = isMainSubject ? 150 : 100;
-            
+
             const stats = state.subjects[subject];
-            
+
             // Formula: (Aptitude * 0.4 + Level * 3.0) / DifficultyMod
             // Example Final Exam (Diff 1.3):
             // Apt 80, Lvl 20 -> (32 + 60) / 1.3 = 70.7 (70% score) -> OK
             // Apt 80, Lvl 10 -> (32 + 30) / 1.3 = 47.6 (47% score) -> Fail
-            
+
             let basePercentage = (stats.aptitude * 0.4 + stats.level * 3.0);
-            
+
             // Apply Difficulty scaling
             basePercentage = basePercentage / difficultyMod;
 
@@ -177,13 +190,18 @@ const ExamView: React.FC<ExamViewProps> = ({ title, state, onFinish }) => {
     }
   }, [examStep, state, currentScores, isFinished, subjectsToTest, oiProblems]);
 
+  // Keep the currently-being-tested card visible in the scroll row on mobile
+  useEffect(() => {
+    if (examStep < subjectsToTest.length && activeCardRef.current) {
+      activeCardRef.current.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    }
+  }, [examStep, subjectsToTest]);
+
   const handleFinishConfirm = () => {
-      const total = (Object.values(currentScores) as number[]).reduce((a, b) => a + b, 0);
-      
+      const total = currentTotal;
+
       let comment = "继续努力。";
       // Comments based on relative performance (Phase sensitive)
-      const isOIExam = [Phase.CSP_EXAM, Phase.NOIP_EXAM, Phase.WC_EXAM, Phase.PROVINCIAL_EXAM, Phase.APIO_EXAM, Phase.NOI_EXAM].includes(state.phase);
-      const maxTotal = isOIExam ? subjectsToTest.length * 100 : subjectsToTest.reduce((acc, s) => acc + (['chinese', 'math', 'english'].includes(s) ? 150 : 100), 0);
       const ratio = total / maxTotal;
 
       if ([Phase.CSP_EXAM, Phase.NOIP_EXAM, Phase.WC_EXAM, Phase.PROVINCIAL_EXAM, Phase.APIO_EXAM, Phase.NOI_EXAM].includes(state.phase)) {
@@ -192,7 +210,7 @@ const ExamView: React.FC<ExamViewProps> = ({ title, state, onFinish }) => {
           else if (total >= 100) comment = "有些遗憾，明年再战。";
           else comment = "技不如人，甘拜下风。";
       } else {
-          if (ratio > 0.90) comment = "傲视群雄，你是八中当之无愧的传说！"; 
+          if (ratio > 0.90) comment = "傲视群雄，你是八中当之无愧的传说！";
           else if (ratio > 0.80) comment = "表现优异，稳居年级前列。";
           else if (ratio > 0.70) comment = "成绩良好，未来可期。";
           else if (ratio > 0.60) comment = "中规中矩，还需要加把劲。";
@@ -207,33 +225,40 @@ const ExamView: React.FC<ExamViewProps> = ({ title, state, onFinish }) => {
       });
   };
 
+  const isActive = (idx: number) => !isFinished && idx === examStep && examStep < subjectsToTest.length;
+
   return (
     <div className="bg-white rounded-3xl p-8 h-full flex flex-col shadow-2xl overflow-hidden relative border border-slate-200">
       <div className="absolute top-0 left-0 w-full h-1 bg-indigo-500 animate-pulse"></div>
-      
-      <div className="flex justify-between items-center mb-8">
+
+      <div className="flex flex-wrap justify-between items-center gap-3 mb-8">
         <h2 className="text-2xl font-bold tracking-tight flex items-center gap-3 text-slate-800">
           <i className="fas fa-file-signature text-indigo-500"></i>
           {title}
         </h2>
-        <div className="px-4 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-600 text-sm font-mono">
-          STATUS: {isFinished ? 'COMPLETED' : 'IN_PROGRESS'}
+        <div className="flex items-center gap-3">
+          <div className="px-4 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-600 text-sm font-mono whitespace-nowrap">
+            总分: {currentTotal} / {maxTotal}
+          </div>
+          <div className="px-4 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-600 text-sm font-mono">
+            STATUS: {isFinished ? 'COMPLETED' : 'IN_PROGRESS'}
+          </div>
         </div>
       </div>
 
       <div className="flex-1 overflow-y-auto space-y-4 font-mono text-sm custom-scroll pr-4 bg-slate-50 p-4 rounded-xl border border-slate-100 mb-6">
         {examLogs.map((log, i) => (
           <div key={i} className="flex gap-4 items-start animate-fadeIn">
-            <span className="text-slate-400">[{new Date().toLocaleTimeString()}]</span>
+            <span className="text-slate-400">{getInGameTime()}</span>
             <span className={`text-slate-700 ${log.includes('超常发挥') ? 'text-amber-600 font-bold' : log.includes('失误') ? 'text-rose-600' : ''}`}>{log}</span>
           </div>
         ))}
         {examStep < subjectsToTest.length && (
           <div className="flex gap-4 items-center">
-            <span className="text-slate-400">[{new Date().toLocaleTimeString()}]</span>
+            <span className="text-slate-400">{getInGameTime()}</span>
             <span className="text-slate-500 font-bold">
-               {[Phase.CSP_EXAM, Phase.NOIP_EXAM, Phase.WC_EXAM, Phase.PROVINCIAL_EXAM, Phase.APIO_EXAM, Phase.NOI_EXAM].includes(state.phase)
-                   ? `正在攻克 ${oiProblems[examStep]?.name || 'Unknown Problem'}...` 
+               {isOIExam
+                   ? `正在攻克 ${oiProblems[examStep]?.name || 'Unknown Problem'}...`
                    : `正在进行 ${SUBJECT_NAMES[subjectsToTest[examStep] as SubjectKey]} 考试...`}
             </span>
             <span className="w-2 h-2 bg-indigo-500 rounded-full animate-ping"></span>
@@ -241,17 +266,29 @@ const ExamView: React.FC<ExamViewProps> = ({ title, state, onFinish }) => {
         )}
       </div>
 
-      <div className="grid grid-cols-3 md:grid-cols-6 gap-4 mb-8">
+      <div className="flex gap-3 overflow-x-auto pb-2 custom-scroll md:grid md:grid-cols-6 md:gap-4 md:overflow-visible md:pb-0 mb-8">
         {subjectsToTest.map((sub, idx) => (
-          <div key={sub} className="bg-white rounded-xl p-3 border border-slate-200 shadow-sm text-center">
+          <div
+            key={sub}
+            ref={isActive(idx) ? activeCardRef : undefined}
+            className={`relative bg-white rounded-xl p-3 border shadow-sm text-center shrink-0 w-28 md:w-auto transition-all ${
+              isActive(idx) ? 'border-indigo-400 ring-2 ring-indigo-500 shadow-indigo-100' : 'border-slate-200'
+            }`}
+          >
+            {isActive(idx) && (
+              <>
+                <span className="absolute inset-0 rounded-xl ring-2 ring-indigo-500 animate-ping pointer-events-none"></span>
+                <span className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-indigo-500 rounded-full animate-ping pointer-events-none"></span>
+              </>
+            )}
             <div className="text-[10px] text-slate-500 uppercase truncate mb-1">
-                {[Phase.CSP_EXAM, Phase.NOIP_EXAM, Phase.WC_EXAM, Phase.PROVINCIAL_EXAM, Phase.APIO_EXAM, Phase.NOI_EXAM].includes(state.phase) ? oiProblems[idx]?.name : SUBJECT_NAMES[sub as SubjectKey]}
+                {isOIExam ? oiProblems[idx]?.name : SUBJECT_NAMES[sub as SubjectKey]}
             </div>
             <div className="text-xl font-black text-indigo-600">{currentScores[sub] ?? '--'}</div>
           </div>
         ))}
       </div>
-      
+
       {isFinished && (
           <button onClick={handleFinishConfirm} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-2xl font-black text-lg shadow-xl transition-all animate-fadeIn flex items-center justify-center gap-2 active:scale-95">
               查看排名 / 继续 <i className="fas fa-arrow-right"></i>

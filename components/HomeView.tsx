@@ -3,6 +3,7 @@ import { Difficulty, GeneralStats, ApiSettings } from '../types';
 import { DIFFICULTY_PRESETS, CHANGELOG_DATA } from '../data/constants';
 import { ACHIEVEMENTS } from '../data/mechanics';
 import { getApiSettings, saveApiSettings } from '../lib/api';
+import { getUseNewDb, setUseNewDb } from '../lib/supabase';
 import { motion } from 'framer-motion';
 
 interface HomeViewProps {
@@ -32,6 +33,7 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
     const [showVarHelp, setShowVarHelp] = React.useState(false);
     const [apiSettings, setApiSettings] = useState<ApiSettings>(getApiSettings);
     const [apiSaved, setApiSaved] = useState(false);
+    const [useNewDb, setUseNewDbLocal] = useState(getUseNewDb());
 
     const handleCustomClick = () => {
         onDifficultyChange('CUSTOM');
@@ -125,7 +127,7 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
                             </div>
 
                             {/* Divider */}
-                            <div className="border-t border-slate-100 my-6"></div>
+                            <div className="border-t border-slate-100 my-5"></div>
 
                             {/* CTA Buttons + Visitor */}
                             <div className="flex items-end justify-between gap-4">
@@ -186,7 +188,7 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
                             </button>
                         </div>
 
-                        <div className="overflow-y-auto custom-scroll space-y-6 pr-2 flex-1">
+                        <div className="overflow-y-auto custom-scroll space-y-6 px-0.5 flex-1">
                             {/* Custom Stats */}
                             <div>
                                 <label className="block text-xs font-black text-slate-500 uppercase tracking-wider mb-3">
@@ -206,7 +208,7 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
                             </div>
 
                             {/* Divider */}
-                            <div className="border-t border-slate-100"></div>
+                            <div className="border-t border-slate-100 my-5"></div>
 
                             {/* AI Settings */}
                             <div>
@@ -259,6 +261,24 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
                                             className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-xs font-mono focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all resize-y"
                                         />
                                     </div>
+                                </div>
+
+                                {/* Divider */}
+                                <div className="border-t border-slate-100 my-5"></div>
+
+                                {/* Database Toggle */}
+                                <div>
+                                    <label className="block text-xs font-black text-slate-500 uppercase tracking-wider mb-3">
+                                        <i className="fas fa-database mr-2"></i>排行榜数据
+                                    </label>
+                                    <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">切换数据源</label>
+                                    <button
+                                        onClick={() => { const v = !useNewDb; setUseNewDbLocal(v); setUseNewDb(v); }}
+                                        className="w-full flex items-center justify-between px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 transition-colors"
+                                    >
+                                        <span className="text-xs text-slate-500">当前：{useNewDb ? '新版数据库' : '旧版数据库'}</span>
+                                        <i className="fas fa-exchange-alt text-slate-400 text-xs"></i>
+                                    </button>
                                 </div>
                             </div>
                         </div>

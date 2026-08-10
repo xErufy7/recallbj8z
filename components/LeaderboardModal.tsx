@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { getLeaderboard, LeaderboardEntry, getUseNewDb, setUseNewDb, filterLeaderboardEntry } from '../lib/supabase';
+import { getLeaderboard, LeaderboardEntry, getUseNewDb, filterLeaderboardEntry } from '../lib/supabase';
 import { WEEKLY_CHALLENGES } from '../data/challenges';
 
 interface LeaderboardModalProps {
@@ -23,7 +23,6 @@ const LeaderboardModal: React.FC<LeaderboardModalProps> = ({ onClose, initialCha
     const [filter, setFilter] = useState<string | null>(initialChallengeId || null);
     const [useNewDb, setUseNew] = useState(() => getUseNewDb());
     const [hasMore, setHasMore] = useState(true);
-
     const offsetRef = useRef(0);
     const loadingMoreRef = useRef(false);
 
@@ -108,17 +107,8 @@ const LeaderboardModal: React.FC<LeaderboardModalProps> = ({ onClose, initialCha
                     <h2 className="text-3xl font-black text-slate-800 flex items-center gap-3">
                         <i className="fas fa-trophy text-yellow-500"></i> 八中名人堂
                     </h2>
-                    <button onClick={onClose} className="w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 transition-colors">
-                        <i className="fas fa-times"></i>
-                    </button>
-                </div>
-
-                <div className="flex justify-end mb-4">
-                    <button
-                        onClick={() => { const v = !useNewDb; setUseNew(v); setUseNewDb(v); }}
-                        className="text-xs px-3 py-1 rounded-lg font-bold transition-colors bg-indigo-600 text-white hover:bg-indigo-700"
-                    >
-                        {useNewDb ? '切换到旧排行榜' : '切换到新排行榜'}
+                    <button onClick={onClose} className="px-3 py-2 rounded-xl bg-white border border-slate-200 hover:border-slate-300 text-slate-500 hover:text-slate-600 flex items-center gap-1.5 text-xs font-bold transition-colors">
+                        <i className="fas fa-times"></i> 关闭
                     </button>
                 </div>
 
