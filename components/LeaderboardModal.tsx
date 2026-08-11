@@ -1,7 +1,6 @@
 
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { getLeaderboard, LeaderboardEntry, getUseNewDb, filterLeaderboardEntry } from '../lib/supabase';
-import { WEEKLY_CHALLENGES } from '../data/challenges';
 
 interface LeaderboardModalProps {
     onClose: () => void;
@@ -20,7 +19,6 @@ const LeaderboardModal: React.FC<LeaderboardModalProps> = ({ onClose, initialCha
     const [loading, setLoading] = useState(true);
     const [loadingMore, setLoadingMore] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [filter, setFilter] = useState<string | null>(initialChallengeId || null);
     const [useNewDb, setUseNew] = useState(() => getUseNewDb());
     const [hasMore, setHasMore] = useState(true);
     const offsetRef = useRef(0);
@@ -54,7 +52,7 @@ const LeaderboardModal: React.FC<LeaderboardModalProps> = ({ onClose, initialCha
             offsetRef.current = 0;
 
             try {
-                const { entries: fresh, newOffset, exhausted } = await doFetch(filter, 0, PAGE_SIZE);
+                const { entries: fresh, newOffset, exhausted } = await doFetch(null,0, PAGE_SIZE);
                 if (cancelled) return;
                 offsetRef.current = newOffset;
                 setHasMore(!exhausted);
@@ -69,7 +67,7 @@ const LeaderboardModal: React.FC<LeaderboardModalProps> = ({ onClose, initialCha
         };
         init();
         return () => { cancelled = true; };
-    }, [filter, useNewDb, doFetch]);
+    }, [useNewDb, doFetch]);
 
     const loadMore = useCallback(async () => {
         if (loadingMoreRef.current || !hasMore) return;
@@ -77,7 +75,7 @@ const LeaderboardModal: React.FC<LeaderboardModalProps> = ({ onClose, initialCha
         setLoadingMore(true);
 
         try {
-            const { entries: fresh, newOffset, exhausted } = await doFetch(filter, offsetRef.current, PAGE_SIZE);
+            const { entries: fresh, newOffset, exhausted } = await doFetch(null,offsetRef.current, PAGE_SIZE);
             offsetRef.current = newOffset;
             setHasMore(!exhausted);
             if (fresh.length > 0) {
@@ -89,7 +87,7 @@ const LeaderboardModal: React.FC<LeaderboardModalProps> = ({ onClose, initialCha
             loadingMoreRef.current = false;
             setLoadingMore(false);
         }
-    }, [filter, useNewDb, doFetch]);
+    }, [useNewDb, doFetch]);
 
     const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
         const el = e.currentTarget;
@@ -110,24 +108,6 @@ const LeaderboardModal: React.FC<LeaderboardModalProps> = ({ onClose, initialCha
                     <button onClick={onClose} className="px-3 py-2 rounded-xl bg-white border border-slate-200 hover:border-slate-300 text-slate-500 hover:text-slate-600 flex items-center gap-1.5 text-xs font-bold transition-colors">
                         <i className="fas fa-times"></i> 关闭
                     </button>
-                </div>
-
-                <div className="flex gap-2 mb-6 overflow-x-auto pb-2 no-scrollbar">
-                    <button
-                        onClick={() => setFilter(null)}
-                        className={`px-4 py-2 rounded-xl font-bold whitespace-nowrap transition-colors ${filter === null ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
-                    >
-                        综合榜单
-                    </button>
-                    {WEEKLY_CHALLENGES.map(c => (
-                         <button
-                            key={c.id}
-                            onClick={() => setFilter(c.id)}
-                            className={`px-4 py-2 rounded-xl font-bold whitespace-nowrap transition-colors ${filter === c.id ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
-                        >
-                            {c.title}
-                        </button>
-                    ))}
                 </div>
 
                 <div className="flex-1 bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden flex flex-col">
