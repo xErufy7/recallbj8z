@@ -57,18 +57,18 @@ const EventModal: React.FC<EventModalProps> = ({ event, state, eventResult, onCh
                       </div>
                     </motion.div>
                   ) : (
-                    <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-6">
-                      <motion.div 
+                    <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-3">
+                      <motion.div
                         initial={{ scale: 0, rotate: -180 }}
                         animate={{ scale: 1, rotate: 0 }}
                         transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                        className="w-24 h-24 bg-gradient-to-br from-emerald-100 to-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl shadow-inner border-4 border-white"
+                        className="w-20 h-20 bg-gradient-to-br from-emerald-100 to-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl shadow-inner border-4 border-white"
                       >
                         <i className="fas fa-check"></i>
                       </motion.div>
-                      <h2 className="text-2xl font-black text-slate-800 mb-3 italic">"{eventResult.choice.text}"</h2>
+                      <h2 className="text-2xl font-black text-slate-800 mb-2 italic">"{eventResult.choice.text}"</h2>
                       {eventResult.diff.length > 0 && (
-                        <div className="flex flex-wrap justify-center gap-2 mb-10 mt-6">
+                        <div className="flex flex-wrap justify-center gap-2 mb-6 mt-4">
                            {eventResult.diff.map((d, i) => (
                              <motion.span 
                                initial={{ opacity: 0, y: 10 }}
