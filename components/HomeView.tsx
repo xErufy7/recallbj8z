@@ -62,34 +62,43 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
             <div className="w-full max-w-4xl z-10 mx-auto relative">
 
                 {/* Hero Card */}
-                <div className="bg-white rounded-[2.5rem] p-8 md:p-10 shadow-xl shadow-indigo-100/50 border border-slate-100 flex flex-col justify-between min-h-[540px] relative overflow-hidden">
+                <div className="bg-white rounded-[2.5rem] p-8 md:p-10 shadow-xl shadow-indigo-100/50 border border-slate-100 flex flex-col relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-50 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
                     <div className="absolute bottom-0 left-0 w-80 h-80 bg-emerald-50 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
 
-                    {/* Action buttons */}
-                    <div className="absolute top-10 right-10 md:top-12 md:right-12 flex flex-col gap-1 items-end z-20">
+                    {/* Action buttons + Visitor */}
+                    <div className="absolute top-10 right-10 md:top-12 md:right-12 flex flex-col gap-0 items-end z-20">
+                        {/* Visitor badge */}
+                        <div className="hidden md:flex items-center gap-2 bg-white/80 backdrop-blur-sm border border-slate-200 px-3 py-1.5 rounded-full shadow-sm mb-8">
+                            <span className="relative flex h-2 w-2">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                            </span>
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Visitors</span>
+                            <img src="https://api.visitorbadge.io/api/visitors?path=https%3A%2F%2Fgithub.com%2Fliuenyin%2Frecallbj8z&label=&countColor=%234f46e5&style=flat&labelStyle=none" alt="views" className="h-3.5" />
+                        </div>
                         <button onClick={() => setShowAchievements(true)}
-                            className="group px-3 py-2.5 rounded-xl bg-white/80 backdrop-blur-sm border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 shadow-sm transition-all flex items-center gap-0 text-sm font-bold active:scale-95 whitespace-nowrap"
+                            className="group px-3 py-2.5 rounded-xl bg-white/80 backdrop-blur-sm border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 shadow-sm transition-all flex items-center gap-0 text-sm font-bold active:scale-95 whitespace-nowrap mb-1"
                         >
                             <span className="max-w-0 overflow-hidden group-hover:max-w-[200px] group-hover:mr-2 transition-all duration-300">成就墙 ({unlockedAchievements.length}/{Object.keys(ACHIEVEMENTS).length})</span>
                             <i className="fas fa-trophy text-yellow-500 flex-shrink-0 w-5 text-center text-base"></i>
                         </button>
                         <button onClick={() => setShowChangelog(true)}
-                            className="group px-3 py-2.5 rounded-xl bg-white/80 backdrop-blur-sm border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 shadow-sm transition-all flex items-center gap-0 text-sm font-bold active:scale-95 whitespace-nowrap"
+                            className="group px-3 py-2.5 rounded-xl bg-white/80 backdrop-blur-sm border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 shadow-sm transition-all flex items-center gap-0 text-sm font-bold active:scale-95 whitespace-nowrap mb-1"
                         >
                             <span className="max-w-0 overflow-hidden group-hover:max-w-[200px] group-hover:mr-2 transition-all duration-300">更新日志</span>
                             <i className="fas fa-clipboard-list text-indigo-500 flex-shrink-0 w-5 text-center text-base"></i>
                         </button>
                         {onShowLeaderboard && (
                             <button onClick={onShowLeaderboard}
-                                className="group px-3 py-2.5 rounded-xl bg-white/80 backdrop-blur-sm border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 shadow-sm transition-all flex items-center gap-0 text-sm font-bold active:scale-95 whitespace-nowrap"
+                                className="group px-3 py-2.5 rounded-xl bg-white/80 backdrop-blur-sm border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 shadow-sm transition-all flex items-center gap-0 text-sm font-bold active:scale-95 whitespace-nowrap mb-1"
                             >
                                 <span className="max-w-0 overflow-hidden group-hover:max-w-[200px] group-hover:mr-2 transition-all duration-300">排行榜</span>
                                 <i className="fas fa-list-ol flex-shrink-0 w-5 text-center text-base"></i>
                             </button>
                         )}
                         <button onClick={handleCustomClick}
-                            className="group px-3 py-2.5 rounded-xl bg-white/80 backdrop-blur-sm border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 shadow-sm transition-all flex items-center gap-0 text-sm font-bold active:scale-95 whitespace-nowrap"
+                            className="group px-3 py-2.5 rounded-xl bg-white/80 backdrop-blur-sm border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 shadow-sm transition-all flex items-center gap-0 text-sm font-bold active:scale-95 whitespace-nowrap mb-1"
                         >
                             <span className="max-w-0 overflow-hidden group-hover:max-w-[200px] group-hover:mr-2 transition-all duration-300">设置</span>
                             <i className="fas fa-cog flex-shrink-0 w-5 text-center text-base"></i>
@@ -112,9 +121,21 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
                             </p>
 
                             {/* Difficulty Selection */}
-                            <div className="mt-8">
-                                <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">选择开局难度</h3>
-                                <div className="flex flex-wrap gap-3">
+                            <div className="mt-24">
+                                <div className="flex flex-wrap items-center gap-3 mb-3 min-h-[28px]">
+                                    <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">选择开局难度</h3>
+                                    {selectedDifficulty !== 'REALITY' && selectedDifficulty !== 'AI_STORY' && (
+                                        <span className="text-xs text-amber-500 font-bold flex items-center gap-1.5 bg-amber-50 px-3 py-1 rounded-full whitespace-nowrap">
+                                            <i className="fas fa-exclamation-triangle"></i> 仅在【现实】难度下可解锁成就
+                                        </span>
+                                    )}
+                                    {selectedDifficulty === 'AI_STORY' && (
+                                        <span className="text-xs text-indigo-600 font-bold flex items-center gap-1.5 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-100 whitespace-nowrap">
+                                            <i className="fas fa-robot"></i> 请确保已在设置中配置 API Key
+                                        </span>
+                                    )}
+                                </div>
+                                <div className="flex flex-wrap items-center gap-3">
                                     {(Object.entries(DIFFICULTY_PRESETS) as [Difficulty, typeof DIFFICULTY_PRESETS['NORMAL']][]).map(([key, config]) => (
                                         <button key={key} onClick={() => onDifficultyChange(key)}
                                             className={`px-5 py-2.5 rounded-2xl border-2 transition-all flex items-center gap-2 font-bold text-sm ${selectedDifficulty === key ? 'border-indigo-600 bg-indigo-50 text-indigo-700 shadow-sm' : 'border-slate-100 bg-slate-50/50 text-slate-500 hover:border-slate-300 hover:bg-white'}`}
@@ -133,42 +154,26 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
                             <div className="flex gap-4">
                                 <button
                                     onClick={onStart}
-                                    className="bg-slate-900 text-white flex-1 py-4 rounded-2xl font-black text-xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all flex items-center justify-center gap-3"
+                                    className="bg-slate-900 text-white flex-1 py-4 rounded-2xl font-black text-xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all flex items-center justify-center gap-3 border-2 border-transparent"
                                 >
                                     <i className="fas fa-play text-indigo-400"></i> 开启新学期
                                 </button>
 
-                                {hasSave && (
-                                    <button onClick={onLoadGame} className="flex-[0.5] py-4 bg-white text-emerald-600 border-2 border-emerald-100 hover:border-emerald-300 rounded-2xl font-black text-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all flex items-center justify-center gap-2" title="继续上次的进度">
-                                        <i className="fas fa-save"></i> 继续游戏
-                                    </button>
-                                )}
+                                <div className={`overflow-visible transition-all duration-500 ease-in-out ${hasSave ? 'flex-[0.5] opacity-100 w-[180px]' : 'flex-[0] opacity-0 w-0'}`}>
+                                    <button onClick={onLoadGame}
+                                        className="bg-white text-emerald-600 border-2 border-emerald-100 hover:border-emerald-300 rounded-2xl py-4 px-5 font-black text-lg hover:-translate-y-1 transition-all flex items-center justify-center gap-2 whitespace-nowrap w-full"
+                                        title="继续上次的进度"
+                                        disabled={!hasSave}
+                                    >
+                                    <i className="fas fa-save flex-shrink-0"></i> <span className="whitespace-nowrap">继续游戏</span>
+                                </button>
+                                </div>
                             </div>
 
-                        {/* Warnings */}
-                        {selectedDifficulty !== 'REALITY' && selectedDifficulty !== 'AI_STORY' && (
-                            <div className="mt-4 text-xs text-amber-500 font-bold flex items-center gap-1.5 bg-amber-50 w-fit px-3 py-1 rounded-full">
-                                <i className="fas fa-exclamation-triangle"></i> 仅在【现实】难度下可解锁成就
-                            </div>
-                        )}
-                        {selectedDifficulty === 'AI_STORY' && (
-                            <div className="mt-4 text-xs text-indigo-600 font-bold flex items-center gap-1.5 bg-indigo-50 w-fit px-3 py-1 rounded-full border border-indigo-100">
-                                <i className="fas fa-robot"></i> AI叙事模式：事件由 AI 实时生成，请确保已在设置中配置 API Key。
-                            </div>
-                        )}
 
                     </div>
                 </div>
 
-                {/* Visitor badge - absolute bottom-right of hero card wrapper */}
-                <div className="hidden md:flex items-center gap-2.5 bg-white/90 backdrop-blur-sm border border-slate-200 px-4 py-2 rounded-full shadow-md absolute bottom-10 right-10 md:bottom-12 md:right-12 z-10">
-                    <span className="relative flex h-2.5 w-2.5">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-                    </span>
-                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Visitors</span>
-                    <img src="https://api.visitorbadge.io/api/visitors?path=https%3A%2F%2Fgithub.com%2Fliuenyin%2Frecallbj8z&label=&countColor=%234f46e5&style=flat&labelStyle=none" alt="views" className="h-5" />
-                </div>
             </div>
 
             {/* Custom Modal: Stats + AI Settings */}
