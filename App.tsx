@@ -318,15 +318,15 @@ const App: React.FC = () => {
         {/* Header */}
 
         <header className="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 flex flex-col gap-3 flex-shrink-0 z-20 relative">
-               <div className="hidden md:flex absolute top-4 right-4 gap-2">
-                  <button onClick={() => setShowSchedule(true)} className="bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-white hover:shadow transition-all"><i className="fas fa-calendar-alt text-blue-500 mr-1"></i>时间表</button>
-                  <button onClick={() => setShowShop(true)} className="bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-white hover:shadow transition-all"><i className="fas fa-store text-emerald-500 mr-1"></i>小卖铺</button>
-                  <button onClick={() => setShowAchievements(true)} className="bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-white hover:shadow transition-all"><i className="fas fa-trophy text-yellow-500 mr-1"></i>成就</button>
-                  <button onClick={() => setShowHistory(true)} className="bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-white hover:shadow transition-all"><i className="fas fa-archive text-indigo-500 mr-1"></i>历程</button>
-                  <button onClick={saveGame} disabled={!!state.currentEvent} className="bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-xl text-xs font-bold text-emerald-600 hover:bg-emerald-100 transition-all">保存</button>
-                  <button onClick={() => setState(p => ({...p, phase: Phase.WITHDRAWAL}))} className="bg-rose-50 border border-rose-200 px-3 py-1.5 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-100 transition-all">退休</button>
+               <div className="hidden md:flex absolute top-4 left-1/2 -translate-x-1/2 gap-2">
+                  <button onClick={() => setShowSchedule(true)} className="bg-slate-50 border border-slate-200 px-4 py-2 rounded-xl text-sm font-bold text-slate-600 hover:bg-white hover:shadow transition-all"><i className="fas fa-calendar-alt text-blue-500 mr-1"></i>时间表</button>
+                  <button onClick={() => setShowShop(true)} className="bg-slate-50 border border-slate-200 px-4 py-2 rounded-xl text-sm font-bold text-slate-600 hover:bg-white hover:shadow transition-all"><i className="fas fa-store text-emerald-500 mr-1"></i>小卖铺</button>
+                  <button onClick={() => setShowAchievements(true)} className="bg-slate-50 border border-slate-200 px-4 py-2 rounded-xl text-sm font-bold text-slate-600 hover:bg-white hover:shadow transition-all"><i className="fas fa-trophy text-yellow-500 mr-1"></i>成就</button>
+                  <button onClick={() => setShowHistory(true)} className="bg-slate-50 border border-slate-200 px-4 py-2 rounded-xl text-sm font-bold text-slate-600 hover:bg-white hover:shadow transition-all"><i className="fas fa-archive text-indigo-500 mr-1"></i>历程</button>
+                  <button onClick={saveGame} disabled={!!state.currentEvent} className="bg-emerald-50 border border-emerald-200 px-4 py-2 rounded-xl text-sm font-bold text-emerald-600 hover:bg-emerald-100 transition-all">保存</button>
+                  <button onClick={() => setState(p => ({...p, phase: Phase.WITHDRAWAL}))} className="bg-rose-50 border border-rose-200 px-4 py-2 rounded-xl text-sm font-bold text-rose-600 hover:bg-rose-100 transition-all">退休</button>
                </div>
-               <div className="flex items-center justify-between mt-0 md:mt-8">
+               <div className="flex items-center justify-between mt-0">
                    <div className="flex flex-col gap-1 w-full mr-4">
                        <h2 className="font-black text-slate-800 text-lg flex items-center gap-2 uppercase tracking-tight truncate">
                             <span className={`w-2 h-2 rounded-full flex-shrink-0 ${state.isSick ? 'bg-red-500 animate-pulse' : 'bg-indigo-500'}`}></span> {PHASE_NAMES[state.phase] || state.phase}

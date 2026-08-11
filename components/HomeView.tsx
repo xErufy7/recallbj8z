@@ -121,7 +121,7 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
                             </p>
 
                             {/* Version */}
-                            <div className="text-center mt-10">
+                            <div className="text-left mt-10">
                                 <span className="text-xs font-bold text-slate-300 tracking-widest">v1.5/merge</span>
                             </div>
 
