@@ -120,8 +120,13 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
                                 <span className="text-sm text-slate-400 font-normal">体验真实的高中生活，做出你的选择。</span>
                             </p>
 
+                            {/* Version */}
+                            <div className="text-center mt-10">
+                                <span className="text-xs font-bold text-slate-300 tracking-widest">v1.5/merge</span>
+                            </div>
+
                             {/* Difficulty Selection */}
-                            <div className="mt-24">
+                            <div className="mt-4">
                                 <div className="flex flex-wrap items-center gap-3 mb-3 min-h-[28px]">
                                     <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">选择开局难度</h3>
                                     {selectedDifficulty !== 'REALITY' && selectedDifficulty !== 'AI_STORY' && (
