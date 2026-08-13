@@ -219,7 +219,7 @@ const App: React.FC = () => {
           <>
             <HomeView
               selectedDifficulty={selectedDifficulty} onDifficultyChange={handleDifficultyChange}
-              customStats={customStats} onCustomStatsChange={setCustomStats} onCustomStatsConfirm={handleCustomStatsConfirm}
+              customStats={customStats} onCustomStatsChange={setCustomStats} onCustomStatsConfirm={handleCustomStatsConfirm} customActive={useCustomStats}
               onStart={prepareGame} hasSave={difficultyHasSave} onLoadGame={handleLoadGame}
               unlockedAchievements={state.unlockedAchievements}
               onResetAchievements={() => {

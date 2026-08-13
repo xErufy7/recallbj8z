@@ -12,6 +12,7 @@ interface HomeViewProps {
     customStats: GeneralStats;
     onCustomStatsChange: (stats: GeneralStats) => void;
     onCustomStatsConfirm?: () => void;
+    customActive: boolean;
     onStart: () => void;
     hasSave: boolean;
     onLoadGame: () => void;
@@ -25,7 +26,7 @@ const STAT_LABELS: Record<string, string> = {
     romance: '魅力', luck: '运气', experience: '经验',
 };
 
-const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyChange, customStats, onCustomStatsChange, onStart, hasSave, onLoadGame, unlockedAchievements, onResetAchievements, onShowLeaderboard }) => {
+const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyChange, customStats, onCustomStatsChange, onCustomStatsConfirm, customActive, onStart, hasSave, onLoadGame, unlockedAchievements, onResetAchievements, onShowLeaderboard }) => {
     const [showChangelog, setShowChangelog] = React.useState(false);
     const [showAchievements, setShowAchievements] = React.useState(false);
     const [showCustomModal, setShowCustomModal] = React.useState(false);
@@ -41,6 +42,7 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
 
     const saveApi = () => {
         saveApiSettings(apiSettings);
+        onCustomStatsConfirm?.();
         setApiSaved(true);
         setTimeout(() => setApiSaved(false), 2000);
     };
@@ -148,6 +150,12 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
                                             {config.label}
                                         </button>
                                     ))}
+                                    <button key="CUSTOM" onClick={handleCustomClick}
+                                        className={`px-5 py-2.5 rounded-2xl border-2 transition-all flex items-center gap-2 font-bold text-sm ${customActive ? 'border-indigo-600 bg-indigo-50 text-indigo-700 shadow-sm' : 'border-slate-100 bg-slate-50/50 text-slate-500 hover:border-slate-300 hover:bg-white'}`}
+                                    >
+                                        <div className="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-indigo-400 to-emerald-400"></div>
+                                        自定义
+                                    </button>
                                 </div>
                             </div>
 
@@ -196,7 +204,7 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
                             </button>
                         </div>
 
-                        <div className="overflow-y-auto custom-scroll space-y-6 px-0.5 flex-1">
+                        <div className="overflow-y-auto custom-scroll space-y-6 pl-0.5 pr-4 flex-1">
                             {/* Custom Stats */}
                             <div>
                                 <label className="block text-xs font-black text-slate-500 uppercase tracking-wider mb-3">
