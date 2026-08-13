@@ -50,9 +50,9 @@
         background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23667eea' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
         background-repeat: no-repeat;
         background-position: right 10px center;
-        background-size: 20px 20px;
+        background-size: 14px 14px;
         cursor: pointer;
-        padding-right: 30px;
+        padding-right: 26px;
     }
     input:focus,select:focus,textarea:focus{
         border-color: #667eea;
@@ -95,6 +95,93 @@
     select:focus{
         background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23667eea' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 12 4-4 4 4'/%3e%3c/svg%3e");
     }
+
+    /* --- 自定义下拉框 --- */
+    .dd{
+        position:relative;
+        margin-top:6px
+    }
+    .dd-btn{
+        width:100%;
+        height:40px;
+        margin:0;
+        padding:0 12px;
+        border:1px solid #e6e9ef;
+        border-radius:8px;
+        background:#fff;
+        color:#333;
+        font-size:14px;
+        font-weight:400;
+        font-family:inherit;
+        text-align:left;
+        cursor:pointer;
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:8px;
+        transition:border-color .15s, box-shadow .15s
+    }
+    .dd-btn:hover{
+        border-color:#c7cdea
+    }
+    .dd.open .dd-btn{
+        border-color:#667eea;
+        box-shadow:0 0 0 2px rgba(102,126,234,0.2)
+    }
+    .dd-arrow{
+        flex-shrink:0;
+        width:6px;
+        height:6px;
+        border-right:1.5px solid #9aa3b2;
+        border-bottom:1.5px solid #9aa3b2;
+        transform:rotate(45deg) translateY(-1px);
+        transition:transform .2s
+    }
+    .dd.open .dd-arrow{
+        transform:rotate(225deg) translateY(-1px)
+    }
+    .dd-menu{
+        position:absolute;
+        top:calc(100% + 4px);
+        left:0;
+        right:0;
+        z-index:100;
+        background:#fff;
+        border:1px solid #e6e9ef;
+        border-radius:10px;
+        box-shadow:0 12px 32px rgba(30,50,80,0.14);
+        padding:4px;
+        max-height:240px;
+        overflow-y:auto;
+        opacity:0;
+        transform:translateY(-4px) scale(0.98);
+        pointer-events:none;
+        transition:opacity .15s, transform .15s
+    }
+    .dd.open .dd-menu{
+        opacity:1;
+        transform:translateY(0) scale(1);
+        pointer-events:auto
+    }
+    .dd-option{
+        padding:9px 10px;
+        border-radius:7px;
+        font-size:14px;
+        color:#444;
+        cursor:pointer;
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:8px
+    }
+    .dd-option:hover{
+        background:#eef1fb
+    }
+    .dd-option.selected{
+        color:#4f5fe0;
+        font-weight:600;
+        background:#e3e8fc
+    }
   </style>
 </head>
 <body>
@@ -112,6 +199,12 @@
         <option value="HARD">困难</option>
         <option value="REALITY">现实</option>
         <option value="AI_STORY">AI叙事</option>
+      </select>
+    </label>
+    <label>排行榜（数据库）
+      <select id="database">
+        <option value="new">新版排行榜</option>
+        <option value="old">旧版排行榜</option>
       </select>
     </label>
     <label>进入特定挑战榜
@@ -145,9 +238,17 @@
   </div>
 
   <script>
-    // 新排行榜
-    const SUPABASE_URL = 'https://mcjyuveyfgefdtyavygj.supabase.co';
-    const API_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1janl1dmV5ZmdlZmR0eWF2eWdqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2NjQyMjAsImV4cCI6MjA5NTI0MDIyMH0.-ZCKodHMGKUHLNURxm0ACp7wGhTPb4cPHTBHx07Wihc';
+    // 新旧排行榜配置
+    const DB_CONFIGS = {
+      new: {
+        url: 'https://mcjyuveyfgefdtyavygj.supabase.co',
+        key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1janl1dmV5ZmdlZmR0eWF2eWdqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2NjQyMjAsImV4cCI6MjA5NTI0MDIyMH0.-ZCKodHMGKUHLNURxm0ACp7wGhTPb4cPHTBHx07Wihc'
+      },
+      old: {
+        url: 'https://qmgfcirrgwzcmmyjnecn.supabase.co',
+        key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFtZ2ZjaXJyZ3d6Y21teWpuZWNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgwMzY2NzQsImV4cCI6MjA4MzYxMjY3NH0.CU4roI0pWPHARNydPu_EeUBoz7G2dtxhw9InUFSBZ80'
+      }
+    };
 
     function showResult(success, msg) {
       const el = document.getElementById('result');
@@ -157,13 +258,14 @@
     }
 
     async function upload(entry) {
-      const url = `${SUPABASE_URL}/rest/v1/leaderboard`;
+      const db = DB_CONFIGS[document.getElementById('database').value] || DB_CONFIGS.new;
+      const url = `${db.url}/rest/v1/leaderboard`;
       const res = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'apikey': API_KEY,
-          'Authorization': `Bearer ${API_KEY}`,
+          'apikey': db.key,
+          'Authorization': `Bearer ${db.key}`,
           'Prefer': 'return=representation'
         },
         body: JSON.stringify([entry])
@@ -239,7 +341,8 @@
         document.getElementById('upload').disabled = true;
         showResult(true,'上传中...');
         const data = await upload(entry);
-        showResult(true,'上传成功，ID=' + (data[0]?.id || '[已写入]'));
+        const dbName = document.getElementById('database').value === 'old' ? '旧版' : '新版';
+        showResult(true,'上传成功（' + dbName + '排行榜），ID=' + (data[0]?.id || '[已写入]'));
       } catch (e) {
         showResult(false,'上传失败，' + (e.message || e));
       } finally {
@@ -307,6 +410,78 @@
       if (show) rankInput.focus();
     });
   }
+</script>
+<script>
+  // --- 将原生 select 包装成自定义下拉框 ---
+  function initDropdown(select) {
+    select.style.display = 'none';
+
+    const dd = document.createElement('div');
+    dd.className = 'dd';
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'dd-btn';
+
+    const menu = document.createElement('div');
+    menu.className = 'dd-menu';
+
+    const updateLabel = () => {
+      const opt = select.options[select.selectedIndex];
+      btn.textContent = '';
+      const text = document.createElement('span');
+      text.textContent = opt ? opt.textContent : '';
+      text.style.cssText = 'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
+      const arrow = document.createElement('span');
+      arrow.className = 'dd-arrow';
+      btn.appendChild(text);
+      btn.appendChild(arrow);
+    };
+
+    const refreshMenu = () => {
+      Array.from(menu.children).forEach(it => {
+        it.classList.toggle('selected', it.dataset.value === select.value);
+      });
+    };
+
+    Array.from(select.options).forEach(opt => {
+      const item = document.createElement('div');
+      item.className = 'dd-option';
+      item.dataset.value = opt.value;
+      item.textContent = opt.textContent;
+      item.addEventListener('click', () => {
+        select.value = opt.value;
+        select.dispatchEvent(new Event('change'));
+        updateLabel();
+        refreshMenu();
+        dd.classList.remove('open');
+      });
+      menu.appendChild(item);
+    });
+
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const willOpen = !dd.classList.contains('open');
+      document.querySelectorAll('.dd.open').forEach(d => d.classList.remove('open'));
+      if (willOpen) {
+        dd.classList.add('open');
+        refreshMenu();
+      }
+    });
+
+    document.addEventListener('click', () => dd.classList.remove('open'));
+
+    dd.appendChild(btn);
+    dd.appendChild(menu);
+    select.parentNode.insertBefore(dd, select);
+    updateLabel();
+    refreshMenu();
+  }
+
+  ['difficulty', 'database', 'challenge_id', 'rank', 'title'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) initDropdown(el);
+  });
 </script>
 </body>
 </html>
