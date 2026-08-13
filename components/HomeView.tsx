@@ -12,7 +12,6 @@ interface HomeViewProps {
     customStats: GeneralStats;
     onCustomStatsChange: (stats: GeneralStats) => void;
     onCustomStatsConfirm?: () => void;
-    customActive: boolean;
     onStart: () => void;
     hasSave: boolean;
     onLoadGame: () => void;
@@ -26,7 +25,7 @@ const STAT_LABELS: Record<string, string> = {
     romance: '魅力', luck: '运气', experience: '经验',
 };
 
-const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyChange, customStats, onCustomStatsChange, onCustomStatsConfirm, customActive, onStart, hasSave, onLoadGame, unlockedAchievements, onResetAchievements, onShowLeaderboard }) => {
+const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyChange, customStats, onCustomStatsChange, onCustomStatsConfirm, onStart, hasSave, onLoadGame, unlockedAchievements, onResetAchievements, onShowLeaderboard }) => {
     const [showChangelog, setShowChangelog] = React.useState(false);
     const [showAchievements, setShowAchievements] = React.useState(false);
     const [showCustomModal, setShowCustomModal] = React.useState(false);
@@ -54,7 +53,7 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 font-sans text-slate-800 p-4 md:p-8 flex items-center justify-center">
+        <div className="min-h-screen bg-slate-50 font-sans text-slate-800 p-3 md:p-8 flex items-center justify-center">
             <div className="fixed top-0 left-0 w-full h-full opacity-5 pointer-events-none overflow-hidden z-0">
                 <div className="absolute top-10 left-10 text-[12rem] font-black rotate-12 text-slate-900">8</div>
                 <div className="absolute bottom-10 right-10 text-[12rem] font-black -rotate-12 text-slate-900">OI</div>
@@ -63,12 +62,12 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
             <div className="w-full max-w-4xl z-10 mx-auto relative">
 
                 {/* Hero Card */}
-                <div className="bg-white rounded-[2.5rem] p-8 md:p-10 shadow-xl shadow-indigo-100/50 border border-slate-100 flex flex-col relative overflow-hidden">
+                <div className="bg-white rounded-[2.5rem] p-5 md:p-10 shadow-xl shadow-indigo-100/50 border border-slate-100 flex flex-col relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-50 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
                     <div className="absolute bottom-0 left-0 w-80 h-80 bg-emerald-50 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
 
                     {/* Action buttons + Visitor */}
-                    <div className="absolute top-10 right-10 md:top-12 md:right-12 flex flex-col gap-0 items-end z-20">
+                    <div className="flex justify-end items-center gap-1 mb-4 md:mb-0 md:absolute md:top-12 md:right-12 md:flex-col md:gap-0 md:items-end z-20">
                         {/* Visitor badge */}
                         <div className="hidden md:flex items-center gap-2 bg-white/80 backdrop-blur-sm border border-slate-200 px-3 py-1.5 rounded-full shadow-sm mb-8">
                             <span className="relative flex h-2 w-2">
@@ -79,50 +78,50 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
                             <img src="https://api.visitorbadge.io/api/visitors?path=https%3A%2F%2Fgithub.com%2Fliuenyin%2Frecallbj8z&label=&countColor=%234f46e5&style=flat&labelStyle=none" alt="views" className="h-3.5" />
                         </div>
                         <button onClick={() => setShowAchievements(true)}
-                            className="group px-3 py-2.5 rounded-xl bg-white/80 backdrop-blur-sm border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 shadow-sm transition-all flex items-center gap-0 text-sm font-bold active:scale-95 whitespace-nowrap mb-1"
+                            className="group px-2.5 py-2 rounded-lg md:px-3 md:py-2.5 md:rounded-xl bg-white/80 backdrop-blur-sm border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 shadow-sm transition-all flex items-center gap-0 text-sm font-bold active:scale-95 whitespace-nowrap mb-1"
                         >
                             <span className="max-w-0 overflow-hidden group-hover:max-w-[200px] group-hover:mr-2 transition-all duration-300">成就墙 ({unlockedAchievements.length}/{Object.keys(ACHIEVEMENTS).length})</span>
-                            <i className="fas fa-trophy text-yellow-500 flex-shrink-0 w-5 text-center text-base"></i>
+                            <i className="fas fa-trophy text-yellow-500 flex-shrink-0 w-4 text-center text-sm md:w-5 md:text-base"></i>
                         </button>
                         <button onClick={() => setShowChangelog(true)}
-                            className="group px-3 py-2.5 rounded-xl bg-white/80 backdrop-blur-sm border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 shadow-sm transition-all flex items-center gap-0 text-sm font-bold active:scale-95 whitespace-nowrap mb-1"
+                            className="group px-2.5 py-2 rounded-lg md:px-3 md:py-2.5 md:rounded-xl bg-white/80 backdrop-blur-sm border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 shadow-sm transition-all flex items-center gap-0 text-sm font-bold active:scale-95 whitespace-nowrap mb-1"
                         >
                             <span className="max-w-0 overflow-hidden group-hover:max-w-[200px] group-hover:mr-2 transition-all duration-300">更新日志</span>
-                            <i className="fas fa-clipboard-list text-indigo-500 flex-shrink-0 w-5 text-center text-base"></i>
+                            <i className="fas fa-clipboard-list text-indigo-500 flex-shrink-0 w-4 text-center text-sm md:w-5 md:text-base"></i>
                         </button>
                         {onShowLeaderboard && (
                             <button onClick={onShowLeaderboard}
-                                className="group px-3 py-2.5 rounded-xl bg-white/80 backdrop-blur-sm border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 shadow-sm transition-all flex items-center gap-0 text-sm font-bold active:scale-95 whitespace-nowrap mb-1"
+                                className="group px-2.5 py-2 rounded-lg md:px-3 md:py-2.5 md:rounded-xl bg-white/80 backdrop-blur-sm border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 shadow-sm transition-all flex items-center gap-0 text-sm font-bold active:scale-95 whitespace-nowrap mb-1"
                             >
                                 <span className="max-w-0 overflow-hidden group-hover:max-w-[200px] group-hover:mr-2 transition-all duration-300">排行榜</span>
-                                <i className="fas fa-list-ol flex-shrink-0 w-5 text-center text-base"></i>
+                                <i className="fas fa-list-ol flex-shrink-0 w-4 text-center text-sm md:w-5 md:text-base"></i>
                             </button>
                         )}
                         <button onClick={handleCustomClick}
-                            className="group px-3 py-2.5 rounded-xl bg-white/80 backdrop-blur-sm border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 shadow-sm transition-all flex items-center gap-0 text-sm font-bold active:scale-95 whitespace-nowrap mb-1"
+                            className="group px-2.5 py-2 rounded-lg md:px-3 md:py-2.5 md:rounded-xl bg-white/80 backdrop-blur-sm border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 shadow-sm transition-all flex items-center gap-0 text-sm font-bold active:scale-95 whitespace-nowrap mb-1"
                         >
                             <span className="max-w-0 overflow-hidden group-hover:max-w-[200px] group-hover:mr-2 transition-all duration-300">设置</span>
-                            <i className="fas fa-cog flex-shrink-0 w-5 text-center text-base"></i>
+                            <i className="fas fa-cog flex-shrink-0 w-4 text-center text-sm md:w-5 md:text-base"></i>
                         </button>
                     </div>
 
                     <div className="relative z-10 flex-1">
                             <div className="flex items-center gap-5">
-                                <div className="w-20 h-20 bg-indigo-600 rounded-3xl flex items-center justify-center text-white text-4xl shadow-lg shadow-indigo-200 transform -rotate-3 hover:rotate-0 transition-transform duration-300">
-                                    <i className="fas fa-school"></i>
+                                <div className="w-14 h-14 bg-indigo-600 rounded-2xl flex items-center justify-center text-white text-3xl md:w-20 md:h-20 md:rounded-3xl md:text-4xl shadow-lg shadow-indigo-200 transform -rotate-3 hover:rotate-0 transition-transform duration-300">
+                                    <i className="fas fa-school text-2xl md:text-4xl"></i>
                                 </div>
                                 <div>
-                                    <h1 className="text-3xl md:text-5xl font-black tracking-tighter text-slate-900">八中重开模拟器</h1>
-                                    <p className="text-slate-400 font-bold text-sm mt-1">Made by liuenyin</p>
+                                    <h1 className="text-2xl md:text-5xl font-black tracking-tighter text-slate-900">八中重开模拟器</h1>
+                                    <p className="text-slate-400 font-bold text-xs mt-1 md:text-sm">Made by liuenyin</p>
                                 </div>
                             </div>
-                            <p className="mt-5 text-lg text-slate-600 leading-relaxed font-medium">
+                            <p className="mt-4 text-base md:mt-5 md:text-lg text-slate-600 leading-relaxed font-medium">
                                 如果是你，能在这所学校里活得更精彩吗？<br/>
-                                <span className="text-sm text-slate-400 font-normal">体验真实的高中生活，做出你的选择。</span>
+                                <span className="text-xs md:text-sm text-slate-400 font-normal">体验真实的高中生活，做出你的选择。</span>
                             </p>
 
                             {/* Version */}
-                            <div className="text-left mt-10">
+                            <div className="text-left mt-6 md:mt-10">
                                 <span className="text-xs font-bold text-slate-300 tracking-widest">v1.5/merge</span>
                             </div>
 
@@ -144,18 +143,12 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
                                 <div className="flex flex-wrap items-center gap-3">
                                     {(Object.entries(DIFFICULTY_PRESETS) as [Difficulty, typeof DIFFICULTY_PRESETS['NORMAL']][]).map(([key, config]) => (
                                         <button key={key} onClick={() => onDifficultyChange(key)}
-                                            className={`px-5 py-2.5 rounded-2xl border-2 transition-all flex items-center gap-2 font-bold text-sm ${selectedDifficulty === key ? 'border-indigo-600 bg-indigo-50 text-indigo-700 shadow-sm' : 'border-slate-100 bg-slate-50/50 text-slate-500 hover:border-slate-300 hover:bg-white'}`}
+                                            className={`px-3.5 py-2 rounded-2xl border-2 transition-all flex items-center gap-2 font-bold text-xs md:px-5 md:py-2.5 md:text-sm ${selectedDifficulty === key ? 'border-indigo-600 bg-indigo-50 text-indigo-700 shadow-sm' : 'border-slate-100 bg-slate-50/50 text-slate-500 hover:border-slate-300 hover:bg-white'}`}
                                         >
                                             <div className={`w-2.5 h-2.5 rounded-full ${config.color}`}></div>
                                             {config.label}
                                         </button>
                                     ))}
-                                    <button key="CUSTOM" onClick={handleCustomClick}
-                                        className={`px-5 py-2.5 rounded-2xl border-2 transition-all flex items-center gap-2 font-bold text-sm ${customActive ? 'border-indigo-600 bg-indigo-50 text-indigo-700 shadow-sm' : 'border-slate-100 bg-slate-50/50 text-slate-500 hover:border-slate-300 hover:bg-white'}`}
-                                    >
-                                        <div className="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-indigo-400 to-emerald-400"></div>
-                                        自定义
-                                    </button>
                                 </div>
                             </div>
 
@@ -163,17 +156,17 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
                             <div className="border-t border-slate-100 my-5"></div>
 
                             {/* CTA Buttons */}
-                            <div className="flex gap-4">
+                            <div className="flex gap-3 md:gap-4">
                                 <button
                                     onClick={onStart}
-                                    className="bg-slate-900 text-white flex-1 py-4 rounded-2xl font-black text-xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all flex items-center justify-center gap-3 border-2 border-transparent"
+                                    className="bg-slate-900 text-white flex-1 py-3 rounded-2xl font-black text-base md:py-4 md:text-xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all flex items-center justify-center gap-2 md:gap-3 border-2 border-transparent whitespace-nowrap"
                                 >
                                     <i className="fas fa-play text-indigo-400"></i> 开启新学期
                                 </button>
 
                                 <div className={`overflow-visible transition-all duration-500 ease-in-out ${hasSave ? 'flex-[0.5] opacity-100 w-[180px]' : 'flex-[0] opacity-0 w-0'}`}>
                                     <button onClick={onLoadGame}
-                                        className="bg-white text-emerald-600 border-2 border-emerald-100 hover:border-emerald-300 rounded-2xl py-4 px-5 font-black text-lg hover:-translate-y-1 transition-all flex items-center justify-center gap-2 whitespace-nowrap w-full"
+                                        className="bg-white text-emerald-600 border-2 border-emerald-100 hover:border-emerald-300 rounded-2xl py-3 px-2.5 font-black text-sm md:py-4 md:px-5 md:text-lg hover:-translate-y-1 transition-all flex items-center justify-center gap-1.5 md:gap-2 whitespace-nowrap w-full h-full"
                                         title="继续上次的进度"
                                         disabled={!hasSave}
                                     >

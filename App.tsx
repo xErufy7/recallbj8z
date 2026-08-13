@@ -219,7 +219,7 @@ const App: React.FC = () => {
           <>
             <HomeView
               selectedDifficulty={selectedDifficulty} onDifficultyChange={handleDifficultyChange}
-              customStats={customStats} onCustomStatsChange={setCustomStats} onCustomStatsConfirm={handleCustomStatsConfirm} customActive={useCustomStats}
+              customStats={customStats} onCustomStatsChange={setCustomStats} onCustomStatsConfirm={handleCustomStatsConfirm}
               onStart={prepareGame} hasSave={difficultyHasSave} onLoadGame={handleLoadGame}
               unlockedAchievements={state.unlockedAchievements}
               onResetAchievements={() => {
@@ -306,13 +306,13 @@ const App: React.FC = () => {
       <main className="flex-1 flex flex-col gap-2 md:gap-4 relative h-full overflow-hidden rounded-2xl">
         
         {/* Mobile Toolbar */}
-        <div className="flex md:hidden gap-2 overflow-x-auto pb-1 flex-shrink-0">
-             <button onClick={() => setShowSchedule(true)} className="flex-shrink-0 bg-white border px-3 py-2 rounded-xl text-xs font-bold shadow-sm"><i className="fas fa-calendar-alt text-blue-500 mr-1"></i>时间表</button>
-             <button onClick={() => setShowShop(true)} className="flex-shrink-0 bg-white border px-3 py-2 rounded-xl text-xs font-bold shadow-sm"><i className="fas fa-store text-emerald-500 mr-1"></i>小卖部</button>
-             <button onClick={() => setShowAchievements(true)} className="flex-shrink-0 bg-white border px-3 py-2 rounded-xl text-xs font-bold shadow-sm"><i className="fas fa-trophy text-yellow-500 mr-1"></i>成就</button>
-             <button onClick={() => setShowHistory(true)} className="flex-shrink-0 bg-white border px-3 py-2 rounded-xl text-xs font-bold shadow-sm"><i className="fas fa-archive text-indigo-500 mr-1"></i>历程</button>
-             <button onClick={saveGame} className="flex-shrink-0 bg-emerald-50 border border-emerald-100 px-3 py-2 rounded-xl text-xs font-bold text-emerald-600 shadow-sm" disabled={!!state.currentEvent}>保存</button>
-             <button onClick={() => setState(p => ({...p, phase: Phase.WITHDRAWAL}))} className="flex-shrink-0 bg-rose-50 border border-rose-100 px-3 py-2 rounded-xl text-xs font-bold text-rose-600 shadow-sm" disabled={!!state.currentEvent}>提前退休</button>
+        <div className="grid grid-cols-3 md:hidden gap-1.5 pb-1 flex-shrink-0">
+             <button onClick={() => setShowSchedule(true)} className="bg-white border px-2 py-2.5 rounded-xl text-xs font-bold shadow-sm flex items-center justify-center gap-1"><i className="fas fa-calendar-alt text-blue-500"></i>时间表</button>
+             <button onClick={() => setShowShop(true)} className="bg-white border px-2 py-2.5 rounded-xl text-xs font-bold shadow-sm flex items-center justify-center gap-1"><i className="fas fa-store text-emerald-500"></i>小卖部</button>
+             <button onClick={() => setShowAchievements(true)} className="bg-white border px-2 py-2.5 rounded-xl text-xs font-bold shadow-sm flex items-center justify-center gap-1"><i className="fas fa-trophy text-yellow-500"></i>成就</button>
+             <button onClick={() => setShowHistory(true)} className="bg-white border px-2 py-2.5 rounded-xl text-xs font-bold shadow-sm flex items-center justify-center gap-1"><i className="fas fa-archive text-indigo-500"></i>历程</button>
+             <button onClick={saveGame} className="bg-emerald-50 border border-emerald-100 px-2 py-2.5 rounded-xl text-xs font-bold text-emerald-600 shadow-sm flex items-center justify-center gap-1" disabled={!!state.currentEvent}>保存</button>
+             <button onClick={() => setState(p => ({...p, phase: Phase.WITHDRAWAL}))} className="bg-rose-50 border border-rose-100 px-2 py-2.5 rounded-xl text-xs font-bold text-rose-600 shadow-sm flex items-center justify-center gap-1" disabled={!!state.currentEvent}>提前退休</button>
         </div>
 
         {/* Header */}

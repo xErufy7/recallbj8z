@@ -31,7 +31,7 @@ const TalentView: React.FC<TalentViewProps> = ({ availableTalents, selectedTalen
 
             {/* 天赋卡片网格（独立滚动区域，不与底部栏重叠） */}
             <main className="flex-1 min-h-0 w-full max-w-6xl mx-auto px-4 md:px-6 py-4 overflow-y-auto custom-scroll">
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 pb-24">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 pb-6 md:pb-24">
                     {availableTalents.map(talent => {
                         const isSelected = selectedTalents.some(t => t.id === talent.id);
                         const isDebuff = talent.cost < 0;
