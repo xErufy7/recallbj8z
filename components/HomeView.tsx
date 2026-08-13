@@ -36,7 +36,6 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
     const [useNewDb, setUseNewDbLocal] = useState(getUseNewDb());
 
     const handleCustomClick = () => {
-        onDifficultyChange('CUSTOM');
         setShowCustomModal(true);
     };
 
