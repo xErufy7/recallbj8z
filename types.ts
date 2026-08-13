@@ -297,6 +297,7 @@ export interface GameLogEntry {
   message: string;
   type: 'info' | 'success' | 'warning' | 'error' | 'event';
   timestamp: number;
+  week?: number; // 条目生成时的周数（旧存档可能没有该字段）
 }
 
 export type EventTriggerType = 'RANDOM' | 'CONDITIONAL' | 'FIXED' | 'CHAINED';

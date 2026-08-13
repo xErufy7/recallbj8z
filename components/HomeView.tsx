@@ -4,7 +4,6 @@ import { DIFFICULTY_PRESETS, CHANGELOG_DATA } from '../data/constants';
 import { ACHIEVEMENTS } from '../data/mechanics';
 import { getApiSettings, saveApiSettings } from '../lib/api';
 import { getUseNewDb, setUseNewDb } from '../lib/supabase';
-import { motion } from 'framer-motion';
 
 interface HomeViewProps {
     selectedDifficulty: Difficulty;
@@ -41,7 +40,6 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
 
     const saveApi = () => {
         saveApiSettings(apiSettings);
-        onCustomStatsConfirm?.();
         setApiSaved(true);
         setTimeout(() => setApiSaved(false), 2000);
     };
@@ -75,7 +73,7 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
                                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                             </span>
                             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Visitors</span>
-                            <img src="https://api.visitorbadge.io/api/visitors?path=https%3A%2F%2Fgithub.com%2Fliuenyin%2Frecallbj8z&label=&countColor=%234f46e5&style=flat&labelStyle=none" alt="views" className="h-3.5" />
+                            <img src="https://api.visitorbadge.io/api/visitors?path=https%3A%2F%2Fgithub.com%2Fliuenyin%2Frecallbj8z&label=&countColor=%234f46e5&style=flat&labelStyle=none" alt="views" className="h-3.5" loading="lazy" />
                         </div>
                         <button onClick={() => setShowAchievements(true)}
                             className="group px-2.5 py-2 rounded-lg md:px-3 md:py-2.5 md:rounded-xl bg-white/80 backdrop-blur-sm border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 shadow-sm transition-all flex items-center gap-0 text-sm font-bold active:scale-95 whitespace-nowrap mb-1"
@@ -122,7 +120,7 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
 
                             {/* Version */}
                             <div className="text-left mt-6 md:mt-10">
-                                <span className="text-xs font-bold text-slate-300 tracking-widest">v1.5/merge</span>
+                                <span className="text-xs font-bold text-slate-300 tracking-widest">{CHANGELOG_DATA[0].version}</span>
                             </div>
 
                             {/* Difficulty Selection */}
@@ -207,7 +205,7 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
                                     {(Object.keys(customStats) as (keyof GeneralStats)[]).map(key => (
                                         <div key={key} className="flex items-center gap-2">
                                             <span className="text-[10px] font-bold text-slate-500 w-10">{STAT_LABELS[key] || key}</span>
-                                            <input type="range" min="0" max="100" value={customStats[key]} onChange={(e) => onCustomStatsChange({...customStats, [key]: parseInt(e.target.value)})}
+                                            <input type="range" min="0" max="100" value={customStats[key]} onChange={(e) => { onCustomStatsChange({...customStats, [key]: parseInt(e.target.value)}); onCustomStatsConfirm?.(); }}
                                                 className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
                                             />
                                             <span className="text-xs font-bold text-indigo-600 w-7 text-right">{customStats[key]}</span>

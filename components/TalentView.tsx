@@ -1,19 +1,44 @@
 
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Talent } from '../types';
 
 interface TalentViewProps {
     availableTalents: Talent[];
     selectedTalents: Talent[];
     talentPoints: number;
+    maxTalents?: number;
     onToggleTalent: (talent: Talent) => void;
     onConfirm: () => void;
     onBack: () => void;
 }
 
-const TalentView: React.FC<TalentViewProps> = ({ availableTalents, selectedTalents, talentPoints, onToggleTalent, onConfirm, onBack }) => {
+const TalentView: React.FC<TalentViewProps> = ({ availableTalents, selectedTalents, talentPoints, maxTalents = 5, onToggleTalent, onConfirm, onBack }) => {
+    const [showLimitHint, setShowLimitHint] = useState(false);
+    const hintTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    useEffect(() => () => {
+        if (hintTimerRef.current) clearTimeout(hintTimerRef.current);
+    }, []);
+
+    const handleTalentClick = (talent: Talent) => {
+        const isSelected = selectedTalents.some(t => t.id === talent.id);
+        if (!isSelected && selectedTalents.length >= maxTalents) {
+            setShowLimitHint(true);
+            if (hintTimerRef.current) clearTimeout(hintTimerRef.current);
+            hintTimerRef.current = setTimeout(() => setShowLimitHint(false), 1600);
+            return;
+        }
+        onToggleTalent(talent);
+    };
+
     return (
         <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
+            {/* 超限提示 */}
+            {showLimitHint && (
+                <div className="fixed top-20 left-1/2 -translate-x-1/2 z-40 bg-slate-800 text-white px-5 py-2.5 rounded-full text-xs font-bold shadow-2xl animate-fadeIn pointer-events-none whitespace-nowrap">
+                    最多只能选择 {maxTalents} 个天赋
+                </div>
+            )}
             {/* 顶部固定栏：标题 + 剩余点数 + 操作提示，滚动时始终可见 */}
             <header className="sticky top-0 z-30 bg-slate-50/95 backdrop-blur border-b border-slate-200 shadow-sm">
                 <div className="max-w-6xl w-full mx-auto px-4 md:px-6 py-3 flex flex-col lg:flex-row lg:items-center gap-2 lg:gap-6">
@@ -23,7 +48,7 @@ const TalentView: React.FC<TalentViewProps> = ({ availableTalents, selectedTalen
                             <span className="text-slate-500 font-bold text-sm">剩余点数</span>
                             <span className={`text-xl font-black leading-none ${talentPoints >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>{talentPoints}</span>
                         </div>
-                        <span className="text-xs text-slate-400">选择负面天赋以获取更多点数</span>
+                        <span className="text-xs text-slate-400">已选 {selectedTalents.length}/{maxTalents} · 选择负面天赋以获取更多点数</span>
                     </div>
                     <span className="text-xs font-medium text-slate-500 lg:ml-auto">点击选择/取消天赋</span>
                 </div>
@@ -38,7 +63,7 @@ const TalentView: React.FC<TalentViewProps> = ({ availableTalents, selectedTalen
                         return (
                             <button
                                 key={talent.id}
-                                onClick={() => onToggleTalent(talent)}
+                                onClick={() => handleTalentClick(talent)}
                                 className={`p-4 rounded-2xl border-2 transition-all duration-200 flex flex-col items-start gap-2 h-44 relative overflow-hidden group text-left cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 ${
                                     isSelected
                                         ? 'bg-indigo-600 border-indigo-400 text-white shadow-lg shadow-indigo-300/50 transform scale-105 z-10'

@@ -129,6 +129,19 @@ const getInitialGameState = (): GameState => ({
     availableWeekendActivityIds: undefined
 });
 
+/**
+ * 给事件 action 返回的新日志条目盖上生成时的周数。
+ * action 返回的 log 是"旧日志 + 新条目"的全量数组，只对多出来的尾部新条目打戳，
+ * 避免覆盖历史条目的 week（旧存档条目可能没有 week 字段，保持原样）。
+ */
+const stampNewLogWeeks = (prevLog: GameLogEntry[], nextLog: GameLogEntry[] | undefined, week: number): GameLogEntry[] => {
+    if (!nextLog) return prevLog;
+    const newCount = nextLog.length - prevLog.length;
+    if (newCount <= 0) return nextLog;
+    const stamped = nextLog.slice(prevLog.length).map(l => ({ ...l, week: l.week ?? week }));
+    return [...nextLog.slice(0, prevLog.length), ...stamped];
+};
+
 export const useGameLogic = () => {
     const [state, setState] = useState<GameState>(() => {
         const initial = getInitialGameState();
@@ -189,7 +202,7 @@ export const useGameLogic = () => {
                 week: 1,
                 totalWeeksInPhase: weeks,
                 isPlaying: nextPhase !== Phase.ENDING && nextPhase !== Phase.SELECTION && nextPhase !== Phase.FINAL_EXAM && nextPhase !== Phase.FINAL_EXAM_2 && nextPhase !== Phase.PLACEMENT_EXAM,
-                log: [...prev.log, { message: `进入新阶段: ${PHASE_NAMES[nextPhase] || nextPhase}`, type: 'info', timestamp: Date.now() }],
+                log: [...prev.log, { message: `进入新阶段: ${PHASE_NAMES[nextPhase] || nextPhase}`, type: 'info', timestamp: Date.now(), week: 1 }],
                 aiBuffer: []
             };
         });
@@ -273,7 +286,7 @@ export const useGameLogic = () => {
                         const failEffects = p.onFail(state);
                         updates = { ...updates, ...failEffects };
                     }
-                    logs.push({ message: `【课题失败】${p.title} 截止日期已过，未能完成。`, type: 'error', timestamp: Date.now() });
+                    logs.push({ message: `【课题失败】${p.title} 截止日期已过，未能完成。`, type: 'error', timestamp: Date.now(), week: state.week });
                 });
                 setState(prev => ({ ...prev, ...updates, log: [...prev.log, ...logs] }));
                 return;
@@ -563,7 +576,7 @@ export const useGameLogic = () => {
                     currentEvent: null,
                     eventQueue: [],
                     isPlaying: false,
-                    log: [...prev.log, { message: '【猝死】你的健康值降到了0以下，身体再也承受不住了...游戏结束。', type: 'error', timestamp: Date.now() }]
+                    log: [...prev.log, { message: '【猝死】你的健康值降到了0以下，身体再也承受不住了...游戏结束。', type: 'error', timestamp: Date.now(), week: prev.week }]
                 };
             }
 
@@ -579,7 +592,7 @@ export const useGameLogic = () => {
                 else if (avgLevel < 45) feedback = '知识体系逐渐成形，解题时越来越有感觉。';
                 else if (avgLevel < 70) feedback = '你已经进入了高分段，各科都有不错的积累。';
                 else feedback = '你的学识已经超出了高中范围，开始思考更深层的问题。';
-                weeklyLog = [...weeklyLog, { message: `📋 第${prev.week}周学习小结：${feedback}`, type: 'info', timestamp: Date.now() }];
+                weeklyLog = [...weeklyLog, { message: `📋 第${prev.week}周学习小结：${feedback}`, type: 'info', timestamp: Date.now(), week: prev.week }];
             }
 
             return {
@@ -649,7 +662,7 @@ export const useGameLogic = () => {
 
     const saveGame = () => {
         autoSave(state);
-        setState(s => ({ ...s, log: [...s.log, { message: "游戏进度已保存。", type: 'success', timestamp: Date.now() }] }));
+        setState(s => ({ ...s, log: [...s.log, { message: "游戏进度已保存。", type: 'success', timestamp: Date.now(), week: s.week }] }));
     };
 
     const loadGame = (difficulty?: Difficulty): boolean => {
@@ -779,7 +792,7 @@ export const useGameLogic = () => {
             totalWeeksInPhase: 8,
             currentEvent: firstEvent || null,
             triggeredEvents: firstEvent ? [firstEvent.id] : [],
-            log: [{ message: "八中模拟器启动。", type: 'success', timestamp: Date.now() }],
+            log: [{ message: "八中模拟器启动。", type: 'success', timestamp: Date.now(), week: 1 }],
             isPlaying: false
         });
 
@@ -864,7 +877,7 @@ export const useGameLogic = () => {
             timestamp: Date.now()
         };
 
-        setState(prev => ({ ...prev, ...updates, history: [...prev.history, entry], eventResult: { choice, diff } }));
+        setState(prev => ({ ...prev, ...updates, log: stampNewLogWeeks(prev.log, updates.log, prev.week), history: [...prev.history, entry], eventResult: { choice, diff } }));
     };
 
     const handleEventConfirm = () => {
@@ -887,7 +900,7 @@ export const useGameLogic = () => {
         if (skipWeekend) {
             setState(prev => {
                 if (prev.activeChallengeId === 'c_sleep_king' && !prev.hasSleptThisWeek) {
-                    return { ...prev, phase: Phase.ENDING, log: [...prev.log, { message: "你在暑假/军训期间没有睡觉，困死了！！！(挑战失败)", type: 'error', timestamp: Date.now() }] };
+                    return { ...prev, phase: Phase.ENDING, log: [...prev.log, { message: "你在暑假/军训期间没有睡觉，困死了！！！(挑战失败)", type: 'error', timestamp: Date.now(), week: prev.week }] };
                 }
                 return {
                     ...prev,
@@ -929,7 +942,7 @@ export const useGameLogic = () => {
         if (priceDiff !== 0 && updates.general) {
             updates.general.money = (updates.general.money ?? state.general.money) + priceDiff;
         }
-        setState(prev => ({ ...prev, ...updates }));
+        setState(prev => ({ ...prev, ...updates, log: stampNewLogWeeks(prev.log, updates.log, prev.week) }));
         effectVisualizer();
     };
 
@@ -992,7 +1005,7 @@ export const useGameLogic = () => {
         const diff = visualizer ? visualizer(oldState, newState) : [];
 
         setWeekendResult({ activity, resultText, diff });
-        setState(prev => ({ ...prev, ...updates }));
+        setState(prev => ({ ...prev, ...updates, log: stampNewLogWeeks(prev.log, updates.log, prev.week) }));
     };
 
     const confirmWeekendActivity = () => {
@@ -1001,7 +1014,7 @@ export const useGameLogic = () => {
             const newPoints = prev.weekendActionPoints - 1;
             if (newPoints <= 0) {
                 if (prev.activeChallengeId === 'c_sleep_king' && !prev.hasSleptThisWeek) {
-                    return { ...prev, weekendActionPoints: 0, isWeekend: false, isPlaying: false, phase: Phase.ENDING, log: [...prev.log, { message: "你这周没有睡觉，困死了！！！(挑战失败)", type: 'error', timestamp: Date.now() }] };
+                    return { ...prev, weekendActionPoints: 0, isWeekend: false, isPlaying: false, phase: Phase.ENDING, log: [...prev.log, { message: "你这周没有睡觉，困死了！！！(挑战失败)", type: 'error', timestamp: Date.now(), week: prev.week }] };
                 }
                 return { ...prev, weekendActionPoints: 0, isWeekend: false, isPlaying: false, week: prev.week + 1, hasSleptThisWeek: false };
             }
@@ -1031,7 +1044,9 @@ export const useGameLogic = () => {
             }
 
             if (updates.log) {
-                batchLogs.push(...updates.log);
+                // action 返回的 log 是全量数组，只取尾部新增条目（避免历史日志重复），并盖上当前周数
+                const newEntries = updates.log.slice(oldS.log.length).map(l => ({ ...l, week: l.week ?? oldS.week }));
+                batchLogs.push(...newEntries);
                 delete updates.log;
             }
             currentState = { ...currentState, ...updates };
@@ -1042,7 +1057,7 @@ export const useGameLogic = () => {
         if (currentState.activeChallengeId === 'c_sleep_king' && !hasSlept) {
             currentState.phase = Phase.ENDING;
             currentState.isPlaying = false;
-            currentState.log = [...(currentState.log || []), { message: "你这周没有睡觉，困死了！！！(挑战失败)", type: 'error', timestamp: Date.now() }];
+            currentState.log = [...(currentState.log || []), { message: "你这周没有睡觉，困死了！！！(挑战失败)", type: 'error', timestamp: Date.now(), week: currentState.week }];
         } else {
             currentState.week += 1;
             currentState.isPlaying = true;

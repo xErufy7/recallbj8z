@@ -41,6 +41,8 @@ const App: React.FC = () => {
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [showApiSettings, setShowApiSettings] = useState(false);
   const [pendingChallenge, setPendingChallenge] = useState<Challenge | null>(null);
+  const [showRetireConfirm, setShowRetireConfirm] = useState(false);
+  const [showStats, setShowStats] = useState(false);
   const logEndRef = useRef<HTMLDivElement>(null);
 
   const [floatingTexts, setFloatingTexts] = useState<FloatingTextItem[]>([]);
@@ -83,7 +85,7 @@ const App: React.FC = () => {
   };
 
   const {
-      state, setState, weekendResult, setWeekendResult, hasSave, checkHasSave, saveGame, loadGame,
+      state, setState, weekendResult, setWeekendResult, hasSave, saveGame, loadGame,
       startGameState, handleChoice, handleEventConfirm, handleClubSelect, handleShopPurchase,
       handleWeekendActivityClick, confirmWeekendActivity,
       executeTimetable, handleExamFinish, closeCompetitionPopup, closeExamResult, closeMiniGame,
@@ -103,6 +105,7 @@ const App: React.FC = () => {
   const [availableTalents, setAvailableTalents] = useState<Talent[]>([]);
   const [selectedTalents, setSelectedTalents] = useState<Talent[]>([]);
   const [talentPoints, setTalentPoints] = useState(3);
+  const MAX_TALENTS = 5;
 
   const handleDifficultyChange = (diff: Difficulty) => {
       setSelectedDifficulty(diff);
@@ -138,17 +141,16 @@ const App: React.FC = () => {
           setTalentPoints(p => p + talent.cost);
           setSelectedTalents(prev => prev.filter(t => t.id !== talent.id));
       } else {
-          if (selectedTalents.length >= 5) return;
+          if (selectedTalents.length >= MAX_TALENTS) return;
           setTalentPoints(p => p - talent.cost);
           setSelectedTalents(prev => [...prev, talent]);
       }
   };
 
   const handleLoadGame = () => {
-      if (loadGame(selectedDifficulty)) setView('GAME');
+      // 不传难度：读取所有难度下最新的存档（自定义开局存的是 CUSTOM 键）
+      if (loadGame()) setView('GAME');
   };
-
-  const difficultyHasSave = checkHasSave(selectedDifficulty);
 
   const calculateProgress = () => state.totalWeeksInPhase === 0 ? 0 : Math.min(100, (state.week / state.totalWeeksInPhase) * 100);
   
@@ -220,7 +222,7 @@ const App: React.FC = () => {
             <HomeView
               selectedDifficulty={selectedDifficulty} onDifficultyChange={handleDifficultyChange}
               customStats={customStats} onCustomStatsChange={setCustomStats} onCustomStatsConfirm={handleCustomStatsConfirm}
-              onStart={prepareGame} hasSave={difficultyHasSave} onLoadGame={handleLoadGame}
+              onStart={prepareGame} hasSave={hasSave} onLoadGame={handleLoadGame}
               unlockedAchievements={state.unlockedAchievements}
               onResetAchievements={() => {
                 localStorage.removeItem(ACHIEVEMENTS_KEY);
@@ -235,8 +237,8 @@ const App: React.FC = () => {
   
   if (view === 'TALENTS') {
       return (
-          <TalentView 
-            availableTalents={availableTalents} selectedTalents={selectedTalents} talentPoints={talentPoints}
+          <TalentView
+            availableTalents={availableTalents} selectedTalents={selectedTalents} talentPoints={talentPoints} maxTalents={MAX_TALENTS}
             onToggleTalent={handleTalentToggle} onConfirm={handleStartGame} onBack={() => setView('HOME')}
           />
       )
@@ -307,24 +309,25 @@ const App: React.FC = () => {
         
         {/* Mobile Toolbar */}
         <div className="grid grid-cols-3 md:hidden gap-1.5 pb-1 flex-shrink-0">
-             <button onClick={() => setShowSchedule(true)} className="bg-white border px-2 py-2.5 rounded-xl text-xs font-bold shadow-sm flex items-center justify-center gap-1"><i className="fas fa-calendar-alt text-blue-500"></i>时间表</button>
+             <button onClick={() => setShowSchedule(true)} disabled={state.isWeekend} className="bg-white border px-2 py-2.5 rounded-xl text-xs font-bold shadow-sm flex items-center justify-center gap-1 disabled:opacity-40"><i className="fas fa-calendar-alt text-blue-500"></i>时间表</button>
              <button onClick={() => setShowShop(true)} className="bg-white border px-2 py-2.5 rounded-xl text-xs font-bold shadow-sm flex items-center justify-center gap-1"><i className="fas fa-store text-emerald-500"></i>小卖部</button>
              <button onClick={() => setShowAchievements(true)} className="bg-white border px-2 py-2.5 rounded-xl text-xs font-bold shadow-sm flex items-center justify-center gap-1"><i className="fas fa-trophy text-yellow-500"></i>成就</button>
              <button onClick={() => setShowHistory(true)} className="bg-white border px-2 py-2.5 rounded-xl text-xs font-bold shadow-sm flex items-center justify-center gap-1"><i className="fas fa-archive text-indigo-500"></i>历程</button>
              <button onClick={saveGame} className="bg-emerald-50 border border-emerald-100 px-2 py-2.5 rounded-xl text-xs font-bold text-emerald-600 shadow-sm flex items-center justify-center gap-1" disabled={!!state.currentEvent}>保存</button>
-             <button onClick={() => setState(p => ({...p, phase: Phase.WITHDRAWAL}))} className="bg-rose-50 border border-rose-100 px-2 py-2.5 rounded-xl text-xs font-bold text-rose-600 shadow-sm flex items-center justify-center gap-1" disabled={!!state.currentEvent}>提前退休</button>
+             <button onClick={() => setShowRetireConfirm(true)} className="bg-rose-50 border border-rose-100 px-2 py-2.5 rounded-xl text-xs font-bold text-rose-600 shadow-sm flex items-center justify-center gap-1" disabled={!!state.currentEvent}>提前退休</button>
+             <button onClick={() => setShowStats(true)} className="col-span-3 bg-white border px-2 py-2 rounded-xl text-xs font-bold text-slate-600 shadow-sm flex items-center justify-center gap-1.5"><i className="fas fa-chart-bar text-indigo-500"></i>属性面板</button>
         </div>
 
         {/* Header */}
 
         <header className="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 flex flex-col gap-3 flex-shrink-0 z-20 relative">
                <div className="hidden md:flex absolute top-4 left-1/2 -translate-x-1/2 gap-2">
-                  <button onClick={() => setShowSchedule(true)} className="bg-slate-50 border border-slate-200 px-4 py-2 rounded-xl text-sm font-bold text-slate-600 hover:bg-white hover:shadow transition-all"><i className="fas fa-calendar-alt text-blue-500 mr-1"></i>时间表</button>
+                  <button onClick={() => setShowSchedule(true)} disabled={state.isWeekend} className="bg-slate-50 border border-slate-200 px-4 py-2 rounded-xl text-sm font-bold text-slate-600 hover:bg-white hover:shadow transition-all disabled:opacity-40 disabled:hover:bg-slate-50 disabled:hover:shadow-none"><i className="fas fa-calendar-alt text-blue-500 mr-1"></i>时间表</button>
                   <button onClick={() => setShowShop(true)} className="bg-slate-50 border border-slate-200 px-4 py-2 rounded-xl text-sm font-bold text-slate-600 hover:bg-white hover:shadow transition-all"><i className="fas fa-store text-emerald-500 mr-1"></i>小卖铺</button>
                   <button onClick={() => setShowAchievements(true)} className="bg-slate-50 border border-slate-200 px-4 py-2 rounded-xl text-sm font-bold text-slate-600 hover:bg-white hover:shadow transition-all"><i className="fas fa-trophy text-yellow-500 mr-1"></i>成就</button>
                   <button onClick={() => setShowHistory(true)} className="bg-slate-50 border border-slate-200 px-4 py-2 rounded-xl text-sm font-bold text-slate-600 hover:bg-white hover:shadow transition-all"><i className="fas fa-archive text-indigo-500 mr-1"></i>历程</button>
                   <button onClick={saveGame} disabled={!!state.currentEvent} className="bg-emerald-50 border border-emerald-200 px-4 py-2 rounded-xl text-sm font-bold text-emerald-600 hover:bg-emerald-100 transition-all">保存</button>
-                  <button onClick={() => setState(p => ({...p, phase: Phase.WITHDRAWAL}))} className="bg-rose-50 border border-rose-200 px-4 py-2 rounded-xl text-sm font-bold text-rose-600 hover:bg-rose-100 transition-all">退休</button>
+                  <button onClick={() => setShowRetireConfirm(true)} className="bg-rose-50 border border-rose-200 px-4 py-2 rounded-xl text-sm font-bold text-rose-600 hover:bg-rose-100 transition-all">退休</button>
                </div>
                <div className="flex items-center justify-between mt-0">
                    <div className="flex flex-col gap-1 w-full mr-4">
@@ -375,7 +378,7 @@ const App: React.FC = () => {
                 <div key={i} className={`group p-3 rounded-xl border-l-4 animate-fadeIn ${l.type === 'event' ? 'bg-indigo-50 border-indigo-400' : l.type === 'success' ? 'bg-emerald-50 border-emerald-400' : l.type === 'error' ? 'bg-rose-50 border-rose-400' : l.type === 'warning' ? 'bg-amber-50 border-amber-400' : 'bg-slate-50 border-slate-300'}`}>
                    <div className="flex items-center gap-2 mb-0.5">
                       <i className={`fas ${iconMap[l.type] || 'fa-circle'} text-[10px] ${colorMap[l.type] || 'text-slate-400'}`}></i>
-                      <span className="text-[10px] font-bold text-slate-400">第{state.week}周</span>
+                      {l.week != null && <span className="text-[10px] font-bold text-slate-400">第{l.week}周</span>}
                    </div>
                    <p className="text-sm font-medium text-slate-800">{l.message}</p>
                 </div>
@@ -578,13 +581,44 @@ const App: React.FC = () => {
              </div>
         )}
         
+        {/* 提前退休确认弹窗 */}
+        {showRetireConfirm && state.phase !== Phase.WITHDRAWAL && state.phase !== Phase.ENDING && (
+            <div className="fixed inset-0 z-[110] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6 animate-fadeIn" onClick={() => setShowRetireConfirm(false)}>
+                <div className="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl" onClick={e => e.stopPropagation()}>
+                    <div className="flex items-center gap-3 mb-4">
+                        <div className="w-10 h-10 bg-rose-100 rounded-full flex items-center justify-center text-rose-500 flex-shrink-0"><i className="fas fa-door-open"></i></div>
+                        <h3 className="text-lg font-black text-slate-800">确认提前退休？</h3>
+                    </div>
+                    <p className="text-sm text-slate-500 mb-6">本局游戏将立即结束并结算成绩，无法撤销。</p>
+                    <div className="flex gap-3">
+                        <button onClick={() => setShowRetireConfirm(false)} className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-slate-500 font-bold text-sm hover:bg-slate-50 transition-colors">再想想</button>
+                        <button onClick={() => { setState(p => ({ ...p, phase: Phase.WITHDRAWAL })); setShowRetireConfirm(false); }} className="flex-1 px-4 py-2.5 rounded-xl bg-rose-600 text-white font-bold text-sm hover:bg-rose-700 transition-colors">确认退休</button>
+                    </div>
+                </div>
+            </div>
+        )}
+
+        {/* 移动端属性面板 */}
+        {showStats && (
+            <div className="fixed inset-0 z-[95] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 md:hidden animate-fadeIn" onClick={() => setShowStats(false)}>
+                <div className="w-full max-w-sm bg-white rounded-3xl max-h-[85vh] flex flex-col overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
+                    <div className="flex justify-between items-center px-5 pt-5 pb-4 border-b border-slate-100 flex-shrink-0">
+                        <h3 className="text-lg font-black text-slate-800">属性面板</h3>
+                        <button onClick={() => setShowStats(false)} className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 transition-colors"><i className="fas fa-times"></i></button>
+                    </div>
+                    <div className="flex-1 overflow-y-auto custom-scroll p-4">
+                        <StatsPanel state={state} onShowGuide={() => setShowRealityGuide(true)} />
+                    </div>
+                </div>
+            </div>
+        )}
+
         {/* Ending */}
         {(state.phase === Phase.ENDING || state.phase === Phase.WITHDRAWAL) && (
             <EndingScreen
                 state={state}
                 endingData={getEndingData()}
                 onRestart={() => setView('HOME')}
-                onViewHistory={() => setShowHistory(true)}
                 onShowLeaderboard={() => setShowLeaderboard(true)}
             />
         )}

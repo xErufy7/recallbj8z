@@ -8,11 +8,10 @@ interface EndingScreenProps {
     state: GameState;
     endingData: { rank: string, title: string, comment: string, score: number };
     onRestart: () => void;
-    onViewHistory: () => void;
     onShowLeaderboard?: () => void;
 }
 
-const EndingScreen: React.FC<EndingScreenProps> = ({ state, endingData, onRestart, onViewHistory, onShowLeaderboard }) => {
+const EndingScreen: React.FC<EndingScreenProps> = ({ state, endingData, onRestart, onShowLeaderboard }) => {
     const [showUpload, setShowUpload] = useState(false);
     const [playerName, setPlayerName] = useState('');
     const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'ok' | 'err'>('idle');
