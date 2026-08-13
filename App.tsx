@@ -19,6 +19,7 @@ import SubjectSelectionModal from './components/SubjectSelectionModal';
 import ClubSelectionModal from './components/ClubSelectionModal';
 import SaveMenuSheet from './components/SaveMenuSheet';
 import RetireConfirmModal from './components/RetireConfirmModal';
+import HelpModal from './components/HelpModal';
 import MobileStatsModal from './components/MobileStatsModal';
 const StatsPanel = lazy(() => import('./components/StatsPanel'));
 const TimetableModal = lazy(() => import('./components/TimetableModal'));
@@ -56,6 +57,7 @@ const App: React.FC = () => {
   const [showApiSettings, setShowApiSettings] = useState(false);
   const [pendingChallenge, setPendingChallenge] = useState<Challenge | null>(null);
   const [showRetireConfirm, setShowRetireConfirm] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
   const [showStats, setShowStats] = useState(false);
   const [showSaveMenu, setShowSaveMenu] = useState(false);
   const logEndRef = useRef<HTMLDivElement>(null);
@@ -131,6 +133,7 @@ const App: React.FC = () => {
 
       if (e.key === 'Escape') {
         if (showRetireConfirm) { setShowRetireConfirm(false); return; }
+        if (showHelp) { setShowHelp(false); return; }
         if (showStats) { setShowStats(false); return; }
         if (showLeaderboard) { setShowLeaderboard(false); return; }
         if (showApiSettings) { setShowApiSettings(false); return; }
@@ -223,7 +226,7 @@ const App: React.FC = () => {
       window.removeEventListener('keyup', keyupHandler);
       window.removeEventListener('blur', blurHandler);
     };
-  }, [view, state.currentEvent, state.eventResult, handleChoice, handleEventConfirm, showRetireConfirm, showStats, showLeaderboard, showApiSettings, showAchievements, showHistory, showSchedule, showContestHistory, showShop, showRealityGuide, showClubSelection]);
+  }, [view, state.currentEvent, state.eventResult, handleChoice, handleEventConfirm, showRetireConfirm, showHelp, showStats, showLeaderboard, showApiSettings, showAchievements, showHistory, showSchedule, showContestHistory, showShop, showRealityGuide, showClubSelection]);
 
   React.useEffect(() => {
       if (state.phase === Phase.SEMESTER_1 && state.week === 2 && !state.hasSelectedClub && !showClubSelection) {
@@ -305,7 +308,7 @@ const App: React.FC = () => {
 
   // 音效触发：成就解锁 / AI 灵感枯竭
   React.useEffect(() => {
-      if (state.achievementPopup) playAchievement();
+      if (state.achievementPopup) { playAchievement(); navigator.vibrate?.([80, 50, 120]); }
   }, [state.achievementPopup]);
   React.useEffect(() => {
       if (state.currentEvent?.title === '灵感枯竭') playError();
@@ -313,7 +316,7 @@ const App: React.FC = () => {
   // 音效触发：周末 / 考试 / 结局
   React.useEffect(() => { if (state.isWeekend) playWeekend(); }, [state.isWeekend]);
   React.useEffect(() => { if (EXAM_PHASES.includes(state.phase)) playExam(); }, [state.phase]);
-  React.useEffect(() => { if (state.phase === Phase.ENDING || state.phase === Phase.WITHDRAWAL) playEnding(); }, [state.phase]);
+  React.useEffect(() => { if (state.phase === Phase.ENDING || state.phase === Phase.WITHDRAWAL) { playEnding(); navigator.vibrate?.(300); } }, [state.phase]);
 
   // 「继续游戏」按钮展示当前所选难度的存档概要（各难度存档分开存储）
   const [latestSave, setLatestSave] = useState<SaveInfo | null>(() => getSaveInfo(selectedDifficulty));
@@ -478,6 +481,7 @@ const App: React.FC = () => {
           }}
        />
       {showRealityGuide && <Suspense fallback={null}><RealityGuideModal onClose={() => setShowRealityGuide(false)} /></Suspense>}
+      {showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
       
       
       {/* Toast */}
@@ -528,6 +532,10 @@ const App: React.FC = () => {
                    <div className="flex flex-col gap-1 w-full mr-4">
                        <h2 className="font-black text-slate-800 text-lg flex items-center gap-2 uppercase tracking-tight truncate">
                             <span className={`w-2 h-2 rounded-full flex-shrink-0 ${state.isSick ? 'bg-red-500 animate-pulse' : 'bg-indigo-500'}`}></span> {PHASE_NAMES[state.phase] || state.phase}
+                            <button onClick={() => setShowHelp(true)} title="快捷键说明"
+                                className="hidden md:flex w-5 h-5 items-center justify-center rounded-full bg-slate-100 hover:bg-indigo-100 text-slate-400 hover:text-indigo-500 transition-colors flex-shrink-0">
+                                <i className="fas fa-circle-question text-[11px]"></i>
+                            </button>
                         </h2>
                         <div className="flex gap-2 items-center flex-wrap">
                             {state.activeStatuses.map(s => (

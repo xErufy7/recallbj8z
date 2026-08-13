@@ -7,6 +7,8 @@ export interface ReportCardData {
     comment: string;
     score: number;
     name?: string;
+    /** 生涯数据行（难度 · 阶段/周数 · 成就等），显示在评语和属性条之间 */
+    meta?: string;
     stats: { label: string; value: number; max: number; color: string }[];
 }
 
@@ -76,7 +78,7 @@ const drawBar = (ctx: CanvasRenderingContext2D, label: string, value: number, ma
 export const drawReportCard = (canvas: HTMLCanvasElement, data: ReportCardData) => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    const { rank, title, comment, score, name, stats } = data;
+    const { rank, title, comment, score, name, meta, stats } = data;
     const rc = RANK_COLORS[rank] || RANK_COLORS.C;
     const now = new Date();
     const dateStr = `${now.getFullYear()} 年 ${now.getMonth() + 1} 月 ${now.getDate()} 日`;
@@ -144,9 +146,16 @@ export const drawReportCard = (canvas: HTMLCanvasElement, data: ReportCardData) 
     ctx.font = `500 22px ${FONT}`;
     wrapText(ctx, comment, 375, 575, 480, 32, 2);
 
-    // 属性条（640 起、间距 32，8 条最底约 888，留出底部签名区）
+    // 生涯数据行
+    if (meta) {
+        ctx.fillStyle = '#64748b';
+        ctx.font = `600 18px ${FONT}`;
+        ctx.fillText(meta, 375, 628);
+    }
+
+    // 属性条（655 起、间距 30，8 条最底约 879，留出底部签名区）
     stats.forEach((s, i) => {
-        drawBar(ctx, s.label, Math.round(s.value), s.max, 640 + i * 32, s.color);
+        drawBar(ctx, s.label, Math.round(s.value), s.max, 655 + i * 30, s.color);
     });
 
     // 底部

@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { GameState, Phase } from '../types';
 import { DIFFICULTY_PRESETS } from '../data/constants';
+import { PHASE_NAMES } from '../hooks/gameLogic/phases';
 import { uploadScore, getUseNewDb } from '../lib/supabase';
 import ReportCardModal from './ReportCardModal';
 import { ReportCardData } from '../lib/reportCard';
@@ -82,6 +83,7 @@ const EndingScreen: React.FC<EndingScreenProps> = ({ state, endingData, onRestar
         comment: endingData.comment,
         score: Math.floor(endingData.score),
         name: playerName || '匿名',
+        meta: `难度 ${DIFFICULTY_PRESETS[state.difficulty]?.label || state.difficulty} · ${PHASE_NAMES[state.phase] || state.phase} 第 ${state.week} 周 · 成就 ${state.unlockedAchievements.length} 个${state.activeChallengeId ? ' · 挑战模式' : ''}`,
         stats: [
             { label: '学识', value: (Object.values(state.subjects) as { level: number }[]).reduce((s, v) => s + (v.level || 0), 0) / Math.max(1, Object.keys(state.subjects).length), max: 150, color: '#4f46e5' },
             { label: '心态', value: state.general.mindset, max: 150, color: '#3b82f6' },
