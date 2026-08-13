@@ -14,7 +14,7 @@ import { getHistoricalEventsForWeek, loadCityEvents } from '../data/historical_e
 import { OI_EVENTS_POOL } from '../data/events_oi';
 import { PHASE_NAMES, getNextPhaseInfo } from './gameLogic/phases';
 import { getInitialSubjects, getInitialOIStats, getInitialGameState } from './gameLogic/initialState';
-import { getSaveKey, getAllSaveKeys, hasAnySave, getGlobalAchievements, buildSaveData, stampNewLogWeeks, ACHIEVEMENTS_KEY } from './gameLogic/storage';
+import { getSaveKey, getAllSaveKeys, hasAnySave, getGlobalAchievements, buildSaveData, stampNewLogWeeks, ACHIEVEMENTS_KEY, getLatestSaveKey } from './gameLogic/storage';
 import { calculateWeeklyUpdates } from './gameLogic/weekly';
 import { calculateRank, ALL_OI_PHASES } from './gameLogic/exams';
 import { fetchAiEvents } from './gameLogic/ai';
@@ -41,6 +41,9 @@ export const useGameLogic = () => {
         if (difficulty) return !!localStorage.getItem(getSaveKey(difficulty));
         return hasAnySave();
     }, []);
+
+    /** 删除存档后刷新 hasSave 状态（存档管理界面用） */
+    const refreshHasSave = () => setHasSave(hasAnySave());
 
     useEffect(() => {
         setHasSave(hasAnySave());
@@ -458,22 +461,8 @@ export const useGameLogic = () => {
         if (difficulty) {
             saved = localStorage.getItem(getSaveKey(difficulty));
         } else {
-            const keys = getAllSaveKeys();
-            if (keys.length > 0) {
-                let latestKey = keys[0];
-                let latestTime = 0;
-                for (const k of keys) {
-                    const data = localStorage.getItem(k);
-                    if (data) {
-                        try {
-                            const parsed = JSON.parse(data);
-                            const t = parsed.history?.slice(-1)?.[0]?.timestamp || 0;
-                            if (t > latestTime) { latestTime = t; latestKey = k; }
-                        } catch { }
-                    }
-                }
-                saved = localStorage.getItem(latestKey);
-            }
+            const latestKey = getLatestSaveKey();
+            saved = latestKey ? localStorage.getItem(latestKey) : null;
         }
         if (saved) {
             try {
@@ -928,7 +917,7 @@ export const useGameLogic = () => {
     });
 
     return {
-        state, setState, weekendResult, setWeekendResult, hasSave, checkHasSave, saveGame, loadGame,
+        state, setState, weekendResult, setWeekendResult, hasSave, checkHasSave, refreshHasSave, saveGame, loadGame,
         exportSave, importSave,
         startGameState, handleChoice, handleEventConfirm, handleClubSelect, handleShopPurchase,
         handleWeekendActivityClick, confirmWeekendActivity,

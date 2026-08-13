@@ -4,6 +4,7 @@ import { DIFFICULTY_PRESETS, CHANGELOG_DATA } from '../data/constants';
 import { ACHIEVEMENTS } from '../data/mechanics';
 import { getApiSettings, saveApiSettings } from '../lib/api';
 import { getUseNewDb, setUseNewDb } from '../lib/supabase';
+import { SaveInfo, getAllSaveInfos, deleteSaveByKey } from '../hooks/gameLogic/storage';
 
 interface HomeViewProps {
     selectedDifficulty: Difficulty;
@@ -21,6 +22,8 @@ interface HomeViewProps {
     darkMode: boolean;
     onToggleSound: () => void;
     onToggleDark: () => void;
+    latestSave?: SaveInfo | null;
+    onSaveDeleted?: () => void;
 }
 
 const STAT_LABELS: Record<string, string> = {
@@ -28,7 +31,7 @@ const STAT_LABELS: Record<string, string> = {
     romance: '魅力', luck: '运气', experience: '经验',
 };
 
-const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyChange, customStats, onCustomStatsChange, onCustomStatsConfirm, onStart, hasSave, onLoadGame, unlockedAchievements, onResetAchievements, onShowLeaderboard, soundOn, darkMode, onToggleSound, onToggleDark }) => {
+const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyChange, customStats, onCustomStatsChange, onCustomStatsConfirm, onStart, hasSave, onLoadGame, unlockedAchievements, onResetAchievements, onShowLeaderboard, soundOn, darkMode, onToggleSound, onToggleDark, latestSave, onSaveDeleted }) => {
     const [showChangelog, setShowChangelog] = React.useState(false);
     const [showAchievements, setShowAchievements] = React.useState(false);
     const [showCustomModal, setShowCustomModal] = React.useState(false);
@@ -37,8 +40,12 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
     const [apiSettings, setApiSettings] = useState<ApiSettings>(getApiSettings);
     const [apiSaved, setApiSaved] = useState(false);
     const [useNewDb, setUseNewDbLocal] = useState(getUseNewDb());
+    // 存档管理
+    const [saves, setSaves] = useState(getAllSaveInfos);
+    const [confirmDeleteKey, setConfirmDeleteKey] = useState<string | null>(null);
 
     const handleCustomClick = () => {
+        setSaves(getAllSaveInfos());
         setShowCustomModal(true);
     };
 
@@ -166,7 +173,7 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
                                     <i className="fas fa-play text-indigo-400"></i> 开启新学期
                                 </button>
 
-                                <div className={`overflow-visible transition-all duration-500 ease-in-out ${hasSave ? 'flex-[0.5] opacity-100 w-[180px]' : 'flex-[0] opacity-0 w-0'}`}>
+                                <div className={`relative overflow-visible transition-all duration-500 ease-in-out ${hasSave ? 'flex-[0.5] opacity-100 w-[180px]' : 'flex-[0] opacity-0 w-0'}`}>
                                     <button onClick={onLoadGame}
                                         className="bg-white text-emerald-600 border-2 border-emerald-100 hover:border-emerald-300 rounded-2xl py-3 px-2.5 font-black text-sm md:py-4 md:px-5 md:text-lg hover:-translate-y-1 transition-all flex items-center justify-center gap-1.5 md:gap-2 whitespace-nowrap w-full h-full"
                                         title="继续上次的进度"
@@ -174,6 +181,11 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
                                     >
                                     <i className="fas fa-save flex-shrink-0"></i> <span className="whitespace-nowrap">继续游戏</span>
                                 </button>
+                                {latestSave && (
+                                    <span className="absolute left-1/2 -translate-x-1/2 top-full mt-1.5 text-[10px] font-bold text-slate-400 whitespace-nowrap hidden md:inline">
+                                        {DIFFICULTY_PRESETS[latestSave.difficulty as Difficulty]?.label || latestSave.difficulty} · 第{latestSave.week}周
+                                    </span>
+                                )}
                                 </div>
                             </div>
 
@@ -221,6 +233,38 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
                                         <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${darkMode ? 'bg-indigo-100 text-indigo-600' : 'bg-slate-200 text-slate-500'}`}>{darkMode ? '已开启' : '已关闭'}</span>
                                     </button>
                                 </div>
+                            </div>
+
+                            {/* Divider */}
+                            <div className="border-t border-slate-100 my-5"></div>
+
+                            {/* 存档管理 */}
+                            <div>
+                                <label className="block text-xs font-black text-slate-500 uppercase tracking-wider mb-3">
+                                    <i className="fas fa-database mr-2"></i>存档管理
+                                </label>
+                                {saves.length === 0 ? (
+                                    <p className="text-xs text-slate-400 px-1">暂无本地存档</p>
+                                ) : (
+                                    <div className="space-y-2">
+                                        {saves.map(s => (
+                                            <div key={s.key} className="flex items-center justify-between px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50">
+                                                <span className="text-xs font-bold text-slate-600 min-w-0">
+                                                    {DIFFICULTY_PRESETS[s.difficulty as Difficulty]?.label || s.difficulty} · 第{s.week}周
+                                                    {s.updatedAt > 0 && <span className="text-slate-400 font-normal ml-1.5">{new Date(s.updatedAt).toLocaleDateString()}</span>}
+                                                </span>
+                                                {confirmDeleteKey === s.key ? (
+                                                    <span className="flex items-center gap-1.5 flex-shrink-0 ml-2">
+                                                        <button onClick={() => { deleteSaveByKey(s.key); setConfirmDeleteKey(null); setSaves(getAllSaveInfos()); onSaveDeleted?.(); }} className="px-2 py-1 rounded-lg bg-rose-600 text-white text-[10px] font-bold">确认删除</button>
+                                                        <button onClick={() => setConfirmDeleteKey(null)} className="px-2 py-1 rounded-lg bg-slate-200 text-slate-500 text-[10px] font-bold">取消</button>
+                                                    </span>
+                                                ) : (
+                                                    <button onClick={() => setConfirmDeleteKey(s.key)} className="px-2 py-1.5 rounded-lg bg-slate-100 hover:bg-rose-50 text-slate-400 hover:text-rose-500 text-[10px] font-bold transition-colors flex-shrink-0 ml-2" title="删除该存档"><i className="fas fa-trash-alt"></i></button>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
 
                             {/* Divider */}
@@ -306,7 +350,7 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
                                 {/* Database Toggle */}
                                 <div>
                                     <label className="block text-xs font-black text-slate-500 uppercase tracking-wider mb-3">
-                                        <i className="fas fa-database mr-2"></i>排行榜数据
+                                        <i className="fas fa-list-ol mr-2"></i>排行榜数据
                                     </label>
                                     <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">切换数据源</label>
                                     <button

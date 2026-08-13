@@ -159,7 +159,6 @@ export const generateBatchGameEvents = async (state: GameState): Promise<AiGener
 
   let timeoutId: ReturnType<typeof setTimeout>;
   try {
-    console.log(`[AI] Calling: ${apiUrl} with model ${modelName}`);
     const controller = new AbortController();
     timeoutId = setTimeout(() => controller.abort(), 30000);
     const response = await fetch(apiUrl, {

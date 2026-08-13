@@ -66,3 +66,23 @@ export const playAchievement = () => {
 
 /** 错误提示：低沉短嗡 */
 export const playError = () => beep(200, 0.2, 'sawtooth', 0.08);
+
+/** 周末来临：轻快两连音 */
+export const playWeekend = () => {
+    beep(392, 0.09, 'sine', 0.1);
+    beep(523, 0.12, 'sine', 0.1, 0.09);
+};
+
+/** 考试开始：低沉提示 */
+export const playExam = () => {
+    beep(311, 0.18, 'sine', 0.1);
+    beep(262, 0.25, 'sine', 0.1, 0.16);
+};
+
+/** 结局结算：上行小号角 */
+export const playEnding = () => {
+    beep(523, 0.12, 'sine', 0.11);
+    beep(659, 0.12, 'sine', 0.11, 0.12);
+    beep(784, 0.2, 'sine', 0.11, 0.24);
+    beep(1047, 0.35, 'sine', 0.11, 0.36);
+};

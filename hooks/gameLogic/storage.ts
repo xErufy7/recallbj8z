@@ -19,6 +19,78 @@ export const getAllSaveKeys = (): string[] => {
 
 export const hasAnySave = (): boolean => getAllSaveKeys().length > 0;
 
+/** 找出所有存档中最近的一个（按最后一条剧情时间戳） */
+export const getLatestSaveKey = (): string | null => {
+    const keys = getAllSaveKeys();
+    if (keys.length === 0) return null;
+    let latestKey = keys[0];
+    let latestTime = 0;
+    for (const k of keys) {
+        const data = localStorage.getItem(k);
+        if (!data) continue;
+        try {
+            const parsed = JSON.parse(data);
+            const t = parsed.history?.slice(-1)?.[0]?.timestamp || 0;
+            if (t > latestTime) { latestTime = t; latestKey = k; }
+        } catch { }
+    }
+    return latestKey;
+};
+
+export interface SaveInfo {
+    difficulty: string;
+    week: number;
+    phase: string;
+}
+
+/** 最近存档的概要信息（用于「继续游戏」按钮展示） */
+export const getLatestSaveInfo = (): SaveInfo | null => {
+    const key = getLatestSaveKey();
+    if (!key) return null;
+    try {
+        const parsed = JSON.parse(localStorage.getItem(key) || 'null');
+        if (!parsed || !parsed.general || !parsed.subjects) return null;
+        return { difficulty: parsed.difficulty || '?', week: parsed.week ?? 1, phase: parsed.phase || '' };
+    } catch { return null; }
+};
+
+/** 指定难度的存档概要信息（该难度无存档时返回 null） */
+export const getSaveInfo = (difficulty: Difficulty): SaveInfo | null => {
+    try {
+        const parsed = JSON.parse(localStorage.getItem(getSaveKey(difficulty)) || 'null');
+        if (!parsed || !parsed.general || !parsed.subjects) return null;
+        return { difficulty: parsed.difficulty || difficulty, week: parsed.week ?? 1, phase: parsed.phase || '' };
+    } catch { return null; }
+};
+
+export interface SaveEntry {
+    key: string;
+    difficulty: string;
+    week: number;
+    updatedAt: number;
+}
+
+/** 所有存档的概要列表（存档管理界面用），按最近游玩排序 */
+export const getAllSaveInfos = (): SaveEntry[] => {
+    return getAllSaveKeys()
+        .map(key => {
+            try {
+                const parsed = JSON.parse(localStorage.getItem(key) || 'null');
+                const lastLog = parsed?.log?.slice(-1)?.[0];
+                const lastStory = parsed?.history?.slice(-1)?.[0];
+                const updatedAt = Math.max(lastLog?.timestamp || 0, lastStory?.timestamp || 0);
+                return { key, difficulty: parsed?.difficulty || '?', week: parsed?.week ?? 1, updatedAt };
+            } catch {
+                return { key, difficulty: '?', week: 1, updatedAt: 0 };
+            }
+        })
+        .sort((a, b) => b.updatedAt - a.updatedAt);
+};
+
+export const deleteSaveByKey = (key: string) => {
+    try { localStorage.removeItem(key); } catch { }
+};
+
 export const getGlobalAchievements = (): string[] => {
     try {
         const stored = localStorage.getItem(ACHIEVEMENTS_KEY);

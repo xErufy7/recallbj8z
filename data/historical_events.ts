@@ -150,7 +150,7 @@ export const loadCityEvents = async (code: string, regionName: string) => {
         }));
         loadedCityEvents = mapped;
         currentLoadedCityCode = code;
-        console.log(`Loaded ${mapped.length} events for ${regionName} (${code})`);
+        // 城市事件已加载（debug 输出已移除）
     } catch (e) {
         console.error("Failed to load city events", e);
     }

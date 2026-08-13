@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import { GameState, Phase } from '../types';
 import { DIFFICULTY_PRESETS } from '../data/constants';
 import { uploadScore, getUseNewDb } from '../lib/supabase';
+import ReportCardModal from './ReportCardModal';
+import { ReportCardData } from '../lib/reportCard';
 
 interface EndingScreenProps {
     state: GameState;
@@ -13,9 +15,14 @@ interface EndingScreenProps {
 
 const EndingScreen: React.FC<EndingScreenProps> = ({ state, endingData, onRestart, onShowLeaderboard }) => {
     const [showUpload, setShowUpload] = useState(false);
-    const [playerName, setPlayerName] = useState('');
+    // 记住上次上传用的玩家名
+    const [playerName, setPlayerName] = useState(() => {
+        try { return localStorage.getItem('bj8z_player_name') || ''; } catch { return ''; }
+    });
     const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'ok' | 'err'>('idle');
     const [uploadMsg, setUploadMsg] = useState('');
+    const [showReportCard, setShowReportCard] = useState(false);
+    const [copyMsg, setCopyMsg] = useState('');
 
     const handleUpload = async () => {
         if (!playerName.trim()) return;
@@ -33,14 +40,63 @@ const EndingScreen: React.FC<EndingScreenProps> = ({ state, endingData, onRestar
             setUploadStatus('ok');
             setUploadMsg('上传成功！');
             setShowUpload(false);
+            try { localStorage.setItem('bj8z_player_name', playerName.trim()); } catch { }
         } catch (e: any) {
             setUploadStatus('err');
             setUploadMsg('上传失败: ' + (e.message || e));
         }
     };
 
+    // 一键复制成绩文本（发群用）
+    const handleCopyReport = async () => {
+        const lines = [
+            '【八中重开模拟器】我的高一战绩',
+            `评级 ${endingData.rank} · ${endingData.title}`,
+            `得分 ${Math.floor(endingData.score)} · 难度 ${DIFFICULTY_PRESETS[state.difficulty]?.label || state.difficulty}${state.activeChallengeId ? '（挑战）' : ''}`,
+            `成就 ${state.unlockedAchievements.length} 个`,
+            `「${endingData.comment}」`,
+            window.location.origin
+        ];
+        const text = lines.join('\n');
+        try {
+            await navigator.clipboard.writeText(text);
+            setCopyMsg('已复制！');
+        } catch {
+            // 非 HTTPS 环境兜底
+            try {
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+                setCopyMsg('已复制！');
+            } catch { setCopyMsg('复制失败'); }
+        }
+        setTimeout(() => setCopyMsg(''), 2000);
+    };
+
+    const reportData: ReportCardData = {
+        rank: endingData.rank,
+        title: endingData.title,
+        comment: endingData.comment,
+        score: Math.floor(endingData.score),
+        name: playerName || '匿名',
+        stats: [
+            { label: '学识', value: (Object.values(state.subjects) as { level: number }[]).reduce((s, v) => s + (v.level || 0), 0) / Math.max(1, Object.keys(state.subjects).length), max: 150, color: '#4f46e5' },
+            { label: '心态', value: state.general.mindset, max: 150, color: '#3b82f6' },
+            { label: '健康', value: state.general.health, max: 150, color: '#10b981' },
+            { label: '金钱', value: state.general.money, max: 300, color: '#f59e0b' },
+            { label: '魅力', value: state.general.romance, max: 150, color: '#f43f5e' },
+            { label: '效率', value: state.general.efficiency, max: 30, color: '#a855f7' },
+            { label: '经验', value: state.general.experience, max: 999, color: '#f97316' },
+            { label: '运气', value: state.general.luck, max: 150, color: '#8b5cf6' }
+        ]
+    };
+
 
     return (
+        <>
         <div className="fixed inset-0 z-[100] bg-slate-900/80 backdrop-blur-md text-slate-800 flex p-4 md:p-6 animate-fadeIn overflow-y-auto custom-scroll">
                 <div className="bg-white rounded-[40px] shadow-2xl w-full max-w-4xl flex flex-col md:flex-row overflow-hidden border-4 border-slate-800 relative m-auto shrink-0">
                     
@@ -165,7 +221,7 @@ const EndingScreen: React.FC<EndingScreenProps> = ({ state, endingData, onRestar
                                  </div>
                              </div>
                              
-                             <div className="flex flex-wrap gap-2 pb-6">
+                             <div className="flex flex-wrap gap-x-2 gap-y-3.5 pb-6">
                                  <button onClick={onRestart} className="flex-1 bg-slate-900 text-white px-3 py-3.5 rounded-2xl font-black text-sm whitespace-nowrap hover:bg-slate-800 transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1 flex items-center justify-center gap-2">
                                      <i className="fas fa-home"></i> 返回主页
                                  </button>
@@ -174,6 +230,12 @@ const EndingScreen: React.FC<EndingScreenProps> = ({ state, endingData, onRestar
                                      <i className="fas fa-trophy"></i> 排行榜
                                  </button>
                                  )}
+                                 <button onClick={() => setShowReportCard(true)} className="flex-1 bg-emerald-500 text-white px-3 py-3.5 rounded-2xl font-black text-sm whitespace-nowrap hover:bg-emerald-600 transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1 flex items-center justify-center gap-2">
+                                     <i className="fas fa-graduation-cap"></i> 成绩单
+                                 </button>
+                                 <button onClick={handleCopyReport} className="flex-1 bg-slate-200 text-slate-700 px-3 py-3.5 rounded-2xl font-black text-sm whitespace-nowrap hover:bg-slate-300 transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1 flex items-center justify-center gap-2">
+                                     <i className="fas fa-copy"></i> {copyMsg || '复制成绩'}
+                                 </button>
                                  {uploadStatus === 'ok' ? (
                                  <button disabled className="flex-1 bg-emerald-500 text-white px-3 py-3.5 rounded-2xl font-black text-sm whitespace-nowrap flex items-center justify-center gap-2 opacity-80 cursor-not-allowed">
                                      <i className="fas fa-check-circle"></i> 已上传
@@ -215,6 +277,8 @@ const EndingScreen: React.FC<EndingScreenProps> = ({ state, endingData, onRestar
                     </div>
                 </div>
             </div>
+            {showReportCard && <ReportCardModal data={reportData} onClose={() => setShowReportCard(false)} />}
+            </>
     );
 };
 export default EndingScreen;

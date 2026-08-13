@@ -3,7 +3,10 @@ import React, { useState, useRef, lazy, Suspense } from 'react';
 import { Difficulty, GeneralStats, Talent, Phase, GameState, Challenge, SubjectKey } from './types';
 import { TALENTS } from './data/mechanics';
 import { useGameLogic, ACHIEVEMENTS_KEY, PHASE_NAMES } from './hooks/useGameLogic';
-import { playClick, playConfirm, playAchievement, playError, isSoundEnabled, setSoundEnabled } from './lib/sound';
+import { playClick, playConfirm, playAchievement, playError, playWeekend, playExam, playEnding, isSoundEnabled, setSoundEnabled } from './lib/sound';
+import { getSaveInfo, SaveInfo } from './hooks/gameLogic/storage';
+
+const EXAM_PHASES = [Phase.PLACEMENT_EXAM, Phase.MIDTERM_EXAM, Phase.FINAL_EXAM, Phase.MIDTERM_EXAM_2, Phase.FINAL_EXAM_2, Phase.CSP_EXAM, Phase.NOIP_EXAM, Phase.WC_EXAM, Phase.PROVINCIAL_EXAM, Phase.APIO_EXAM, Phase.NOI_EXAM];
 
 // Component Imports（非首屏界面懒加载，减小首屏包体积）
 import HistoricalTicker from "./components/HistoricalTicker";
@@ -97,7 +100,7 @@ const App: React.FC = () => {
   };
 
   const {
-      state, setState, weekendResult, setWeekendResult, hasSave, saveGame, loadGame,
+      state, setState, weekendResult, setWeekendResult, hasSave, checkHasSave, refreshHasSave, saveGame, loadGame,
       exportSave, importSave,
       startGameState, handleChoice, handleEventConfirm, handleClubSelect, handleShopPurchase,
       handleWeekendActivityClick, confirmWeekendActivity,
@@ -307,10 +310,20 @@ const App: React.FC = () => {
   React.useEffect(() => {
       if (state.currentEvent?.title === '灵感枯竭') playError();
   }, [state.currentEvent]);
+  // 音效触发：周末 / 考试 / 结局
+  React.useEffect(() => { if (state.isWeekend) playWeekend(); }, [state.isWeekend]);
+  React.useEffect(() => { if (EXAM_PHASES.includes(state.phase)) playExam(); }, [state.phase]);
+  React.useEffect(() => { if (state.phase === Phase.ENDING || state.phase === Phase.WITHDRAWAL) playEnding(); }, [state.phase]);
+
+  // 「继续游戏」按钮展示当前所选难度的存档概要（各难度存档分开存储）
+  const [latestSave, setLatestSave] = useState<SaveInfo | null>(() => getSaveInfo(selectedDifficulty));
+  React.useEffect(() => {
+      if (view === 'HOME') setLatestSave(getSaveInfo(selectedDifficulty));
+  }, [view, hasSave, selectedDifficulty]);
 
   const handleLoadGame = () => {
-      // 不传难度：读取所有难度下最新的存档（自定义开局存的是 CUSTOM 键）
-      if (loadGame()) { setView('GAME'); return; }
+      // 只读取当前所选难度的存档，各难度进度互不影响
+      if (loadGame(selectedDifficulty)) { setView('GAME'); return; }
       // 存档读取失败（损坏或不存在）给出可见提示，避免点了没反应
       setLoadErrorMsg('存档读取失败：存档可能已损坏，可以导出文件重新导入或删除后重开。');
       if (loadErrorTimerRef.current) clearTimeout(loadErrorTimerRef.current);
@@ -388,7 +401,7 @@ const App: React.FC = () => {
             <HomeView
               selectedDifficulty={selectedDifficulty} onDifficultyChange={handleDifficultyChange}
               customStats={customStats} onCustomStatsChange={setCustomStats} onCustomStatsConfirm={handleCustomStatsConfirm}
-              onStart={prepareGame} hasSave={hasSave} onLoadGame={handleLoadGame}
+              onStart={prepareGame} hasSave={checkHasSave(selectedDifficulty)} onLoadGame={handleLoadGame}
               unlockedAchievements={state.unlockedAchievements}
               onResetAchievements={() => {
                 localStorage.removeItem(ACHIEVEMENTS_KEY);
@@ -398,6 +411,8 @@ const App: React.FC = () => {
               soundOn={soundOn} darkMode={darkMode}
               onToggleSound={() => { const on = !soundOn; setSoundEnabled(on); setSoundOn(on); }}
               onToggleDark={() => setDarkMode(!darkMode)}
+              latestSave={latestSave}
+              onSaveDeleted={() => { refreshHasSave(); setLatestSave(getSaveInfo(selectedDifficulty)); }}
             />
             {showLeaderboard && <LeaderboardModal onClose={() => setShowLeaderboard(false)} initialChallengeId={state.activeChallengeId} />}
             {loadErrorMsg && (
@@ -566,6 +581,16 @@ const App: React.FC = () => {
              <div ref={logEndRef} />
           </div>
         </div>
+
+        {/* AI 事件生成中提示 */}
+        {state.isAiGenerating && !state.currentEvent && (
+            <div className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none">
+                <div className="bg-white/90 backdrop-blur rounded-2xl px-6 py-4 shadow-lg border border-slate-200 flex items-center gap-3 animate-fadeIn">
+                    <i className="fas fa-spinner fa-spin text-indigo-500 text-xl"></i>
+                    <span className="text-sm font-bold text-slate-600">正在生成事件...</span>
+                </div>
+            </div>
+        )}
 
         {/* --- Overlays & Modals --- */}
 

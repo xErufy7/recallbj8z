@@ -21,6 +21,7 @@ const LeaderboardModal: React.FC<LeaderboardModalProps> = ({ onClose, initialCha
     const [error, setError] = useState<string | null>(null);
     const [useNewDb, setUseNew] = useState(() => getUseNewDb());
     const [hasMore, setHasMore] = useState(true);
+    const [retryTick, setRetryTick] = useState(0);
     const offsetRef = useRef(0);
     const loadingMoreRef = useRef(false);
 
@@ -67,7 +68,7 @@ const LeaderboardModal: React.FC<LeaderboardModalProps> = ({ onClose, initialCha
         };
         init();
         return () => { cancelled = true; };
-    }, [useNewDb, doFetch]);
+    }, [useNewDb, doFetch, retryTick]);
 
     const loadMore = useCallback(async () => {
         if (loadingMoreRef.current || !hasMore) return;
@@ -128,7 +129,9 @@ const LeaderboardModal: React.FC<LeaderboardModalProps> = ({ onClose, initialCha
                             <div className="flex flex-col items-center justify-center h-40 text-rose-500">
                                 <i className="fas fa-exclamation-triangle text-3xl mb-2"></i>
                                 <span>加载失败 ({error})</span>
-                                <div className="text-xs text-slate-400 mt-2">请检查 Supabase 表配置</div>
+                                <button onClick={() => setRetryTick(t => t + 1)} className="mt-3 px-4 py-2 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 text-xs font-bold hover:bg-rose-100 transition-colors flex items-center gap-1.5">
+                                    <i className="fas fa-rotate-right"></i> 重试
+                                </button>
                             </div>
                         ) : entries.length === 0 ? (
                             <div className="flex flex-col items-center justify-center h-40 text-slate-400">
