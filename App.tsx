@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, lazy, Suspense } from 'react';
-import { Difficulty, GeneralStats, Talent, Phase, GameState, Challenge } from './types';
+import { Difficulty, GeneralStats, Talent, Phase, GameState, Challenge, SubjectKey } from './types';
 import { TALENTS } from './data/mechanics';
 import { useGameLogic, ACHIEVEMENTS_KEY, PHASE_NAMES } from './hooks/useGameLogic';
 import { playClick, playConfirm, playAchievement, playError, isSoundEnabled, setSoundEnabled } from './lib/sound';
@@ -122,7 +122,7 @@ const App: React.FC = () => {
         showAchievements || showHistory || showSchedule || showContestHistory ||
         showShop || showRealityGuide || showClubSelection;
 
-    const handler = (e: KeyboardEvent) => {
+    const keydownHandler = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement;
       if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT' || target.isContentEditable)) return;
 
@@ -141,24 +141,85 @@ const App: React.FC = () => {
         return;
       }
 
-      if (anyModalOpen || view !== 'GAME' || !state.currentEvent) return;
+      if (anyModalOpen || view !== 'GAME') return;
 
-      if (e.key === 'Enter' && state.eventResult) {
-        handleEventConfirm();
+      // 选科界面：数字键 1-6 切换对应科目，选满 3 门后 Enter/空格 确认
+      if (state.phase === Phase.SELECTION || state.phase === Phase.SUBJECT_RESELECTION) {
+        const subjectOrder: SubjectKey[] = ['physics', 'chemistry', 'biology', 'history', 'geography', 'politics'];
+        const subjectNum = parseInt(e.key, 10);
+        if (subjectNum >= 1 && subjectNum <= 6) {
+          const s = subjectOrder[subjectNum - 1];
+          pressKey(`subject-${subjectNum - 1}`, () => setState(prev => ({ ...prev, selectedSubjects: prev.selectedSubjects.includes(s) ? prev.selectedSubjects.filter(x => x !== s) : (prev.selectedSubjects.length < 3 ? [...prev.selectedSubjects, s] : prev.selectedSubjects) })));
+          return;
+        }
+        if ((e.key === 'Enter' || e.key === ' ') && state.selectedSubjects.length === 3) {
+          if (e.key === ' ') e.preventDefault();
+          pressKey('subject-confirm', () => setState(prev => {
+              const nextPhase = prev.phase === Phase.SELECTION ? Phase.PLACEMENT_EXAM : Phase.SEMESTER_1;
+              return {
+                  ...prev,
+                  phase: nextPhase,
+                  isPlaying: prev.phase === Phase.SUBJECT_RESELECTION,
+                  totalWeeksInPhase: nextPhase === Phase.SEMESTER_1 ? 21 : 0
+              };
+          }));
+        }
+        return;
+      }
+
+      // 考试/竞赛结果弹窗：Enter/空格 关闭并继续
+      if ((state.popupExamResult || state.popupCompetitionResult) && (e.key === 'Enter' || e.key === ' ')) {
+        if (e.key === ' ') e.preventDefault();
+        if (state.popupExamResult) pressKey('exam', closeExamResult);
+        else pressKey('comp', closeCompetitionPopup);
+        return;
+      }
+
+      if (!state.currentEvent) return;
+
+      // 确认结果：Enter / 空格 均可触发
+      if ((e.key === 'Enter' || e.key === ' ') && state.eventResult) {
+        if (e.key === ' ') e.preventDefault(); // 防止空格同时触发聚焦按钮的原生点击，导致确认两次
+        pressKey('confirm', handleEventConfirm);
         return;
       }
       if (state.eventResult) return;
 
+      // 与 EventModal 相同的过滤逻辑，保证键盘选择的是可见选项
+      const visibleChoices = state.currentEvent.choices?.filter(c => !c.condition || c.condition(state)) || [];
+
       const num = parseInt(e.key, 10);
       if (num >= 1 && num <= 9) {
-        // 与 EventModal 相同的过滤逻辑，保证键盘选择的是可见选项
-        const visibleChoices = state.currentEvent.choices?.filter(c => !c.condition || c.condition(state)) || [];
         const choice = visibleChoices[num - 1];
-        if (choice) handleChoice(choice, (oldS, newS) => calculateAndVisualizeDiff(oldS, newS));
+        if (choice) pressKey(`choice-${num - 1}`, () => handleChoice(choice, (oldS, newS) => calculateAndVisualizeDiff(oldS, newS)));
       }
     };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
+
+    // 松开按键时才执行动作，还原按压状态
+    const keyupHandler = () => {
+      if (!heldTagRef.current) return;
+      heldTagRef.current = null;
+      setKeyFlash(null);
+      const action = pendingActionRef.current;
+      pendingActionRef.current = null;
+      if (action) action();
+    };
+
+    // 窗口失焦时清掉悬挂的按压状态，避免卡在按下状态
+    const blurHandler = () => {
+      heldTagRef.current = null;
+      pendingActionRef.current = null;
+      setKeyFlash(null);
+    };
+
+    window.addEventListener('keydown', keydownHandler);
+    window.addEventListener('keyup', keyupHandler);
+    window.addEventListener('blur', blurHandler);
+    return () => {
+      window.removeEventListener('keydown', keydownHandler);
+      window.removeEventListener('keyup', keyupHandler);
+      window.removeEventListener('blur', blurHandler);
+    };
   }, [view, state.currentEvent, state.eventResult, handleChoice, handleEventConfirm, showRetireConfirm, showStats, showLeaderboard, showApiSettings, showAchievements, showHistory, showSchedule, showContestHistory, showShop, showRealityGuide, showClubSelection]);
 
   React.useEffect(() => {
@@ -217,6 +278,18 @@ const App: React.FC = () => {
 
   // 音效 / 暗色模式开关
   const [soundOn, setSoundOn] = useState(isSoundEnabled());
+
+  // 键盘按下时标记按压状态，松开（keyup）时才执行动作——和鼠标按住-松开的体验一致
+  const [keyFlash, setKeyFlash] = useState<string | null>(null);
+  const heldTagRef = useRef<string | null>(null);
+  const pendingActionRef = useRef<(() => void) | null>(null);
+
+  const pressKey = (tag: string, action: () => void) => {
+      if (heldTagRef.current) return; // 长按重复 keydown 忽略
+      heldTagRef.current = tag;
+      pendingActionRef.current = action;
+      setKeyFlash(tag);
+  };
   const [darkMode, setDarkMode] = useState(() => {
       try { return localStorage.getItem('bj8z_dark') === 'on'; } catch { return false; }
   });
@@ -512,6 +585,7 @@ const App: React.FC = () => {
                 event={state.currentEvent} state={state} eventResult={state.eventResult}
                 onChoice={(c, e) => { playClick(); handleChoice(c, (oldS, newS) => calculateAndVisualizeDiff(oldS, newS, e.clientX, e.clientY)); }}
                 onConfirm={() => { playConfirm(); handleEventConfirm(); }}
+                flashTag={keyFlash}
             />
         )}
 
@@ -532,7 +606,7 @@ const App: React.FC = () => {
                         <div className="text-4xl font-black text-indigo-600 mb-2">{state.popupCompetitionResult.score} pts</div>
                         <div className="text-2xl font-bold text-yellow-600">{state.popupCompetitionResult.award}</div>
                     </div>
-                    <button onClick={closeCompetitionPopup} className="bg-indigo-600 text-white px-12 py-4 rounded-2xl font-black text-xl hover:bg-indigo-700 shadow-xl w-full">收入囊中</button>
+                    <button onClick={closeCompetitionPopup} className={`relative bg-indigo-600 text-white px-12 py-4 rounded-2xl font-black text-xl hover:bg-indigo-700 shadow-xl w-full ${keyFlash === 'comp' ? 'key-pressed' : ''}`}>收入囊中<span className="absolute bottom-2.5 right-4 text-sm font-black opacity-40 hidden md:inline">⏎</span></button>
                 </div>
              </div>
         )}
@@ -558,7 +632,7 @@ const App: React.FC = () => {
                             ))}
                         </div>
                     </div>
-                    <button onClick={closeExamResult} className="bg-indigo-600 text-white px-12 py-4 rounded-2xl font-black text-xl hover:bg-indigo-700 shadow-xl w-full">继续</button>
+                    <button onClick={closeExamResult} className={`relative bg-indigo-600 text-white px-12 py-4 rounded-2xl font-black text-xl hover:bg-indigo-700 shadow-xl w-full ${keyFlash === 'exam' ? 'key-pressed' : ''}`}>继续<span className="absolute bottom-2.5 right-4 text-sm font-black opacity-40 hidden md:inline">⏎</span></button>
                 </div>
              </div>
         )}
@@ -577,6 +651,7 @@ const App: React.FC = () => {
                         totalWeeksInPhase: nextPhase === Phase.SEMESTER_1 ? 21 : 0
                     };
                 })}
+                flashTag={keyFlash}
             />
         )}
 

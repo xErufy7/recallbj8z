@@ -8,9 +8,10 @@ interface EventModalProps {
     eventResult: { choice: EventChoice, diff: string[] } | null;
     onChoice: (choice: EventChoice, e: React.MouseEvent) => void;
     onConfirm: () => void;
+    flashTag?: string | null; // 键盘触发时的按压缩放动画标记（choice-N / confirm）
 }
 
-const EventModal: React.FC<EventModalProps> = ({ event, state, eventResult, onChoice, onConfirm }) => {
+const EventModal: React.FC<EventModalProps> = ({ event, state, eventResult, onChoice, onConfirm, flashTag }) => {
     // Filter choices: Show if no condition OR condition is met
     const visibleChoices = event.choices?.filter(c => !c.condition || c.condition(state)) || [];
 
@@ -36,10 +37,13 @@ const EventModal: React.FC<EventModalProps> = ({ event, state, eventResult, onCh
                          {visibleChoices.map((c, i) => (
                            <button
                              key={i} onClick={(e: any) => onChoice(c, e)}
-                             className={`w-full text-left p-4 rounded-2xl border transition-all font-bold group flex justify-between items-center shadow-sm hover:scale-[1.02] active:scale-[0.98] ${c.text.includes('【睡神】') ? 'bg-indigo-50/80 border-indigo-200 text-indigo-700 hover:bg-indigo-600 hover:text-white hover:shadow-indigo-200/50 hover:shadow-lg' : 'bg-white/60 border-white/50 text-slate-800 hover:bg-indigo-600 hover:text-white hover:border-indigo-500 hover:shadow-indigo-200/50 hover:shadow-lg'}`}
+                             className={`w-full text-left p-4 rounded-2xl border transition-all font-bold group flex justify-between items-center shadow-sm hover:scale-[1.02] active:scale-[0.98] ${flashTag === `choice-${i}` ? 'key-pressed' : ''} ${c.text.includes('【睡神】') ? 'bg-indigo-50/80 border-indigo-200 text-indigo-700 hover:bg-indigo-600 hover:text-white hover:shadow-indigo-200/50 hover:shadow-lg' : 'bg-white/60 border-white/50 text-slate-800 hover:bg-indigo-600 hover:text-white hover:border-indigo-500 hover:shadow-indigo-200/50 hover:shadow-lg'}`}
                            >
-                              {c.text}
-                              <i className="fas fa-chevron-right opacity-0 group-hover:opacity-100 transition-all translate-x-[-10px] group-hover:translate-x-0"></i>
+                              <span className="flex items-baseline min-w-0 gap-1.5">
+                                  <span className="text-[10px] font-black opacity-40 flex-shrink-0 hidden md:inline">{i + 1}.</span>
+                                  <span className="truncate">{c.text}</span>
+                              </span>
+                              <i className="fas fa-chevron-right opacity-0 group-hover:opacity-100 transition-all translate-x-[-10px] group-hover:translate-x-0 flex-shrink-0 ml-3"></i>
                            </button>
                          ))}
                       </div>
@@ -65,9 +69,9 @@ const EventModal: React.FC<EventModalProps> = ({ event, state, eventResult, onCh
                         </div>
                       )}
                       <button
-                        onClick={onConfirm} className="w-full py-4 rounded-2xl bg-slate-900 text-white font-black text-lg hover:bg-black shadow-xl transition-all flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.95]"
+                        onClick={onConfirm} className={`relative w-full py-4 rounded-2xl bg-slate-900 text-white font-black text-lg hover:bg-black shadow-xl transition-all flex items-baseline justify-center gap-2 hover:scale-[1.02] active:scale-[0.95] ${flashTag === 'confirm' ? 'key-pressed' : ''}`}
                       >
-                           {(state.chainedEvent || eventResult.choice.nextEventId) ? '继续...' : '确认结果'} <i className="fas fa-arrow-right text-slate-400"></i>
+                           {(state.chainedEvent || eventResult.choice.nextEventId) ? '继续...' : '确认结果'} <i className="fas fa-arrow-right text-slate-400"></i> <span className="absolute bottom-2 right-3 text-sm font-black opacity-40 hidden md:inline">⏎</span>
                       </button>
                     </div>
                   )}

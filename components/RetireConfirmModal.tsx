@@ -17,7 +17,7 @@ const RetireConfirmModal: React.FC<RetireConfirmModalProps> = ({ onCancel, onCon
                 <p className="text-sm text-slate-500 mb-6">本局游戏将立即结束并结算成绩，无法撤销。</p>
                 <div className="flex gap-3">
                     <button onClick={onCancel} className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-slate-500 font-bold text-sm hover:bg-slate-50 transition-colors">再想想</button>
-                    <button onClick={onConfirm} className="flex-1 px-4 py-2.5 rounded-xl bg-rose-600 text-white font-bold text-sm hover:bg-rose-700 transition-colors">确认退休</button>
+                    <button onClick={onConfirm} className="relative flex-1 px-4 py-2.5 rounded-xl bg-rose-600 text-white font-bold text-sm hover:bg-rose-700 transition-colors">确认退休<span className="absolute bottom-1 right-2.5 text-sm font-black opacity-40 hidden md:inline">⏎</span></button>
                 </div>
             </div>
         </div>

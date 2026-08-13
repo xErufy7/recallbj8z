@@ -195,8 +195,8 @@ const EndingScreen: React.FC<EndingScreenProps> = ({ state, endingData, onRestar
                                              onKeyDown={e => e.key === 'Enter' && handleUpload()}
                                          />
                                          <button onClick={handleUpload} disabled={uploadStatus === 'uploading' || !playerName.trim()}
-                                             className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold text-sm hover:bg-indigo-700 disabled:opacity-50 transition-all">
-                                             {uploadStatus === 'uploading' ? '上传中...' : '确认上传'}
+                                             className="relative px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold text-sm hover:bg-indigo-700 disabled:opacity-50 transition-all">
+                                             {uploadStatus === 'uploading' ? '上传中...' : <>确认上传<span className="absolute bottom-1 right-2.5 text-sm font-black opacity-40 hidden md:inline">⏎</span></>}
                                          </button>
                                          <button onClick={() => { setShowUpload(false); setUploadStatus('idle'); setUploadMsg(''); }}
                                              className="px-3 py-3 text-slate-400 hover:text-slate-600 transition-colors">

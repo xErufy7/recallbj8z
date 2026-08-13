@@ -15,6 +15,8 @@ const ExamView: React.FC<ExamViewProps> = ({ title, state, onFinish }) => {
   const [examLogs, setExamLogs] = useState<string[]>([]);
   const [currentScores, setCurrentScores] = useState<Record<string, number>>({});
   const [isFinished, setIsFinished] = useState(false);
+  const [confirmFlash, setConfirmFlash] = useState(false);
+  const confirmHeldRef = useRef(false);
 
   // Determine which subjects to test based on phase
   const getSubjectsToTest = (): string[] => {
@@ -227,6 +229,33 @@ const ExamView: React.FC<ExamViewProps> = ({ title, state, onFinish }) => {
 
   const isActive = (idx: number) => !isFinished && idx === examStep && examStep < subjectsToTest.length;
 
+  // 考试结束出现「查看排名 / 继续」按钮后，Enter/空格 按住缩小、松开触发（结果弹窗弹出后不再响应）
+  useEffect(() => {
+    if (!isFinished) return;
+    const keydownHandler = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return;
+      if (state.popupExamResult) return;
+      if ((e.key === 'Enter' || e.key === ' ') && !confirmHeldRef.current) {
+        e.preventDefault();
+        confirmHeldRef.current = true;
+        setConfirmFlash(true);
+      }
+    };
+    const keyupHandler = () => {
+      if (!confirmHeldRef.current) return;
+      confirmHeldRef.current = false;
+      setConfirmFlash(false);
+      handleFinishConfirm();
+    };
+    window.addEventListener('keydown', keydownHandler);
+    window.addEventListener('keyup', keyupHandler);
+    return () => {
+      window.removeEventListener('keydown', keydownHandler);
+      window.removeEventListener('keyup', keyupHandler);
+    };
+  }, [isFinished, state.popupExamResult, handleFinishConfirm]);
+
   return (
     <div className="bg-white rounded-3xl p-8 h-full flex flex-col shadow-2xl overflow-hidden relative border border-slate-200">
       <div className="absolute top-0 left-0 w-full h-1 bg-indigo-500 animate-pulse"></div>
@@ -290,8 +319,8 @@ const ExamView: React.FC<ExamViewProps> = ({ title, state, onFinish }) => {
       </div>
 
       {isFinished && (
-          <button onClick={handleFinishConfirm} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-2xl font-black text-lg shadow-xl transition-all animate-fadeIn flex items-center justify-center gap-2 active:scale-95">
-              查看排名 / 继续 <i className="fas fa-arrow-right"></i>
+          <button onClick={handleFinishConfirm} className={`relative w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-2xl font-black text-lg shadow-xl transition-all animate-fadeIn flex items-baseline justify-center gap-2 active:scale-95 ${confirmFlash ? 'key-pressed' : ''}`}>
+              查看排名 / 继续 <i className="fas fa-arrow-right"></i> <span className="absolute bottom-2 right-3 text-sm font-black opacity-40 hidden md:inline">⏎</span>
           </button>
       )}
     </div>
