@@ -57,10 +57,10 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
                 <div className="absolute bottom-10 right-10 text-[12rem] font-black -rotate-12 text-slate-900">OI</div>
             </div>
 
-            <div className="w-full max-w-4xl z-10 mx-auto relative">
+            <div className="w-full max-w-[864px] z-10 mx-auto relative">
 
                 {/* Hero Card */}
-                <div className="bg-white rounded-[2.5rem] p-5 md:p-10 shadow-xl shadow-indigo-100/50 border border-slate-100 flex flex-col relative overflow-hidden">
+                <div className="bg-white rounded-[2.5rem] p-5 md:p-12 shadow-xl shadow-indigo-100/50 border border-slate-100 flex flex-col relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-50 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
                     <div className="absolute bottom-0 left-0 w-80 h-80 bg-emerald-50 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
 
@@ -73,7 +73,7 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
                                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                             </span>
                             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Visitors</span>
-                            <img src="https://api.visitorbadge.io/api/visitors?path=https%3A%2F%2Fgithub.com%2Fliuenyin%2Frecallbj8z&label=&countColor=%234f46e5&style=flat&labelStyle=none" alt="views" className="h-3.5" loading="lazy" />
+                            <img src="https://api.visitorbadge.io/api/visitors?path=https%3A%2F%2Fgithub.com%2Fliuenyin%2Frecallbj8z&label=&countColor=%234f46e5&style=flat&labelStyle=none" alt="views" className="h-3.5" loading="lazy" referrerPolicy="no-referrer" />
                         </div>
                         <button onClick={() => setShowAchievements(true)}
                             className="group px-2.5 py-2 rounded-lg md:px-3 md:py-2.5 md:rounded-xl bg-white/80 backdrop-blur-sm border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 shadow-sm transition-all flex items-center gap-0 text-sm font-bold active:scale-95 whitespace-nowrap mb-1"
@@ -119,12 +119,12 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
                             </p>
 
                             {/* Version */}
-                            <div className="text-left mt-6 md:mt-10">
+                            <div className="text-left mt-6 md:mt-12">
                                 <span className="text-xs font-bold text-slate-300 tracking-widest">{CHANGELOG_DATA[0].version}</span>
                             </div>
 
                             {/* Difficulty Selection */}
-                            <div className="mt-4">
+                            <div className="mt-4 md:mt-6">
                                 <div className="flex flex-wrap items-center gap-3 mb-3 min-h-[28px]">
                                     <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">选择开局难度</h3>
                                     {selectedDifficulty !== 'REALITY' && selectedDifficulty !== 'AI_STORY' && (
@@ -151,7 +151,7 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
                             </div>
 
                             {/* Divider */}
-                            <div className="border-t border-slate-100 my-5"></div>
+                            <div className="border-t border-slate-100 my-5 md:my-6"></div>
 
                             {/* CTA Buttons */}
                             <div className="flex gap-3 md:gap-4">
