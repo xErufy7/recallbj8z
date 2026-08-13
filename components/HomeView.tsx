@@ -305,8 +305,8 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
 
             {/* Achievements Modal */}
             {showAchievements && (
-                <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6 animate-fadeIn" onClick={() => setShowAchievements(false)}>
-                    <div className="bg-white rounded-[2rem] p-8 max-w-4xl w-full h-[80vh] shadow-2xl flex flex-col" onClick={e => e.stopPropagation()}>
+                <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 md:p-6 animate-fadeIn" onClick={() => setShowAchievements(false)}>
+                    <div className="bg-white rounded-[2rem] p-4 md:p-8 max-w-4xl w-full h-[80vh] shadow-2xl flex flex-col" onClick={e => e.stopPropagation()}>
                         <div className="flex justify-between items-center mb-6">
                             <div>
                                 <h2 className="text-3xl font-black text-slate-800">成就墙</h2>
@@ -325,13 +325,13 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
                             {Object.values(ACHIEVEMENTS).map(ach => {
                                 const isUnlocked = unlockedAchievements.includes(ach.id);
                                 return (
-                                    <div key={ach.id} className={`p-4 rounded-2xl border-2 flex items-center gap-4 transition-all ${isUnlocked ? 'bg-indigo-50/50 border-indigo-100' : 'bg-slate-50 border-slate-100 opacity-60 grayscale'}`}>
-                                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl shadow-sm ${isUnlocked ? 'bg-white text-indigo-500' : 'bg-slate-200 text-slate-400'}`}>
+                                    <div key={ach.id} className={`p-3 rounded-2xl border-2 flex items-center gap-3 min-w-0 transition-all ${isUnlocked ? 'bg-indigo-50/50 border-indigo-100' : 'bg-slate-50 border-slate-100 opacity-60 grayscale'}`}>
+                                        <div className={`w-10 h-10 rounded-xl md:w-12 md:h-12 md:rounded-2xl flex items-center justify-center text-lg md:text-xl shadow-sm flex-shrink-0 ${isUnlocked ? 'bg-white text-indigo-500' : 'bg-slate-200 text-slate-400'}`}>
                                             <i className={`fas ${ach.icon}`}></i>
                                         </div>
-                                        <div>
-                                            <h4 className={`font-bold text-sm ${isUnlocked ? 'text-slate-800' : 'text-slate-500'}`}>{ach.title}</h4>
-                                            <p className="text-xs text-slate-400 mt-0.5 leading-tight">{ach.description}</p>
+                                        <div className="min-w-0 flex-1">
+                                            <h4 className={`font-bold text-[13px] md:text-sm truncate ${isUnlocked ? 'text-slate-800' : 'text-slate-500'}`}>{ach.title}</h4>
+                                            <p className="text-xs text-slate-400 mt-0.5 leading-tight line-clamp-2">{ach.description}</p>
                                         </div>
                                     </div>
                                 );
@@ -357,18 +357,18 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
 
             {/* Variable Help Modal */}
             {showVarHelp && (
-                <div className="fixed inset-0 z-[120] bg-slate-900/40 flex items-center justify-center p-6 animate-fadeIn" onClick={() => setShowVarHelp(false)}>
-                    <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl" onClick={e => e.stopPropagation()}>
-                        <div className="flex justify-between items-center mb-4">
+                <div className="fixed inset-0 z-[120] bg-slate-900/40 flex items-center justify-center p-4 md:p-6 animate-fadeIn" onClick={() => setShowVarHelp(false)}>
+                    <div className="bg-white rounded-2xl p-5 md:p-6 max-w-md w-full shadow-2xl max-h-[85vh] flex flex-col" onClick={e => e.stopPropagation()}>
+                        <div className="flex justify-between items-center mb-4 flex-shrink-0">
                             <h3 className="text-lg font-black text-slate-800">提示词变量说明</h3>
                             <button onClick={() => setShowVarHelp(false)} className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 transition-colors"><i className="fas fa-times"></i></button>
                         </div>
-                        <div className="overflow-hidden rounded-xl border border-slate-200">
+                        <div className="overflow-y-auto custom-scroll rounded-xl border border-slate-200">
                             <table className="w-full text-xs">
                                 <thead>
                                     <tr className="bg-slate-50">
-                                        <th className="text-left px-4 py-2 font-bold text-slate-500 border-b border-slate-200">变量</th>
-                                        <th className="text-left px-4 py-2 font-bold text-slate-500 border-b border-slate-200">说明</th>
+                                        <th className="text-left px-4 py-1.5 font-bold text-slate-500 border-b border-slate-200">变量</th>
+                                        <th className="text-left px-4 py-1.5 font-bold text-slate-500 border-b border-slate-200">说明</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100">
@@ -391,8 +391,8 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
                                         ['{{recentTitles}}', '最近8条事件标题'],
                                     ].map(([k, v]) => (
                                         <tr key={k}>
-                                            <td className="px-4 py-2 font-mono text-indigo-600">{k}</td>
-                                            <td className="px-4 py-2 text-slate-600">{v}</td>
+                                            <td className="px-4 py-1.5 font-mono text-indigo-600">{k}</td>
+                                            <td className="px-4 py-1.5 text-slate-600">{v}</td>
                                         </tr>
                                     ))}
                                 </tbody>
