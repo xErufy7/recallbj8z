@@ -80,27 +80,27 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
                         <button onClick={() => setShowAchievements(true)}
                             className="group px-2.5 py-2 rounded-lg md:px-3 md:py-2.5 md:rounded-xl bg-white/80 backdrop-blur-sm border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 shadow-sm transition-all flex items-center gap-0 text-sm font-bold active:scale-95 whitespace-nowrap mb-1"
                         >
-                            <span className="max-w-0 overflow-hidden group-hover:max-w-[200px] group-hover:mr-2 transition-all duration-300">成就墙 ({unlockedAchievements.length}/{Object.keys(ACHIEVEMENTS).length})</span>
+                            <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[200px] group-hover:mr-2 group-hover:opacity-100 transition-all duration-300 ease-in-out">成就墙 ({unlockedAchievements.length}/{Object.keys(ACHIEVEMENTS).length})</span>
                             <i className="fas fa-trophy text-yellow-500 flex-shrink-0 w-4 text-center text-sm md:w-5 md:text-base"></i>
                         </button>
                         <button onClick={() => setShowChangelog(true)}
                             className="group px-2.5 py-2 rounded-lg md:px-3 md:py-2.5 md:rounded-xl bg-white/80 backdrop-blur-sm border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 shadow-sm transition-all flex items-center gap-0 text-sm font-bold active:scale-95 whitespace-nowrap mb-1"
                         >
-                            <span className="max-w-0 overflow-hidden group-hover:max-w-[200px] group-hover:mr-2 transition-all duration-300">更新日志</span>
+                            <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[200px] group-hover:mr-2 group-hover:opacity-100 transition-all duration-300 ease-in-out">更新日志</span>
                             <i className="fas fa-clipboard-list text-indigo-500 flex-shrink-0 w-4 text-center text-sm md:w-5 md:text-base"></i>
                         </button>
                         {onShowLeaderboard && (
                             <button onClick={onShowLeaderboard}
                                 className="group px-2.5 py-2 rounded-lg md:px-3 md:py-2.5 md:rounded-xl bg-white/80 backdrop-blur-sm border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 shadow-sm transition-all flex items-center gap-0 text-sm font-bold active:scale-95 whitespace-nowrap mb-1"
                             >
-                                <span className="max-w-0 overflow-hidden group-hover:max-w-[200px] group-hover:mr-2 transition-all duration-300">排行榜</span>
+                                <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[200px] group-hover:mr-2 group-hover:opacity-100 transition-all duration-300 ease-in-out">排行榜</span>
                                 <i className="fas fa-list-ol flex-shrink-0 w-4 text-center text-sm md:w-5 md:text-base"></i>
                             </button>
                         )}
                         <button onClick={handleCustomClick}
                             className="group px-2.5 py-2 rounded-lg md:px-3 md:py-2.5 md:rounded-xl bg-white/80 backdrop-blur-sm border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 shadow-sm transition-all flex items-center gap-0 text-sm font-bold active:scale-95 whitespace-nowrap mb-1"
                         >
-                            <span className="max-w-0 overflow-hidden group-hover:max-w-[200px] group-hover:mr-2 transition-all duration-300">设置</span>
+                            <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[200px] group-hover:mr-2 group-hover:opacity-100 transition-all duration-300 ease-in-out">设置</span>
                             <i className="fas fa-cog flex-shrink-0 w-4 text-center text-sm md:w-5 md:text-base"></i>
                         </button>
                     </div>
