@@ -96,6 +96,7 @@ export const mapAiEventToGameEvent = (aiEvent: any): GameEvent => {
         choices: (aiEvent.choices || []).map((c: any) => ({
             text: c.text,
             resultDescription: c.resultDescription,
+            retry: !!c.retry,
             action: (s: GameState) => {
                 const stateUpdates = applyAiEffect(s, c.effect || {});
                 return {

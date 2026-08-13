@@ -190,6 +190,17 @@ export const generateBatchGameEvents = async (state: GameState) => {
 
     jsonText = jsonText.replace(/```json/g, '').replace(/```/g, '').trim();
 
+    // 容错：模型有时会在 JSON 外裹上解释文字，截取第一个 [ 到最后一个 ] 之间的内容再解析
+    const arrStart = jsonText.indexOf('[');
+    const arrEnd = jsonText.lastIndexOf(']');
+    if (arrStart !== -1 && arrEnd > arrStart) {
+      jsonText = jsonText.slice(arrStart, arrEnd + 1);
+    } else {
+      const objStart = jsonText.indexOf('{');
+      const objEnd = jsonText.lastIndexOf('}');
+      if (objStart !== -1 && objEnd > objStart) jsonText = jsonText.slice(objStart, objEnd + 1);
+    }
+
     let parsed = JSON.parse(jsonText);
 
     if (!Array.isArray(parsed)) {
@@ -213,7 +224,8 @@ export const generateBatchGameEvents = async (state: GameState) => {
       description: `AI 调用失败：${errMsg.slice(0, 120)}。请检查 API 地址、Key 是否正确，或网络是否通畅。`,
       type: "neutral",
       choices: [
-        { text: "继续", resultDescription: "日子还得过。", effect: {} }
+        { text: "继续", resultDescription: "日子还得过。", effect: {} },
+        { text: "重试", resultDescription: "再试一次，重新生成本周事件。", effect: {}, retry: true }
       ]
     }];
   }

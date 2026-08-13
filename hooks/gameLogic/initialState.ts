@@ -1,0 +1,76 @@
+
+import { GameState, SubjectKey, OIStats, Phase } from '../../types';
+
+export const getInitialSubjects = (): Record<SubjectKey, { aptitude: number; level: number }> => ({
+    chinese: { aptitude: 0, level: 0 },
+    math: { aptitude: 0, level: 0 },
+    english: { aptitude: 0, level: 0 },
+    physics: { aptitude: 0, level: 0 },
+    chemistry: { aptitude: 0, level: 0 },
+    biology: { aptitude: 0, level: 0 },
+    history: { aptitude: 0, level: 0 },
+    geography: { aptitude: 0, level: 0 },
+    politics: { aptitude: 0, level: 0 }
+});
+
+export const getInitialOIStats = (): OIStats => ({
+    dp: 0, ds: 0, math: 0, string: 0, graph: 0, misc: 0
+});
+
+export const getInitialGameState = (): GameState => ({
+    activeProjects: [],
+    completedProjects: [],
+    flags: {},
+    isPlaying: false,
+    isAiGenerating: false,
+    eventQueue: [],
+    aiBuffer: [],
+    pendingHistoricalEvents: [],
+    recentEventIds: [],
+    phase: Phase.INIT,
+    week: 1,
+    totalWeeksInPhase: 0,
+    subjects: getInitialSubjects(),
+    general: { mindset: 50, experience: 0, luck: 50, romance: 0, health: 100, money: 0, efficiency: 10 },
+    initialGeneral: { mindset: 50, experience: 0, luck: 50, romance: 0, health: 100, money: 0, efficiency: 10 },
+    oiStats: getInitialOIStats(),
+    selectedSubjects: [],
+    competition: 'None',
+    club: null,
+    hasSelectedClub: false,
+    romancePartner: null,
+    className: '',
+    log: [],
+    currentEvent: null,
+    chainedEvent: null,
+    eventResult: null,
+    history: [],
+    examResult: null,
+    midtermRank: null,
+    competitionResults: [],
+    popupCompetitionResult: null,
+    popupExamResult: null,
+    triggeredEvents: [],
+    isSick: false,
+    isGrounded: false,
+    debugMode: false,
+    activeStatuses: [],
+    unlockedAchievements: [],
+    achievementPopup: null,
+    difficulty: 'NORMAL',
+    activeChallengeId: null,
+    isWeekend: false,
+    weekendActionPoints: 0,
+    lastWeekSchedule: {},
+    lastHistoricalWeek: -3,
+    weekendProcessed: false,
+    activeMiniGame: null,
+    sleepCount: 0,
+    rejectionCount: 0,
+    talents: [],
+    inventory: [],
+    theme: 'light',
+    hasSleptThisWeek: false,
+    dreamtExam: false,
+    availableWeekendActivityIds: undefined
+});

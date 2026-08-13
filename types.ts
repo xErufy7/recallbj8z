@@ -319,9 +319,10 @@ export interface GameEvent {
 export interface EventChoice {
   text: string;
   resultDescription?: string;
-  nextEventId?: string; 
+  nextEventId?: string;
   condition?: (state: GameState) => boolean;
   action: (state: GameState) => Partial<GameState>;
+  retry?: boolean; // 特殊选项：选择后重新生成本周 AI 事件（不消耗进度）
 }
 
 export interface ExamResult {

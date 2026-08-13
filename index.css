@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* --- 全局自定义样式（原 index.html 内联，Tailwind 构建时编译后统一打包） --- */
+body {
+    font-family: 'Noto Sans SC', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+    background-color: #f8fafc;
+}
+.custom-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+}
+.custom-scroll::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+.custom-scroll::-webkit-scrollbar-track {
+    background: transparent;
+}
+.custom-scroll::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideInRight { from { transform: translateX(100%); } to { transform: translateX(0); } }
+.animate-fadeIn { animation: fadeIn 0.3s ease-out; }
+.animate-slideInRight { animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+button:active:not(:disabled) { transform: scale(0.95); transition: transform 0.1s ease; }
