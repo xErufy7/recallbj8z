@@ -6,7 +6,7 @@ import {
     EventChoice, ExamResult, ClubId, Item, WeekendActivity, Project, GameLogEntry, StoryEntry
 } from '../types';
 import { DIFFICULTY_PRESETS } from '../data/constants';
-import { PHASE_EVENTS, BASE_EVENTS, CHAINED_EVENTS, generateSummerLifeEvent, generateStudyEvent, generateOIEvent, generateRandomFlavorEvent } from '../data/events';
+import { PHASE_EVENTS, BASE_EVENTS, CHAINED_EVENTS, generateSummerLifeEvent, generateStudyEvent, generateOIEvent, generateRandomFlavorEvent, ensureOiEvents } from '../data/events';
 import { WEEKEND_ACTIVITIES, STATUSES, ACHIEVEMENTS } from '../data/mechanics';
 import { getShopPriceMultiplier, hasNoDebtEvents } from '../data/utils';
 import { getRandomWorldContext, CHARACTER_TEMPLATES } from '../data/world_context';
@@ -292,6 +292,8 @@ export const useGameLogic = () => {
                     if (validRandoms.length > 0) weekEvents.push(validRandoms[Math.floor(Math.random() * validRandoms.length)]);
                 } else if (state.phase === Phase.SEMESTER_1 || state.phase === Phase.SEMESTER_2) {
                     if (state.competition === 'OI') {
+                        // OI 事件数据懒加载：首次信竞路线生成前动态加载
+                        await ensureOiEvents();
                         const oiCount = Math.floor(Math.random() * 3);
                         const normalCount = Math.floor(Math.random() * 3);
                         const total = Math.max(1, oiCount + normalCount);

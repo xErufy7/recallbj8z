@@ -17,6 +17,10 @@ interface HomeViewProps {
     unlockedAchievements: string[];
     onResetAchievements?: () => void;
     onShowLeaderboard?: () => void;
+    soundOn: boolean;
+    darkMode: boolean;
+    onToggleSound: () => void;
+    onToggleDark: () => void;
 }
 
 const STAT_LABELS: Record<string, string> = {
@@ -24,7 +28,7 @@ const STAT_LABELS: Record<string, string> = {
     romance: '魅力', luck: '运气', experience: '经验',
 };
 
-const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyChange, customStats, onCustomStatsChange, onCustomStatsConfirm, onStart, hasSave, onLoadGame, unlockedAchievements, onResetAchievements, onShowLeaderboard }) => {
+const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyChange, customStats, onCustomStatsChange, onCustomStatsConfirm, onStart, hasSave, onLoadGame, unlockedAchievements, onResetAchievements, onShowLeaderboard, soundOn, darkMode, onToggleSound, onToggleDark }) => {
     const [showChangelog, setShowChangelog] = React.useState(false);
     const [showAchievements, setShowAchievements] = React.useState(false);
     const [showCustomModal, setShowCustomModal] = React.useState(false);
@@ -51,7 +55,7 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 font-sans text-slate-800 p-3 md:p-8 flex items-center justify-center">
+        <div className={`min-h-screen bg-slate-50 font-sans text-slate-800 p-3 md:p-8 flex items-center justify-center transition-all duration-500 ${darkMode ? 'dark-filter' : ''}`}>
             <div className="fixed top-0 left-0 w-full h-full opacity-5 pointer-events-none overflow-hidden z-0">
                 <div className="absolute top-10 left-10 text-[12rem] font-black rotate-12 text-slate-900">8</div>
                 <div className="absolute bottom-10 right-10 text-[12rem] font-black -rotate-12 text-slate-900">OI</div>
@@ -182,7 +186,7 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
             {/* Custom Modal: Stats + AI Settings */}
             {showCustomModal && (
                 <div className="fixed inset-0 z-[110] bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn" onClick={() => setShowCustomModal(false)}>
-                    <div className="bg-white rounded-3xl p-6 md:p-8 max-w-xl w-full shadow-2xl flex flex-col max-h-[90vh] overflow-hidden" onClick={e => e.stopPropagation()}>
+                    <div className="bg-white rounded-3xl p-6 md:p-8 max-w-xl w-full shadow-2xl flex flex-col max-h-[90vh] overflow-hidden no-btn-scale" onClick={e => e.stopPropagation()}>
                         <div className="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
                             <div>
                                 <h2 className="text-2xl font-black text-slate-800">
@@ -195,7 +199,33 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
                             </button>
                         </div>
 
-                        <div className="overflow-y-auto custom-scroll space-y-6 pl-0.5 pr-4 flex-1">
+                        <div className="overflow-y-auto custom-scroll space-y-6 pl-0.5 pr-4 pb-4 flex-1">
+                            {/* 偏好设置：音效 / 暗色模式 */}
+                            <div>
+                                <label className="block text-xs font-black text-slate-500 uppercase tracking-wider mb-3">
+                                    <i className="fas fa-sliders-h mr-2"></i>偏好设置
+                                </label>
+                                <div className="space-y-2">
+                                    <button
+                                        onClick={onToggleSound}
+                                        className="w-full flex items-center justify-between px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 transition-colors"
+                                    >
+                                        <span className="text-xs font-bold text-slate-600"><i className={`fas ${soundOn ? 'fa-volume-high text-indigo-500' : 'fa-volume-xmark text-slate-400'} inline-block w-4 text-center mr-2`}></i>音效</span>
+                                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${soundOn ? 'bg-indigo-100 text-indigo-600' : 'bg-slate-200 text-slate-500'}`}>{soundOn ? '已开启' : '已关闭'}</span>
+                                    </button>
+                                    <button
+                                        onClick={onToggleDark}
+                                        className="w-full flex items-center justify-between px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 transition-colors"
+                                    >
+                                        <span className="text-xs font-bold text-slate-600"><i className={`fas ${darkMode ? 'fa-sun text-amber-500' : 'fa-moon text-indigo-500'} inline-block w-4 text-center mr-2`}></i>暗色模式</span>
+                                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${darkMode ? 'bg-indigo-100 text-indigo-600' : 'bg-slate-200 text-slate-500'}`}>{darkMode ? '已开启' : '已关闭'}</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Divider */}
+                            <div className="border-t border-slate-100 my-5"></div>
+
                             {/* Custom Stats */}
                             <div>
                                 <label className="block text-xs font-black text-slate-500 uppercase tracking-wider mb-3">
@@ -287,6 +317,7 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
                                         <i className="fas fa-exchange-alt text-slate-400 text-xs"></i>
                                     </button>
                                 </div>
+
                             </div>
                         </div>
 

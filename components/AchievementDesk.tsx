@@ -1,5 +1,4 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 
 interface AchievementDeskProps {
     unlockedAchievements: string[];
@@ -74,12 +73,10 @@ const AchievementDesk: React.FC<AchievementDeskProps> = ({ unlockedAchievements 
 
             {/* Render unlocked props */}
             {activeProps.map((prop, i) => (
-                <motion.div
+                <div
                     key={prop.id}
-                    initial={{ scale: 0, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ type: "spring", delay: i * 0.1 }}
-                    className={`absolute ${prop.position} flex flex-col items-center group cursor-pointer`}
+                    style={{ animationDelay: `${i * 0.1}s` }}
+                    className={`absolute ${prop.position} flex flex-col items-center group cursor-pointer animate-popIn`}
                 >
                     <div className={`w-12 h-12 md:w-16 md:h-16 rounded-2xl shadow-lg flex items-center justify-center text-2xl md:text-3xl ${prop.bg} ${prop.color} border-2 border-white/50 backdrop-blur-sm group-hover:-translate-y-2 group-hover:shadow-xl transition-all`}>
                         <i className={`fas ${prop.icon}`}></i>
@@ -87,7 +84,7 @@ const AchievementDesk: React.FC<AchievementDeskProps> = ({ unlockedAchievements 
                     <div className="absolute -bottom-8 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-900 text-white text-[10px] font-bold px-2 py-1 rounded-md whitespace-nowrap shadow-lg pointer-events-none">
                         {prop.label}
                     </div>
-                </motion.div>
+                </div>
             ))}
         </div>
     );

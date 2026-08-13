@@ -1,5 +1,5 @@
 
-import { GameState, SubjectKey, OIStats, SerializableEffect, GameEvent, TalentPassiveEffects } from '../types';
+import { GameState, SubjectKey, OIStats, SerializableEffect, GameEvent, TalentPassiveEffects, AiGeneratedEvent, AiGeneratedEventChoice } from '../types';
 
 export const modifySub = (s: GameState, keys: SubjectKey[], val: number) => {
   const newSubs = { ...s.subjects };
@@ -86,14 +86,14 @@ export const applyAiEffect = (s: GameState, effect: SerializableEffect): Partial
     return updates;
 };
 
-export const mapAiEventToGameEvent = (aiEvent: any): GameEvent => {
+export const mapAiEventToGameEvent = (aiEvent: AiGeneratedEvent): GameEvent => {
     return {
         id: `ai_${Date.now()}_${Math.random()}`,
         title: aiEvent.title,
         description: aiEvent.description,
         type: aiEvent.type || 'neutral',
-        triggerType: aiEvent.triggerType || 'RANDOM',
-        choices: (aiEvent.choices || []).map((c: any) => ({
+        triggerType: 'RANDOM',
+        choices: (aiEvent.choices || []).map((c: AiGeneratedEventChoice) => ({
             text: c.text,
             resultDescription: c.resultDescription,
             retry: !!c.retry,

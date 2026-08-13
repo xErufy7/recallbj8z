@@ -196,6 +196,7 @@ export interface AiGeneratedEventChoice {
     text: string;
     effect: SerializableEffect;
     resultDescription: string;
+    retry?: boolean; // 「灵感枯竭」兜底事件的重试选项标记
 }
 
 export interface AiGeneratedEvent {

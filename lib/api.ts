@@ -1,5 +1,5 @@
 
-import { GameState, SUBJECT_NAMES, SubjectKey, ApiSettings, Phase } from '../types';
+import { GameState, SUBJECT_NAMES, SubjectKey, ApiSettings, Phase, AiGeneratedEvent } from '../types';
 
 const STORAGE_KEY_API = 'bj8z_api_settings';
 
@@ -140,7 +140,7 @@ const normalizeApiUrl = (url: string): string => {
   return trimmed;
 };
 
-export const generateBatchGameEvents = async (state: GameState) => {
+export const generateBatchGameEvents = async (state: GameState): Promise<AiGeneratedEvent[]> => {
   const settings = getApiSettings();
   const apiUrl = normalizeApiUrl(settings.apiUrl.trim());
   const modelName = settings.modelName;
@@ -213,11 +213,11 @@ export const generateBatchGameEvents = async (state: GameState) => {
       }
     }
 
-    return parsed;
+    return parsed as AiGeneratedEvent[];
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     clearTimeout(timeoutId);
-    const errMsg = error?.message || String(error);
+    const errMsg = error instanceof Error ? error.message : String(error);
     console.error("AI API Error:", errMsg);
     return [{
       title: "灵感枯竭",

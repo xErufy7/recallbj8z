@@ -1,15 +1,22 @@
 
 import React, { useState, useRef, lazy, Suspense } from 'react';
 import { Difficulty, GeneralStats, Talent, Phase, GameState, Challenge } from './types';
-import { DIFFICULTY_PRESETS } from './data/constants';
-import { CLUBS, SHOP_ITEMS, ACHIEVEMENTS, TALENTS } from './data/mechanics';
-import { getShopPriceMultiplier } from './data/utils';
+import { TALENTS } from './data/mechanics';
 import { useGameLogic, ACHIEVEMENTS_KEY, PHASE_NAMES } from './hooks/useGameLogic';
+import { playClick, playConfirm, playAchievement, playError, isSoundEnabled, setSoundEnabled } from './lib/sound';
 
 // Component Imports（非首屏界面懒加载，减小首屏包体积）
 import HistoricalTicker from "./components/HistoricalTicker";
 import EventModal from './components/EventModal';
 import FloatingTextLayer, { FloatingTextItem } from './components/FloatingTextLayer';
+import ShopModal from './components/ShopModal';
+import GameAchievementsModal from './components/GameAchievementsModal';
+import HistoryPanel from './components/HistoryPanel';
+import SubjectSelectionModal from './components/SubjectSelectionModal';
+import ClubSelectionModal from './components/ClubSelectionModal';
+import SaveMenuSheet from './components/SaveMenuSheet';
+import RetireConfirmModal from './components/RetireConfirmModal';
+import MobileStatsModal from './components/MobileStatsModal';
 const StatsPanel = lazy(() => import('./components/StatsPanel'));
 const TimetableModal = lazy(() => import('./components/TimetableModal'));
 const ContestHistoryModal = lazy(() => import('./components/ContestHistoryModal'));
@@ -26,8 +33,6 @@ const FullScreenLoader = () => (
         <i className="fas fa-spinner fa-spin text-3xl text-indigo-500"></i>
     </div>
 );
-
-import { SUBJECT_NAMES, SubjectKey } from './types';
 
 const App: React.FC = () => {
   const [isDevMode, setIsDevMode] = useState(false);
@@ -207,9 +212,36 @@ const App: React.FC = () => {
       }
   };
 
+  const [loadErrorMsg, setLoadErrorMsg] = useState<string | null>(null);
+  const loadErrorTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // 音效 / 暗色模式开关
+  const [soundOn, setSoundOn] = useState(isSoundEnabled());
+  const [darkMode, setDarkMode] = useState(() => {
+      try { return localStorage.getItem('bj8z_dark') === 'on'; } catch { return false; }
+  });
+
+  // 暗色模式：html 挂 dark class（CSS 滤镜反色实现）
+  React.useEffect(() => {
+      document.documentElement.classList.toggle('dark', darkMode);
+      try { localStorage.setItem('bj8z_dark', darkMode ? 'on' : 'off'); } catch { }
+  }, [darkMode]);
+
+  // 音效触发：成就解锁 / AI 灵感枯竭
+  React.useEffect(() => {
+      if (state.achievementPopup) playAchievement();
+  }, [state.achievementPopup]);
+  React.useEffect(() => {
+      if (state.currentEvent?.title === '灵感枯竭') playError();
+  }, [state.currentEvent]);
+
   const handleLoadGame = () => {
       // 不传难度：读取所有难度下最新的存档（自定义开局存的是 CUSTOM 键）
-      if (loadGame()) setView('GAME');
+      if (loadGame()) { setView('GAME'); return; }
+      // 存档读取失败（损坏或不存在）给出可见提示，避免点了没反应
+      setLoadErrorMsg('存档读取失败：存档可能已损坏，可以导出文件重新导入或删除后重开。');
+      if (loadErrorTimerRef.current) clearTimeout(loadErrorTimerRef.current);
+      loadErrorTimerRef.current = setTimeout(() => setLoadErrorMsg(null), 3500);
   };
 
   const calculateProgress = () => state.totalWeeksInPhase === 0 ? 0 : Math.min(100, (state.week / state.totalWeeksInPhase) * 100);
@@ -290,8 +322,16 @@ const App: React.FC = () => {
                 setState(p => ({ ...p, unlockedAchievements: [] }));
               }}
               onShowLeaderboard={() => setShowLeaderboard(true)}
+              soundOn={soundOn} darkMode={darkMode}
+              onToggleSound={() => { const on = !soundOn; setSoundEnabled(on); setSoundOn(on); }}
+              onToggleDark={() => setDarkMode(!darkMode)}
             />
             {showLeaderboard && <LeaderboardModal onClose={() => setShowLeaderboard(false)} initialChallengeId={state.activeChallengeId} />}
+            {loadErrorMsg && (
+                <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[120] bg-rose-600 text-white px-5 py-3 rounded-2xl shadow-2xl text-sm font-bold animate-fadeIn">
+                    {loadErrorMsg}
+                </div>
+            )}
             </>
           </Suspense>
       );
@@ -324,7 +364,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className={`h-[100dvh] transition-all duration-1000 ${getAtmosphereTheme()} ${state.general.mindset <= 20 ? 'grayscale-[0.9] contrast-125 transition-all duration-[3000ms]' : ''} flex flex-col md:flex-row p-2 md:p-4 gap-2 md:gap-4 overflow-hidden font-sans text-slate-900 relative`}>
+    <div className={`h-[100dvh] transition-all duration-1000 ${getAtmosphereTheme()} ${state.general.mindset <= 20 ? 'grayscale-[0.9] contrast-125 transition-all duration-[3000ms]' : ''} ${darkMode ? 'dark-filter' : ''} flex flex-col md:flex-row p-2 md:p-4 gap-2 md:gap-4 overflow-hidden font-sans text-slate-900 relative`}>
             {showContestHistory && <Suspense fallback={null}><ContestHistoryModal state={state} onClose={() => setShowContestHistory(false)} /></Suspense>}
       {showLeaderboard && <Suspense fallback={null}><LeaderboardModal onClose={() => setShowLeaderboard(false)} initialChallengeId={state.activeChallengeId} /></Suspense>}
       {showApiSettings && <Suspense fallback={null}><ApiSettingsModal onClose={() => setShowApiSettings(false)} /></Suspense>}
@@ -391,9 +431,9 @@ const App: React.FC = () => {
                   <button onClick={() => setShowShop(true)} className="bg-slate-50 border border-slate-200 px-2.5 py-2 rounded-xl text-xs font-bold text-slate-600 whitespace-nowrap hover:bg-white hover:shadow transition-all"><i className="fas fa-store text-emerald-500 mr-0.5"></i>小卖铺</button>
                   <button onClick={() => setShowAchievements(true)} className="bg-slate-50 border border-slate-200 px-2.5 py-2 rounded-xl text-xs font-bold text-slate-600 whitespace-nowrap hover:bg-white hover:shadow transition-all"><i className="fas fa-trophy text-yellow-500 mr-0.5"></i>成就</button>
                   <button onClick={() => setShowHistory(true)} className="bg-slate-50 border border-slate-200 px-2.5 py-2 rounded-xl text-xs font-bold text-slate-600 whitespace-nowrap hover:bg-white hover:shadow transition-all"><i className="fas fa-archive text-indigo-500 mr-0.5"></i>历程</button>
-                  <button onClick={saveGame} disabled={!!state.currentEvent} className="bg-emerald-50 border border-emerald-200 px-2.5 py-2 rounded-xl text-xs font-bold text-emerald-600 whitespace-nowrap hover:bg-emerald-100 transition-all"><i className="fas fa-save mr-0.5"></i>保存</button>
-                  <button onClick={exportSave} className="bg-sky-50 border border-sky-200 px-2.5 py-2 rounded-xl text-xs font-bold text-sky-600 whitespace-nowrap hover:bg-sky-100 transition-all"><i className="fas fa-file-export mr-0.5"></i>导出</button>
-                  <button onClick={() => importInputRef.current?.click()} className="bg-sky-50 border border-sky-200 px-2.5 py-2 rounded-xl text-xs font-bold text-sky-600 whitespace-nowrap hover:bg-sky-100 transition-all"><i className="fas fa-file-import mr-0.5"></i>导入</button>
+                  <button onClick={() => { playConfirm(); saveGame(); }} disabled={!!state.currentEvent} className="bg-emerald-50 border border-emerald-200 px-2.5 py-2 rounded-xl text-xs font-bold text-emerald-600 whitespace-nowrap hover:bg-emerald-100 transition-all"><i className="fas fa-save mr-0.5"></i>保存</button>
+                  <button onClick={() => { playConfirm(); exportSave(); }} className="bg-sky-50 border border-sky-200 px-2.5 py-2 rounded-xl text-xs font-bold text-sky-600 whitespace-nowrap hover:bg-sky-100 transition-all"><i className="fas fa-file-export mr-0.5"></i>导出</button>
+                  <button onClick={() => { playClick(); importInputRef.current?.click(); }} className="bg-sky-50 border border-sky-200 px-2.5 py-2 rounded-xl text-xs font-bold text-sky-600 whitespace-nowrap hover:bg-sky-100 transition-all"><i className="fas fa-file-import mr-0.5"></i>导入</button>
                   <button onClick={() => setShowRetireConfirm(true)} className="bg-rose-50 border border-rose-200 px-2.5 py-2 rounded-xl text-xs font-bold text-rose-600 whitespace-nowrap hover:bg-rose-100 transition-all"><i className="fas fa-door-open mr-0.5"></i>退休</button>
                </div>
                <div className="flex items-center justify-between mt-0">
@@ -468,10 +508,10 @@ const App: React.FC = () => {
         )}
         {/* Event Modal */}
         {state.currentEvent && (
-            <EventModal 
+            <EventModal
                 event={state.currentEvent} state={state} eventResult={state.eventResult}
-                onChoice={(c, e) => handleChoice(c, (oldS, newS) => calculateAndVisualizeDiff(oldS, newS, e.clientX, e.clientY))} 
-                onConfirm={handleEventConfirm}
+                onChoice={(c, e) => { playClick(); handleChoice(c, (oldS, newS) => calculateAndVisualizeDiff(oldS, newS, e.clientX, e.clientY)); }}
+                onConfirm={() => { playConfirm(); handleEventConfirm(); }}
             />
         )}
 
@@ -525,173 +565,63 @@ const App: React.FC = () => {
 
         {/* Selection */}
         {(state.phase === Phase.SELECTION || state.phase === Phase.SUBJECT_RESELECTION) && (
-            <div className="absolute inset-0 bg-white/95 z-30 p-4 md:p-10 flex flex-col items-center justify-center rounded-2xl">
-               <h2 className="text-3xl font-black mb-4">高一选科</h2>
-               <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 mb-10 w-full max-w-lg">
-                  {(['physics', 'chemistry', 'biology', 'history', 'geography', 'politics'] as SubjectKey[]).map(s => (
-                    <button key={s} onClick={() => setState(prev => ({ ...prev, selectedSubjects: prev.selectedSubjects.includes(s) ? prev.selectedSubjects.filter(x => x !== s) : (prev.selectedSubjects.length < 3 ? [...prev.selectedSubjects, s] : prev.selectedSubjects) }))}
-                      className={`p-4 rounded-2xl border-2 transition-all font-bold ${state.selectedSubjects.includes(s) ? 'border-indigo-600 bg-indigo-50 text-indigo-600' : 'border-slate-100 bg-slate-50 text-slate-400'}`}>
-                      {SUBJECT_NAMES[s]}
-                    </button>
-                  ))}
-               </div>
-               <button disabled={state.selectedSubjects.length !== 3} onClick={() => setState(prev => {
-                   const nextPhase = prev.phase === Phase.SELECTION ? Phase.PLACEMENT_EXAM : Phase.SEMESTER_1;
-                   return { 
-                       ...prev, 
-                       phase: nextPhase, 
-                       isPlaying: prev.phase === Phase.SUBJECT_RESELECTION,
-                       totalWeeksInPhase: nextPhase === Phase.SEMESTER_1 ? 21 : 0
-                   };
-               })} className="bg-indigo-600 disabled:bg-slate-200 text-white px-12 py-4 rounded-2xl font-black text-xl shadow-xl">确认选择</button>
-            </div>
+            <SubjectSelectionModal
+                state={state}
+                onToggle={(s) => setState(prev => ({ ...prev, selectedSubjects: prev.selectedSubjects.includes(s) ? prev.selectedSubjects.filter(x => x !== s) : (prev.selectedSubjects.length < 3 ? [...prev.selectedSubjects, s] : prev.selectedSubjects) }))}
+                onConfirm={() => setState(prev => {
+                    const nextPhase = prev.phase === Phase.SELECTION ? Phase.PLACEMENT_EXAM : Phase.SEMESTER_1;
+                    return {
+                        ...prev,
+                        phase: nextPhase,
+                        isPlaying: prev.phase === Phase.SUBJECT_RESELECTION,
+                        totalWeeksInPhase: nextPhase === Phase.SEMESTER_1 ? 21 : 0
+                    };
+                })}
+            />
         )}
 
         {/* Club Selection */}
         {showClubSelection && (
-             <div className="absolute inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4">
-                 <div className="bg-white rounded-3xl p-6 md:p-8 max-w-4xl w-full max-h-[85vh] flex flex-col shadow-2xl">
-                     <h2 className="text-3xl font-black text-center mb-2">百团大战</h2>
-                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 overflow-y-auto custom-scroll p-2">
-                         {CLUBS.map(club => (
-                             <button key={club.id} onClick={() => { handleClubSelect(club.id); setShowClubSelection(false); }}
-                                 className="p-4 rounded-2xl border-2 border-slate-100 hover:border-indigo-500 hover:bg-indigo-50 transition-all text-left flex flex-col gap-2 group active:scale-95"
-                             >
-                                 <div className="flex items-center gap-3">
-                                     <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-indigo-500"><i className={`fas ${club.icon}`}></i></div>
-                                     <span className="font-bold text-lg text-slate-800">{club.name}</span>
-                                 </div>
-                                 <p className="text-xs text-slate-500">{club.description}</p>
-                                 <div className="mt-auto pt-2 text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded w-fit">{club.effectDescription}</div>
-                             </button>
-                         ))}
-                         <button onClick={() => { handleClubSelect('none'); setShowClubSelection(false); }} className="p-4 rounded-2xl border-2 border-slate-100 hover:border-slate-400 hover:bg-slate-50 transition-all text-left flex flex-col justify-center items-center gap-2 text-slate-400 active:scale-95">
-                             <span className="font-bold">不参加社团</span>
-                         </button>
-                     </div>
-                 </div>
-             </div>
+            <ClubSelectionModal onSelect={(id) => { handleClubSelect(id); setShowClubSelection(false); }} />
         )}
 
         {/* Shop */}
         {showShop && (
-             <div className="fixed inset-0 z-[100] bg-slate-900/90 backdrop-blur-md flex items-center justify-center p-4 md:p-8 animate-fadeIn" onClick={() => setShowShop(false)}>
-                 <div className="bg-white rounded-3xl w-full max-w-2xl h-[90vh] md:h-auto md:max-h-[85vh] flex flex-col shadow-2xl overflow-hidden relative" onClick={e => e.stopPropagation()}>
-                     <div className="flex-none p-6 md:p-8 border-b border-slate-100 bg-white z-10 flex justify-between items-center">
-                         <div>
-                             <h2 className="text-2xl font-black text-slate-800">小卖部</h2>
-                             <p className="text-sm text-slate-500">持有金钱: <span className="text-yellow-600 font-bold">{state.general.money}</span></p>
-                         </div>
-                         <button onClick={() => setShowShop(false)} className="w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 transition-colors">
-                             <i className="fas fa-times"></i>
-                         </button>
-                     </div>
-                     <div className="flex-1 overflow-y-auto custom-scroll p-6 md:p-8">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pb-safe">
-                             {SHOP_ITEMS.map(item => {
-                                 const multiplier = getShopPriceMultiplier(state);
-                                 const actualPrice = Math.floor(item.price * multiplier);
-                                 return (
-                                 <button key={item.id} onClick={() => handleShopPurchase(item, () => spawnFloatingText(`-${actualPrice}`, window.innerWidth/2, window.innerHeight/2, 'money'))} disabled={state.general.money < actualPrice} className="p-4 rounded-xl border border-slate-100 hover:border-indigo-500 hover:bg-indigo-50 transition-all text-left flex items-center gap-4 group disabled:opacity-50 active:scale-95">
-                                     <div className="w-12 h-12 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500 group-hover:bg-white group-hover:text-indigo-600"><i className={`fas ${item.icon} text-xl`}></i></div>
-                                     <div className="flex-1"><div className="flex justify-between items-center"><span className="font-bold text-slate-800">{item.name}</span><span className="text-sm font-bold text-yellow-600">{actualPrice} G</span></div><p className="text-xs text-slate-400 mt-1">{item.description}</p></div>
-                                 </button>
-                                 );
-                             })}
-                        </div>
-                     </div>
-                 </div>
-             </div>
+            <ShopModal state={state} onClose={() => setShowShop(false)} onPurchase={(item, actualPrice) => handleShopPurchase(item, () => spawnFloatingText(`-${actualPrice}`, window.innerWidth/2, window.innerHeight/2, 'money'))} />
         )}
 
         {/* History */}
         {showHistory && (
-             <div className="absolute inset-0 z-[60] flex justify-end bg-slate-900/40 backdrop-blur-sm animate-fadeIn" onClick={() => setShowHistory(false)}>
-                <div className="w-full md:w-96 bg-white h-full shadow-2xl p-6 md:p-8 flex flex-col animate-slideInRight" onClick={e => e.stopPropagation()}>
-                   <div className="flex justify-between items-center mb-8 border-b border-slate-100 pb-4">
-                      <h2 className="text-2xl font-black text-slate-800 tracking-tight">故事线存档</h2>
-                      <button onClick={() => setShowHistory(false)} className="text-slate-400 hover:text-slate-800 text-xl"><i className="fas fa-times"></i></button>
-                   </div>
-                   <div className="flex-1 overflow-y-auto custom-scroll space-y-6">
-                      {state.history.length === 0 ? <div className="text-slate-300 text-center py-20 italic">尚未开启故事...</div> : 
-                        state.history.map((h, i) => (
-                          <div key={i} className="relative pl-6 border-l-2 border-indigo-100">
-                             <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-indigo-500 border-4 border-white shadow-sm"></div>
-                             <div className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">{h.phase} | Week {h.week}</div>
-                             <h4 className="font-black text-slate-800 mt-1">{h.eventTitle}</h4>
-                             <p className="text-xs text-slate-600 mt-1">决策：{h.choiceText}</p>
-                             <div className="mt-2 text-[10px] font-bold text-slate-400 bg-slate-50 p-2 rounded-lg">{h.resultSummary}</div>
-                          </div>
-                        ))}
-                   </div>
-                </div>
-             </div>
+            <HistoryPanel history={state.history} onClose={() => setShowHistory(false)} />
         )}
 
         {/* Achievements */}
         {showAchievements && (
-             <div className="absolute inset-0 z-[60] flex justify-center items-center bg-slate-900/50 backdrop-blur-sm animate-fadeIn p-4" onClick={() => setShowAchievements(false)}>
-                <div className="bg-white rounded-[40px] p-4 md:p-8 max-w-4xl w-full h-3/4 shadow-2xl flex flex-col" onClick={e => e.stopPropagation()}>
-                    <div className="flex justify-between items-center mb-6">
-                         <div><h2 className="text-3xl font-black text-slate-800">成就墙</h2></div>
-                         <button onClick={() => setShowAchievements(false)} className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500"><i className="fas fa-times"></i></button>
-                    </div>
-                    <div className="flex-1 overflow-y-auto custom-scroll grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {Object.values(ACHIEVEMENTS).map(ach => (
-                            <div key={ach.id} className={`p-3 rounded-2xl border flex items-center gap-3 min-w-0 ${state.unlockedAchievements.includes(ach.id) ? 'bg-indigo-50 border-indigo-200' : 'opacity-50 grayscale'}`}>
-                                <div className="w-9 h-9 md:w-10 md:h-10 bg-white rounded-full flex items-center justify-center shadow flex-shrink-0"><i className={`fas ${ach.icon} text-indigo-500`}></i></div>
-                                <div className="min-w-0 flex-1"><h4 className="font-bold text-[13px] md:text-base text-slate-800 truncate">{ach.title}</h4><p className="text-[10px] md:text-xs text-slate-500 line-clamp-2">{ach.description}</p></div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-             </div>
+            <GameAchievementsModal unlockedAchievements={state.unlockedAchievements} onClose={() => setShowAchievements(false)} />
         )}
         
         {/* 移动端存档菜单（保存/导出/导入） */}
         {showSaveMenu && (
-            <div className="fixed inset-0 z-[105] bg-slate-900/50 flex items-end justify-center md:hidden animate-fadeIn" onClick={() => setShowSaveMenu(false)}>
-                <div className="w-full max-w-md bg-white rounded-t-3xl p-5 pb-8 shadow-2xl" onClick={e => e.stopPropagation()}>
-                    <div className="w-10 h-1 bg-slate-200 rounded-full mx-auto mb-4"></div>
-                    <div className="grid grid-cols-3 gap-3">
-                        <button onClick={() => { saveGame(); setShowSaveMenu(false); }} disabled={!!state.currentEvent} className="bg-emerald-50 border border-emerald-100 rounded-2xl py-4 flex flex-col items-center gap-1.5 disabled:opacity-40"><i className="fas fa-save text-emerald-600 text-lg"></i><span className="text-xs font-bold text-emerald-700">保存</span></button>
-                        <button onClick={() => { exportSave(); setShowSaveMenu(false); }} className="bg-sky-50 border border-sky-100 rounded-2xl py-4 flex flex-col items-center gap-1.5"><i className="fas fa-file-export text-sky-600 text-lg"></i><span className="text-xs font-bold text-sky-700">导出</span></button>
-                        <button onClick={() => { importInputRef.current?.click(); setShowSaveMenu(false); }} className="bg-sky-50 border border-sky-100 rounded-2xl py-4 flex flex-col items-center gap-1.5"><i className="fas fa-file-import text-sky-600 text-lg"></i><span className="text-xs font-bold text-sky-700">导入</span></button>
-                    </div>
-                </div>
-            </div>
+            <SaveMenuSheet
+                onSave={() => { playConfirm(); saveGame(); setShowSaveMenu(false); }}
+                onExport={() => { playConfirm(); exportSave(); setShowSaveMenu(false); }}
+                onImport={() => { playClick(); importInputRef.current?.click(); setShowSaveMenu(false); }}
+                onClose={() => setShowSaveMenu(false)}
+                saveDisabled={!!state.currentEvent}
+            />
         )}
 
         {/* 提前退休确认弹窗 */}
         {showRetireConfirm && state.phase !== Phase.WITHDRAWAL && state.phase !== Phase.ENDING && (
-            <div className="fixed inset-0 z-[110] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6 animate-fadeIn" onClick={() => setShowRetireConfirm(false)}>
-                <div className="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl" onClick={e => e.stopPropagation()}>
-                    <div className="flex items-center gap-3 mb-4">
-                        <div className="w-10 h-10 bg-rose-100 rounded-full flex items-center justify-center text-rose-500 flex-shrink-0"><i className="fas fa-door-open"></i></div>
-                        <h3 className="text-lg font-black text-slate-800">确认提前退休？</h3>
-                    </div>
-                    <p className="text-sm text-slate-500 mb-6">本局游戏将立即结束并结算成绩，无法撤销。</p>
-                    <div className="flex gap-3">
-                        <button onClick={() => setShowRetireConfirm(false)} className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-slate-500 font-bold text-sm hover:bg-slate-50 transition-colors">再想想</button>
-                        <button onClick={() => { setState(p => ({ ...p, phase: Phase.WITHDRAWAL })); setShowRetireConfirm(false); }} className="flex-1 px-4 py-2.5 rounded-xl bg-rose-600 text-white font-bold text-sm hover:bg-rose-700 transition-colors">确认退休</button>
-                    </div>
-                </div>
-            </div>
+            <RetireConfirmModal
+                onCancel={() => setShowRetireConfirm(false)}
+                onConfirm={() => { setState(p => ({ ...p, phase: Phase.WITHDRAWAL })); setShowRetireConfirm(false); }}
+            />
         )}
 
         {/* 移动端属性面板 */}
         {showStats && (
-            <div className="fixed inset-0 z-[95] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 md:hidden animate-fadeIn" onClick={() => setShowStats(false)}>
-                <div className="w-full max-w-sm bg-white rounded-3xl max-h-[85vh] flex flex-col overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
-                    <div className="flex justify-between items-center px-5 pt-5 pb-4 border-b border-slate-100 flex-shrink-0">
-                        <h3 className="text-lg font-black text-slate-800">属性面板</h3>
-                        <button onClick={() => setShowStats(false)} className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 transition-colors"><i className="fas fa-times"></i></button>
-                    </div>
-                    <div className="flex-1 overflow-y-auto custom-scroll p-4">
-                        <Suspense fallback={null}><StatsPanel state={state} onShowGuide={() => setShowRealityGuide(true)} /></Suspense>
-                    </div>
-                </div>
-            </div>
+            <MobileStatsModal state={state} onClose={() => setShowStats(false)} onShowGuide={() => setShowRealityGuide(true)} />
         )}
 
         {/* Ending */}

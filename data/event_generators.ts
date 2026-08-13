@@ -1,12 +1,35 @@
 
-import oiEventsData from '../oi_events.json';
+import { GameState, GameEvent, SubjectKey, SUBJECT_NAMES, OIStats } from '../types';
+import { modifySub, modifyOI, getEffectiveEfficiency } from './utils';
+import { STATUSES } from './mechanics';
+import { CHAINED_EVENTS } from './event_defs';
 
-const parsedOiEvents: GameEvent[] = (oiEventsData as any[]).map(e => ({
+/** oi_events.json 的条目结构（仅信竞路线使用，懒加载不进主包） */
+interface OiEventJson {
+    id: string;
+    title: string;
+    description: string;
+    type?: string;
+    cfRatingMin?: number;
+    cfRatingMax?: number;
+    choices: {
+        text: string;
+        resultDescription?: string;
+        effect?: Partial<Record<'efficiency' | 'health' | 'mindset' | 'experience' | 'luck' | 'money' | 'romance' | 'oi_dp' | 'oi_ds' | 'oi_graph' | 'oi_string' | 'oi_math' | 'oi_misc', number>>;
+    }[];
+}
+
+let oiEventsData: OiEventJson[] | null = null;
+let oiLoadPromise: Promise<void> | null = null;
+let parsedOiEvents: GameEvent[] = [];
+
+const buildParsedOiEvents = () => {
+    parsedOiEvents = (oiEventsData || []).map(e => ({
     id: e.id,
     title: e.title,
     description: e.description,
-    type: e.type,
-    choices: e.choices.map((c: any) => ({
+    type: (e.type || 'neutral') as GameEvent['type'],
+    choices: e.choices.map((c) => ({
         text: c.text,
         action: (s: GameState) => {
             const nextGen = { ...s.general };
@@ -34,12 +57,40 @@ const parsedOiEvents: GameEvent[] = (oiEventsData as any[]).map(e => ({
             };
         }
     }))
-}));
+    }));
+};
+
+/** 懒加载 OI 事件数据（动态 import，仅在信竞路线首次需要时加载） */
+export const ensureOiEvents = (): Promise<void> => {
+    if (oiEventsData) return Promise.resolve();
+    if (!oiLoadPromise) {
+        oiLoadPromise = import('../oi_events.json')
+            .then(mod => {
+                oiEventsData = mod.default as OiEventJson[];
+                buildParsedOiEvents();
+            })
+            .catch(e => {
+                oiLoadPromise = null;
+                console.error('Failed to load OI events', e);
+            });
+    }
+    return oiLoadPromise;
+};
 
 export const generateOIRandomEvent = (state: GameState): GameEvent => {
+    // 理论上 ensureOiEvents 已先加载；兜底返回占位事件
+    if (!oiEventsData || parsedOiEvents.length === 0) {
+        return {
+            id: `oi_fallback_${Date.now()}`,
+            title: '训练日',
+            description: '你默默刷了一下午题，手感不错。',
+            type: 'neutral',
+            choices: [{ text: '继续', action: (s) => ({ log: s.log }) }]
+        };
+    }
     // Filter by rating and phase if we want, or just pick random
     const pool = parsedOiEvents.filter(e => {
-        const raw = oiEventsData.find((d: any) => d.id === e.id) as any;
+        const raw = (oiEventsData || []).find(d => d.id === e.id);
         if (!raw) return false;
         const currentRating = state.oiStats.rating || 0;
         if (raw.cfRatingMin && currentRating < raw.cfRatingMin) return false;
@@ -54,11 +105,6 @@ export const generateOIRandomEvent = (state: GameState): GameEvent => {
 };
 
 
-
-import { GameState, GameEvent, SubjectKey, SUBJECT_NAMES, OIStats } from '../types';
-import { modifySub, modifyOI, getEffectiveEfficiency } from './utils';
-import { STATUSES } from './mechanics';
-import { CHAINED_EVENTS } from './event_defs';
 
 export const generateStudyEvent = (state: GameState): GameEvent => {
     const pool: SubjectKey[] = state.selectedSubjects.length > 0 
