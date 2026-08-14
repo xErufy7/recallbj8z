@@ -287,7 +287,6 @@ export interface GameState {
   activeMiniGame: 'AUTUMN_TRIP' | null;
   sleepCount: number;
   rejectionCount: number; 
-  hasSleptThisWeek?: boolean;
   dreamtExam?: boolean;
   talents: Talent[];
   inventory: string[]; 

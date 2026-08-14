@@ -30,7 +30,9 @@ export const getLatestSaveKey = (): string | null => {
         if (!data) continue;
         try {
             const parsed = JSON.parse(data);
-            const t = parsed.history?.slice(-1)?.[0]?.timestamp || 0;
+            const lastLog = parsed?.log?.slice(-1)?.[0];
+            const lastStory = parsed?.history?.slice(-1)?.[0];
+            const t = Math.max(lastLog?.timestamp || 0, lastStory?.timestamp || 0);
             if (t > latestTime) { latestTime = t; latestKey = k; }
         } catch { }
     }

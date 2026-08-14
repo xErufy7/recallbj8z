@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { GameState, ExamResult, SubjectKey, SUBJECT_NAMES, Phase, OIProblem, OIStats } from '../types';
 import { OI_PROBLEMS } from '../data/oi_data';
 import { PHASE_NAMES } from '../hooks/useGameLogic';
+import { getExamScoreMultiplier } from '../data/utils';
 
 interface ExamViewProps {
   title: string;
@@ -200,7 +201,15 @@ const ExamView: React.FC<ExamViewProps> = ({ title, state, onFinish }) => {
   }, [examStep, subjectsToTest]);
 
   const handleFinishConfirm = () => {
-      const total = currentTotal;
+      // 天赋被动「考试分数加成」（如天才 ×1.05）作用于各科成绩
+      const multiplier = getExamScoreMultiplier(state);
+      const boostedScores: Record<string, number> = {};
+      let total = 0;
+      for (const key of Object.keys(currentScores)) {
+          const boosted = Math.round(currentScores[key] * multiplier);
+          boostedScores[key] = boosted;
+          total += boosted;
+      }
 
       let comment = "继续努力。";
       // Comments based on relative performance (Phase sensitive)
@@ -221,7 +230,7 @@ const ExamView: React.FC<ExamViewProps> = ({ title, state, onFinish }) => {
 
       onFinish({
         title,
-        scores: currentScores,
+        scores: boostedScores,
         totalScore: total,
         comment
       });

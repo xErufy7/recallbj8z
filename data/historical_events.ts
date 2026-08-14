@@ -11,7 +11,7 @@ interface HistoricalEventDef {
 export const HISTORICAL_EVENTS: HistoricalEventDef[] = [
     {
         id: 'he_typhoon_mangkhut_2018',
-        region: '广东广州',
+        region: '广州',
         year: 2018,
         season: 'autumn',
         generateEvent: (state) => ({

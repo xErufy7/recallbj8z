@@ -8,7 +8,7 @@ import {
 import { DIFFICULTY_PRESETS } from '../data/constants';
 import { PHASE_EVENTS, BASE_EVENTS, CHAINED_EVENTS, generateSummerLifeEvent, generateStudyEvent, generateOIEvent, generateRandomFlavorEvent, ensureOiEvents } from '../data/events';
 import { WEEKEND_ACTIVITIES, STATUSES, ACHIEVEMENTS } from '../data/mechanics';
-import { getShopPriceMultiplier, hasNoDebtEvents } from '../data/utils';
+import { getShopPriceMultiplier, hasNoDebtEvents, getRomanceEventMultiplier, applyStatCaps } from '../data/utils';
 import { getRandomWorldContext, CHARACTER_TEMPLATES } from '../data/world_context';
 import { getHistoricalEventsForWeek, loadCityEvents } from '../data/historical_events';
 import { OI_EVENTS_POOL } from '../data/events_oi';
@@ -280,13 +280,16 @@ export const useGameLogic = () => {
             }
 
             // 3c. Regular Events
-            const romancePool = phasePool.filter(e =>
-                e.triggerType === 'RANDOM' &&
-                e.id.startsWith('romance_') &&
-                (!e.once || !state.triggeredEvents.includes(e.id)) &&
-                (!e.condition || e.condition(state)) &&
-                !state.recentEventIds.includes(e.id)
-            );
+            // 天赋被动「恋爱事件触发概率」（孤僻 ×0 时完全不出恋爱事件）
+            const romancePool = getRomanceEventMultiplier(state) <= 0
+                ? []
+                : phasePool.filter(e =>
+                    e.triggerType === 'RANDOM' &&
+                    e.id.startsWith('romance_') &&
+                    (!e.once || !state.triggeredEvents.includes(e.id)) &&
+                    (!e.condition || e.condition(state)) &&
+                    !state.recentEventIds.includes(e.id)
+                );
             if (romancePool.length > 0) {
                 weekEvents.push(romancePool[Math.floor(Math.random() * romancePool.length)]);
             }
@@ -360,6 +363,7 @@ export const useGameLogic = () => {
     const applyWeeklyUpdates = (currentEvent: GameEvent, nextQueue: GameEvent[] = [], newTriggeredEvents: string[] = []) => {
         setState(prev => {
             const { updatedGeneral, updatedStatuses, updatedSubjects } = calculateWeeklyUpdates(prev);
+            const healthDrain = prev.phase === Phase.SEMESTER_1 || prev.phase === Phase.SEMESTER_2 ? 2 : 1;
 
             let newRecentIds = [...prev.recentEventIds];
             if (currentEvent.triggerType === 'RANDOM') {
@@ -367,10 +371,10 @@ export const useGameLogic = () => {
                 if (newRecentIds.length > 4) newRecentIds.shift();
             }
 
-            if (updatedGeneral.health <= 0) {
+            if (Math.max(0, prev.general.health - healthDrain) <= 0) {
                 return {
                     ...prev,
-                    general: updatedGeneral,
+                    general: { ...updatedGeneral, health: 0 },
                     phase: Phase.ENDING,
                     currentEvent: null,
                     eventQueue: [],
@@ -551,9 +555,6 @@ export const useGameLogic = () => {
             if (activeChallenge.conditions?.initialStats) {
                 initialGeneral = { ...initialGeneral, ...activeChallenge.conditions.initialStats };
             }
-            if (activeChallenge.id === 'c_sleep_king') {
-                initialStatuses.push({ ...STATUSES['sleep_compulsion'], duration: 999 });
-            }
         }
 
         const rolledSubjects = getInitialSubjects();
@@ -586,7 +587,6 @@ export const useGameLogic = () => {
             oiStats: getInitialOIStats(),
             difficulty: difficulty,
             activeChallengeId: activeChallenge ? activeChallenge.id : null,
-            hasSleptThisWeek: false,
             unlockedAchievements: globalAchievements
         };
 
@@ -656,10 +656,6 @@ export const useGameLogic = () => {
             updates.chainedEvent = CHAINED_EVENTS[choice.nextEventId];
         }
 
-        if (state.activeChallengeId === 'c_sleep_king' && (choice.text.includes('睡') || choice.text.includes('梦') || choice.text.includes('补觉'))) {
-            updates = { ...updates, hasSleptThisWeek: true };
-        }
-
         const newState = { ...state, ...updates };
         const diff = visualizer ? visualizer(oldState, newState) : [];
 
@@ -694,16 +690,12 @@ export const useGameLogic = () => {
         const skipWeekend = state.phase === Phase.SUMMER || state.phase === Phase.MILITARY;
         if (skipWeekend) {
             setState(prev => {
-                if (prev.activeChallengeId === 'c_sleep_king' && !prev.hasSleptThisWeek) {
-                    return { ...prev, phase: Phase.ENDING, log: [...prev.log, { message: "你在暑假/军训期间没有睡觉，困死了！！！(挑战失败)", type: 'error', timestamp: Date.now(), week: prev.week }] };
-                }
                 return {
                     ...prev,
                     currentEvent: null,
                     eventResult: null,
                     isWeekend: false,
                     week: prev.week + 1,
-                    hasSleptThisWeek: false,
                     isPlaying: !miniGameId,
                     activeMiniGame: miniGameId || prev.activeMiniGame
                 };
@@ -737,6 +729,8 @@ export const useGameLogic = () => {
         if (priceDiff !== 0 && updates.general) {
             updates.general.money = (updates.general.money ?? state.general.money) + priceDiff;
         }
+        // 商店购买同样遵守天赋带来的属性上限/下限（如体弱多病的健康上限）
+        applyStatCaps(state, updates);
         setState(prev => ({ ...prev, ...updates, log: stampNewLogWeeks(prev.log, updates.log, prev.week) }));
         effectVisualizer();
     };
@@ -749,13 +743,6 @@ export const useGameLogic = () => {
 
         // Apply talent passives
         updates = applyTalentPassivesToUpdates(state, updates);
-
-        if (state.activeChallengeId === 'c_sleep_king' && (activity.id === 'w_sleep' || activity.name.includes('睡'))) {
-            updates = {
-                ...updates, hasSleptThisWeek: true,
-                general: { ...oldState.general, ...updates.general, health: (updates.general?.health ?? oldState.general.health) + 5, mindset: (updates.general?.mindset ?? oldState.general.mindset) + 3 } as GeneralStats
-            };
-        }
 
         let resultText = typeof activity.resultText === 'function' ? activity.resultText(state) : activity.resultText;
 
@@ -771,10 +758,7 @@ export const useGameLogic = () => {
         setState(prev => {
             const newPoints = prev.weekendActionPoints - 1;
             if (newPoints <= 0) {
-                if (prev.activeChallengeId === 'c_sleep_king' && !prev.hasSleptThisWeek) {
-                    return { ...prev, weekendActionPoints: 0, isWeekend: false, isPlaying: false, phase: Phase.ENDING, log: [...prev.log, { message: "你这周没有睡觉，困死了！！！(挑战失败)", type: 'error', timestamp: Date.now(), week: prev.week }] };
-                }
-                return { ...prev, weekendActionPoints: 0, isWeekend: false, isPlaying: false, week: prev.week + 1, hasSleptThisWeek: false };
+                return { ...prev, weekendActionPoints: 0, isWeekend: false, isPlaying: false, week: prev.week + 1 };
             }
             return { ...prev, weekendActionPoints: newPoints };
         });
@@ -783,7 +767,6 @@ export const useGameLogic = () => {
     const executeTimetable = (schedule: Record<string, string>) => {
         let currentState = { ...state };
         let results = [];
-        let hasSlept = false;
 
         const activityMap = new Map(WEEKEND_ACTIVITIES.map(a => [a.id, a]));
         const batchLogs: typeof state.log = [];
@@ -794,12 +777,9 @@ export const useGameLogic = () => {
 
             const oldS = { ...currentState };
             let updates = activity.action(oldS);
+            // 周末课表活动同样套用天赋被动加成与属性上限（与事件选择/商店一致）
+            updates = applyTalentPassivesToUpdates(oldS, updates);
             let resultText = typeof activity.resultText === 'function' ? activity.resultText(oldS) : activity.resultText;
-
-            if (currentState.activeChallengeId === 'c_sleep_king' && (activity.id === 'w_sleep' || activity.name.includes('睡'))) {
-                updates = { ...updates, hasSleptThisWeek: true };
-                hasSlept = true;
-            }
 
             if (updates.log) {
                 // action 返回的 log 是全量数组，只取尾部新增条目（避免历史日志重复），并盖上当前周数
@@ -812,15 +792,8 @@ export const useGameLogic = () => {
         }
         currentState.log = [...(currentState.log || []), ...batchLogs];
 
-        if (currentState.activeChallengeId === 'c_sleep_king' && !hasSlept) {
-            currentState.phase = Phase.ENDING;
-            currentState.isPlaying = false;
-            currentState.log = [...(currentState.log || []), { message: "你这周没有睡觉，困死了！！！(挑战失败)", type: 'error', timestamp: Date.now(), week: currentState.week }];
-        } else {
-            currentState.week += 1;
-            currentState.isPlaying = true;
-            currentState.hasSleptThisWeek = false;
-        }
+        currentState.week += 1;
+        currentState.isPlaying = true;
 
         currentState.lastWeekSchedule = schedule;
         currentState.isWeekend = false;
@@ -862,7 +835,7 @@ export const useGameLogic = () => {
         setState(prev => ({ ...prev, popupCompetitionResult: null, isPlaying: false }));
         if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
         resumeTimerRef.current = setTimeout(() => {
-            setState(prev => ({ ...prev, isPlaying: false }));
+            setState(prev => ({ ...prev, isPlaying: true }));
         }, 500);
     };
 

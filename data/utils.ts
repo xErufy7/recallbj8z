@@ -149,12 +149,6 @@ export const applyEfficiencyPassive = (state: GameState, delta: number): number 
     return adjusted;
 };
 
-export const applyEfficiencyCap = (state: GameState, value: number): number => {
-    const passives = getActiveTalentPassives(state);
-    if (passives.efficiencyCap !== undefined) return Math.min(value, passives.efficiencyCap);
-    return Math.max(1, value);
-};
-
 export const applyMoneyPassive = (state: GameState, delta: number): number => {
     const passives = getActiveTalentPassives(state);
     if (delta > 0 && passives.moneyGainMultiplier) return delta * passives.moneyGainMultiplier;

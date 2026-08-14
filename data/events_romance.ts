@@ -1,5 +1,9 @@
-import { GameEvent, Phase } from '../types';
-import { modifySub } from './utils';
+import { GameEvent, Phase, GameState } from '../types';
+import { modifySub, getRomanceEventMultiplier } from './utils';
+
+// 恋爱事件概率统一经由天赋被动缩放（万人迷 ×2 / 孤僻 ×0）
+const romanceRoll = (s: GameState, probability: number): boolean =>
+    Math.random() < probability * getRomanceEventMultiplier(s);
 
 export const ROMANCE_EVENTS: GameEvent[] = [
     // --- 阶段1：初识与萌芽 (好感度 < 30) ---
@@ -9,7 +13,7 @@ export const ROMANCE_EVENTS: GameEvent[] = [
         description: '你抱着一摞作业本匆匆走过拐角，不小心撞到了TA。几本书掉在了地上。',
         type: 'neutral',
         triggerType: 'RANDOM',
-        condition: (s) => (s.flags.ta_favorability || 0) < 30 && Math.random() < (0.20 + s.general.romance * 0.006),
+        condition: (s) => (s.flags.ta_favorability || 0) < 30 && romanceRoll(s, 0.20 + s.general.romance * 0.006),
         choices: [
             {
                 text: '赶紧帮忙捡起来连声道歉',
@@ -44,7 +48,7 @@ export const ROMANCE_EVENTS: GameEvent[] = [
         description: '午休时间，你在座位上听歌，TA碰巧路过，看到了你手机屏幕上的播放界面。',
         type: 'positive',
         triggerType: 'RANDOM',
-        condition: (s) => (s.flags.ta_favorability || 0) >= 5 && (s.flags.ta_favorability || 0) < 30 && Math.random() < (0.20 + s.general.romance * 0.006),
+        condition: (s) => (s.flags.ta_favorability || 0) >= 5 && (s.flags.ta_favorability || 0) < 30 && romanceRoll(s, 0.20 + s.general.romance * 0.006),
         choices: [
             {
                 text: '递过一只耳机："要一起听吗？"',
@@ -70,7 +74,7 @@ export const ROMANCE_EVENTS: GameEvent[] = [
         description: '这节课的知识点很难，TA似乎没有完全听懂，正皱着眉头翻看课本。',
         type: 'neutral',
         triggerType: 'RANDOM',
-        condition: (s) => (s.flags.ta_favorability || 0) >= 8 && (s.flags.ta_favorability || 0) < 30 && Math.random() < (0.20 + s.general.romance * 0.006),
+        condition: (s) => (s.flags.ta_favorability || 0) >= 8 && (s.flags.ta_favorability || 0) < 30 && romanceRoll(s, 0.20 + s.general.romance * 0.006),
         choices: [
             {
                 text: '主动把自己的完美笔记递过去（需要任一理科等级>=2）',
@@ -96,10 +100,10 @@ export const ROMANCE_EVENTS: GameEvent[] = [
     {
         id: 'romance_study_together',
         title: '图书馆的偶遇',
-        description: '周末在首都图书馆，你正准备找个座位，抬头发现TA也在这里，正向你招手。',
+        description: '你在首都图书馆正准备找个座位，抬头发现TA也在这里，正向你招手。',
         type: 'positive',
         triggerType: 'RANDOM',
-        condition: (s) => (s.flags.ta_favorability || 0) >= 30 && (s.flags.ta_favorability || 0) < 70 && s.isWeekend && Math.random() < (0.30 + s.general.romance * 0.006),
+        condition: (s) => (s.flags.ta_favorability || 0) >= 30 && (s.flags.ta_favorability || 0) < 70 && romanceRoll(s, 0.30 + s.general.romance * 0.006),
         choices: [
             {
                 text: '走过去坐在TA旁边',
@@ -153,7 +157,7 @@ export const ROMANCE_EVENTS: GameEvent[] = [
         description: '已经过了零点，你正准备睡觉，手机屏幕亮了，是TA发来的消息："睡了吗？有点睡不着。"',
         type: 'neutral',
         triggerType: 'RANDOM',
-        condition: (s) => (s.flags.ta_favorability || 0) >= 40 && (s.flags.ta_favorability || 0) < 70 && Math.random() < (0.25 + s.general.romance * 0.006),
+        condition: (s) => (s.flags.ta_favorability || 0) >= 40 && (s.flags.ta_favorability || 0) < 70 && romanceRoll(s, 0.25 + s.general.romance * 0.006),
         choices: [
             {
                 text: '陪TA聊天直到深夜',
@@ -232,7 +236,7 @@ export const ROMANCE_EVENTS: GameEvent[] = [
         description: '今天是情人节。你打开课桌抽屉，发现里面静静地躺着一盒包装精致的巧克力，上面没有署名。',
         type: 'positive',
         triggerType: 'RANDOM',
-        condition: (s) => !s.romancePartner && s.general.romance > 40 && s.phase === Phase.SEMESTER_2 && s.week === 2 && Math.random() < (0.5 + s.general.romance * 0.003),
+        condition: (s) => !s.romancePartner && s.general.romance > 40 && s.phase === Phase.SEMESTER_2 && s.week === 2 && romanceRoll(s, 0.5 + s.general.romance * 0.003),
         choices: [
             {
                 text: '环顾四周，寻找是谁放的',
@@ -256,10 +260,10 @@ export const ROMANCE_EVENTS: GameEvent[] = [
     {
         id: 'romance_dating_park',
         title: '玉渊潭的樱花',
-        description: '春暖花开，TA提议周末一起去玉渊潭看樱花。',
+        description: '春暖花开，TA提议有空一起去玉渊潭看樱花。',
         type: 'positive',
         triggerType: 'RANDOM',
-        condition: (s) => !!s.romancePartner && s.phase === Phase.SEMESTER_2 && s.week > 4 && s.week < 8 && s.isWeekend,
+        condition: (s) => !!s.romancePartner && s.phase === Phase.SEMESTER_2 && s.week > 4 && s.week < 8,
         choices: [
             {
                 text: '欣然前往，准备相机（花费50金钱）',

@@ -120,7 +120,6 @@ export const STATUSES: Record<string, Omit<GameStatus, 'duration'>> = {
     'heartbroken': { id: 'heartbroken', name: '失恋', description: '心如刀绞，这就是青春的代价吗？', type: 'DEBUFF', icon: 'fa-heart-broken', effectDescription: '每周心态 -3, 效率 -1' },
     'exhausted': { id: 'exhausted', name: '透支', description: '你需要休息。', type: 'DEBUFF', icon: 'fa-bed', effectDescription: '健康无法自然恢复' },
     'crush_pending': { id: 'crush_pending', name: '恋人未满', description: '虽然还没捅破窗户纸，但这种暧昧的感觉真好。', type: 'BUFF', icon: 'fa-comments', effectDescription: '每周运气 +2，经验 +2' },
-    'sleep_compulsion': { id: 'sleep_compulsion', name: '让我睡觉！', description: '每周不睡觉就会死。', type: 'DEBUFF', icon: 'fa-dizzy', effectDescription: '每周必须进行一次睡觉事件' },
     // --- Graded Debt Statuses ---
     'debt_1': { id: 'debt_1', name: '负债 I', description: '这点钱下个月就能还上……吧？', type: 'DEBUFF', icon: 'fa-file-invoice', effectDescription: '心态-5, 魅力-3 /周' },
     'debt_2': { id: 'debt_2', name: '负债 II', description: '债务像滚雪球一样变大了。', type: 'DEBUFF', icon: 'fa-file-invoice-dollar', effectDescription: '心态-10, 魅力-6 /周' },
@@ -371,8 +370,15 @@ export const WEEKEND_ACTIVITIES: WeekendActivity[] = [
                      updates = { ...updates, ...completionEffects };
                      if (completionEffects.general) updates.general = { ...s.general, ...completionEffects.general };
                      if (completionEffects.subjects) updates.subjects = { ...s.subjects, ...completionEffects.subjects };
+                     // 保留回调返回的新增日志（原实现会用「课题完成」覆盖掉），并追加完成日志
+                     updates.log = [
+                         ...s.log,
+                         ...(completionEffects.log ? completionEffects.log.slice(s.log.length) : []),
+                         { message: `【课题完成】${proj.title}！获得了奖励：${proj.rewardsDescription}`, type: 'success', timestamp: Date.now() }
+                     ];
+                 } else {
+                     updates.log = [...s.log, { message: `【课题完成】${proj.title}！获得了奖励：${proj.rewardsDescription}`, type: 'success', timestamp: Date.now() }];
                  }
-                 updates.log = [...s.log, { message: `【课题完成】${proj.title}！获得了奖励：${proj.rewardsDescription}`, type: 'success', timestamp: Date.now() }];
              }
              return updates;
         }

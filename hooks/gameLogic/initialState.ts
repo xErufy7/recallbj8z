@@ -70,7 +70,6 @@ export const getInitialGameState = (): GameState => ({
     talents: [],
     inventory: [],
     theme: 'light',
-    hasSleptThisWeek: false,
     dreamtExam: false,
     availableWeekendActivityIds: undefined
 });

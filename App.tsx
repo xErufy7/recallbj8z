@@ -136,7 +136,7 @@ const App: React.FC = () => {
   React.useEffect(() => {
     const anyModalOpen = showRetireConfirm || showStats || showLeaderboard || showApiSettings ||
         showAchievements || showHistory || showSchedule || showContestHistory ||
-        showShop || showRealityGuide || showClubSelection;
+        showShop || showRealityGuide || showClubSelection || showHelp || showGuide || showSaveMenu || showRestartConfirm;
 
     const keydownHandler = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement;

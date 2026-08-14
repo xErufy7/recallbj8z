@@ -17,7 +17,7 @@ export const calculateWeeklyUpdates = (prevState: GameState) => {
     else if (currentMoney < -80) debtLevel = 2;
     else if (currentMoney < 0) debtLevel = 1;
 
-    let statusMindset = 0, statusEfficiency = 0, statusRomance = 0, statusHealth = 0, statusLuck = 0, statusExperience = 0;
+    let statusMindset = 0, statusEfficiency = 0, statusRomance = 0, statusLuck = 0, statusExperience = 0;
     let newStatuses: GameStatus[] = [];
 
     for (const st of prevState.activeStatuses) {
@@ -54,7 +54,7 @@ export const calculateWeeklyUpdates = (prevState: GameState) => {
         mindset: Math.max(0, prevState.general.mindset + statusMindset - penaltyMindset),
         efficiency: Math.max(1, prevState.general.efficiency + statusEfficiency),
         romance: Math.max(0, prevState.general.romance + statusRomance - penaltyRomance),
-        health: Math.max(0, prevState.general.health + statusHealth - healthDrain),
+        health: Math.max(0, prevState.general.health - healthDrain),
         luck: Math.max(0, prevState.general.luck + statusLuck),
         experience: Math.max(0, prevState.general.experience + statusExperience)
     };
