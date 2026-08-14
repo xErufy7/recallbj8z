@@ -8,6 +8,7 @@
     "build": "vite build",
     "start": "vite preview --host 0.0.0.0 --port 8080",
     "preview": "vite preview",
+    "deploy": "bash scripts/deploy.sh",
     "test": "vitest run"
   },
   "dependencies": {

@@ -23,6 +23,10 @@ import { applyTalentPassivesToUpdates } from './gameLogic/passives';
 export { ACHIEVEMENTS_KEY } from './gameLogic/storage';
 export { PHASE_NAMES } from './gameLogic/phases';
 
+export type GameSpeed = 'slow' | 'normal' | 'fast';
+const SPEED_DELAYS: Record<GameSpeed, number> = { slow: 2000, normal: 1000, fast: 400 };
+const SPEED_STORAGE_KEY = 'bj8z_game_speed';
+
 export const useGameLogic = () => {
     const [state, setState] = useState<GameState>(() => {
         const initial = getInitialGameState();
@@ -36,6 +40,17 @@ export const useGameLogic = () => {
 
     const [weekendResult, setWeekendResult] = useState<{ activity: WeekendActivity; resultText: string; diff: string[] } | null>(null);
     const [hasSave, setHasSave] = useState(false);
+    // 游戏速度：自动推进的事件间隔（快/正常/慢），localStorage 持久化
+    const [gameSpeed, setGameSpeedState] = useState<GameSpeed>(() => {
+        try {
+            const v = localStorage.getItem(SPEED_STORAGE_KEY);
+            return v === 'slow' || v === 'fast' ? v : 'normal';
+        } catch { return 'normal'; }
+    });
+    const setGameSpeed = (v: GameSpeed) => {
+        setGameSpeedState(v);
+        try { localStorage.setItem(SPEED_STORAGE_KEY, v); } catch { }
+    };
 
     const checkHasSave = useCallback((difficulty?: Difficulty) => {
         if (difficulty) return !!localStorage.getItem(getSaveKey(difficulty));
@@ -338,9 +353,9 @@ export const useGameLogic = () => {
             }
         };
 
-        const timer = setTimeout(processTurn, 1000);
+        const timer = setTimeout(processTurn, SPEED_DELAYS[gameSpeed]);
         return () => clearTimeout(timer);
-    }, [state.isPlaying, state.currentEvent, state.isWeekend, state.week, state.phase, state.eventQueue.length, state.midtermRank, advancePhase, state.competition, state.triggeredEvents, state.isAiGenerating, state.aiBuffer, state.recentEventIds]);
+    }, [state.isPlaying, state.currentEvent, state.isWeekend, state.week, state.phase, state.eventQueue.length, state.midtermRank, advancePhase, state.competition, state.triggeredEvents, state.isAiGenerating, state.aiBuffer, state.recentEventIds, gameSpeed]);
 
     const applyWeeklyUpdates = (currentEvent: GameEvent, nextQueue: GameEvent[] = [], newTriggeredEvents: string[] = []) => {
         setState(prev => {
@@ -917,7 +932,7 @@ export const useGameLogic = () => {
     });
 
     return {
-        state, setState, weekendResult, setWeekendResult, hasSave, checkHasSave, refreshHasSave, saveGame, loadGame,
+        state, setState, weekendResult, setWeekendResult, hasSave, checkHasSave, refreshHasSave, saveGame, loadGame, gameSpeed, setGameSpeed,
         exportSave, importSave,
         startGameState, handleChoice, handleEventConfirm, handleClubSelect, handleShopPurchase,
         handleWeekendActivityClick, confirmWeekendActivity,

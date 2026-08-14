@@ -5,6 +5,8 @@ import { ACHIEVEMENTS } from '../data/mechanics';
 import { getApiSettings, saveApiSettings } from '../lib/api';
 import { getUseNewDb, setUseNewDb } from '../lib/supabase';
 import { SaveInfo, getAllSaveInfos, deleteSaveByKey } from '../hooks/gameLogic/storage';
+import { version } from '../package.json';
+import EndingCollectionModal from './EndingCollectionModal';
 
 interface HomeViewProps {
     selectedDifficulty: Difficulty;
@@ -34,6 +36,7 @@ const STAT_LABELS: Record<string, string> = {
 const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyChange, customStats, onCustomStatsChange, onCustomStatsConfirm, onStart, hasSave, onLoadGame, unlockedAchievements, onResetAchievements, onShowLeaderboard, soundOn, darkMode, onToggleSound, onToggleDark, latestSave, onSaveDeleted }) => {
     const [showChangelog, setShowChangelog] = React.useState(false);
     const [showAchievements, setShowAchievements] = React.useState(false);
+    const [showEndings, setShowEndings] = React.useState(false);
     const [showCustomModal, setShowCustomModal] = React.useState(false);
     const [showResetConfirm, setShowResetConfirm] = React.useState(false);
     const [showVarHelp, setShowVarHelp] = React.useState(false);
@@ -91,6 +94,12 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
                         >
                             <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[200px] group-hover:mr-2 group-hover:opacity-100 transition-all duration-300 ease-in-out">成就墙 ({unlockedAchievements.length}/{Object.keys(ACHIEVEMENTS).length})</span>
                             <i className="fas fa-trophy text-yellow-500 flex-shrink-0 w-4 text-center text-sm md:w-5 md:text-base"></i>
+                        </button>
+                        <button onClick={() => setShowEndings(true)}
+                            className="group px-2.5 py-2 rounded-lg md:px-3 md:py-2.5 md:rounded-xl bg-white/80 backdrop-blur-sm border border-slate-200 hover:border-purple-300 hover:bg-purple-50 text-slate-600 hover:text-purple-600 shadow-sm transition-all flex items-center gap-0 text-sm font-bold active:scale-95 whitespace-nowrap mb-1"
+                        >
+                            <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[200px] group-hover:mr-2 group-hover:opacity-100 transition-all duration-300 ease-in-out">结局图鉴</span>
+                            <i className="fas fa-scroll text-purple-500 flex-shrink-0 w-4 text-center text-sm md:w-5 md:text-base"></i>
                         </button>
                         <button onClick={() => setShowChangelog(true)}
                             className="group px-2.5 py-2 rounded-lg md:px-3 md:py-2.5 md:rounded-xl bg-white/80 backdrop-blur-sm border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 shadow-sm transition-all flex items-center gap-0 text-sm font-bold active:scale-95 whitespace-nowrap mb-1"
@@ -374,6 +383,7 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
                                 {apiSaved ? <><i className="fas fa-check"></i> 已保存</> : <><i className="fas fa-save"></i> 保存设置</>}
                             </button>
                         </div>
+                        <div className="mt-3 text-center text-[10px] font-bold text-slate-300">八中重开模拟器 v{version}</div>
                     </div>
                 </div>
             )}
@@ -503,6 +513,9 @@ const HomeView: React.FC<HomeViewProps> = ({ selectedDifficulty, onDifficultyCha
                     </div>
                 </div>
             )}
+
+            {/* Ending Collection Modal */}
+            {showEndings && <EndingCollectionModal onClose={() => setShowEndings(false)} />}
         </div>
     );
 };

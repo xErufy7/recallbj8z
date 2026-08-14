@@ -4,7 +4,7 @@ import { Difficulty, GeneralStats, Talent, Phase, GameState, Challenge, SubjectK
 import { TALENTS } from './data/mechanics';
 import { useGameLogic, ACHIEVEMENTS_KEY, PHASE_NAMES } from './hooks/useGameLogic';
 import { playClick, playConfirm, playAchievement, playError, playWeekend, playExam, playEnding, isSoundEnabled, setSoundEnabled } from './lib/sound';
-import { getSaveInfo, SaveInfo } from './hooks/gameLogic/storage';
+import { getSaveInfo, SaveInfo, recordEnding } from './hooks/gameLogic/storage';
 
 const EXAM_PHASES = [Phase.PLACEMENT_EXAM, Phase.MIDTERM_EXAM, Phase.FINAL_EXAM, Phase.MIDTERM_EXAM_2, Phase.FINAL_EXAM_2, Phase.CSP_EXAM, Phase.NOIP_EXAM, Phase.WC_EXAM, Phase.PROVINCIAL_EXAM, Phase.APIO_EXAM, Phase.NOI_EXAM];
 
@@ -20,6 +20,9 @@ import ClubSelectionModal from './components/ClubSelectionModal';
 import SaveMenuSheet from './components/SaveMenuSheet';
 import RetireConfirmModal from './components/RetireConfirmModal';
 import HelpModal from './components/HelpModal';
+import GuideModal from './components/GuideModal';
+import RestartConfirmModal from './components/RestartConfirmModal';
+import { DIFFICULTY_PRESETS } from './data/constants';
 import MobileStatsModal from './components/MobileStatsModal';
 const StatsPanel = lazy(() => import('./components/StatsPanel'));
 const TimetableModal = lazy(() => import('./components/TimetableModal'));
@@ -58,6 +61,9 @@ const App: React.FC = () => {
   const [pendingChallenge, setPendingChallenge] = useState<Challenge | null>(null);
   const [showRetireConfirm, setShowRetireConfirm] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
+  const [showGuide, setShowGuide] = useState(false);
+  const [showRestartConfirm, setShowRestartConfirm] = useState(false);
+  const [restartSaveLabel, setRestartSaveLabel] = useState('');
   const [showStats, setShowStats] = useState(false);
   const [showSaveMenu, setShowSaveMenu] = useState(false);
   const logEndRef = useRef<HTMLDivElement>(null);
@@ -103,12 +109,17 @@ const App: React.FC = () => {
 
   const {
       state, setState, weekendResult, setWeekendResult, hasSave, checkHasSave, refreshHasSave, saveGame, loadGame,
+      gameSpeed, setGameSpeed,
       exportSave, importSave,
       startGameState, handleChoice, handleEventConfirm, handleClubSelect, handleShopPurchase,
       handleWeekendActivityClick, confirmWeekendActivity,
       executeTimetable, handleExamFinish, closeCompetitionPopup, closeExamResult, closeMiniGame,
       weekendOptions
   } = useGameLogic();
+
+  // 速度切换（正常→快速→慢速 循环），按钮显示当前速度
+  const cycleSpeed = () => setGameSpeed(gameSpeed === 'normal' ? 'fast' : gameSpeed === 'fast' ? 'slow' : 'normal');
+  const speedLabel = gameSpeed === 'normal' ? '正常' : gameSpeed === 'fast' ? '快速' : '慢速';
 
   const importInputRef = useRef<HTMLInputElement>(null);
   const handleImportFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -132,19 +143,36 @@ const App: React.FC = () => {
       if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT' || target.isContentEditable)) return;
 
       if (e.key === 'Escape') {
-        if (showRetireConfirm) { setShowRetireConfirm(false); return; }
-        if (showHelp) { setShowHelp(false); return; }
-        if (showStats) { setShowStats(false); return; }
-        if (showLeaderboard) { setShowLeaderboard(false); return; }
-        if (showApiSettings) { setShowApiSettings(false); return; }
-        if (showAchievements) { setShowAchievements(false); return; }
-        if (showHistory) { setShowHistory(false); return; }
-        if (showSchedule) { setShowSchedule(false); return; }
-        if (showContestHistory) { setShowContestHistory(false); return; }
-        if (showShop) { setShowShop(false); return; }
-        if (showRealityGuide) { setShowRealityGuide(false); return; }
+        if (showRetireConfirm) { pressKey('retire-cancel', () => setShowRetireConfirm(false)); return; }
+        if (showHelp) { pressKey('help-close', () => setShowHelp(false)); return; }
+        if (showGuide) { pressKey('guide-close', () => { setShowGuide(false); try { localStorage.setItem('bj8z_guide_seen', '1'); } catch { } }); return; }
+        if (showRestartConfirm) { pressKey('restart-cancel', () => setShowRestartConfirm(false)); return; }
+        if (showStats) { pressKey('stats-close', () => setShowStats(false)); return; }
+        if (showLeaderboard) { pressKey('leaderboard-close', () => setShowLeaderboard(false)); return; }
+        if (showApiSettings) { pressKey('settings-close', () => setShowApiSettings(false)); return; }
+        if (showAchievements) { pressKey('achievements-close', () => setShowAchievements(false)); return; }
+        if (showHistory) { pressKey('history-close', () => setShowHistory(false)); return; }
+        if (showSchedule) { pressKey('schedule-close', () => setShowSchedule(false)); return; }
+        if (showContestHistory) { pressKey('contest-close', () => setShowContestHistory(false)); return; }
+        if (showShop) { pressKey('shop-close', () => setShowShop(false)); return; }
+        if (showRealityGuide) { pressKey('reality-close', () => setShowRealityGuide(false)); return; }
         if (showClubSelection) { setShowClubSelection(false); return; }
+        // 游戏中无弹窗时：Esc 按下头部「退休」按钮（带按压动画），松开时弹出退休确认
+        if (view === 'GAME' && !state.currentEvent && !state.popupExamResult && !state.popupCompetitionResult && state.phase !== Phase.ENDING && state.phase !== Phase.WITHDRAWAL) {
+            pressKey('retire', () => setShowRetireConfirm(true));
+        }
         return;
+      }
+
+      // 退休/重开确认弹窗：Enter / 空格 确认（松开时触发，确认按钮带按压动画）
+      if ((e.key === 'Enter' || e.key === ' ') && (showRetireConfirm || showRestartConfirm)) {
+          if (e.key === ' ') e.preventDefault();
+          if (showRetireConfirm) {
+              pressKey('retire-confirm', () => { setState(p => ({ ...p, phase: Phase.WITHDRAWAL })); setShowRetireConfirm(false); });
+          } else {
+              pressKey('restart-confirm', () => { setShowRestartConfirm(false); proceedToTalentSelect(); });
+          }
+          return;
       }
 
       if (anyModalOpen || view !== 'GAME') return;
@@ -226,7 +254,7 @@ const App: React.FC = () => {
       window.removeEventListener('keyup', keyupHandler);
       window.removeEventListener('blur', blurHandler);
     };
-  }, [view, state.currentEvent, state.eventResult, handleChoice, handleEventConfirm, showRetireConfirm, showHelp, showStats, showLeaderboard, showApiSettings, showAchievements, showHistory, showSchedule, showContestHistory, showShop, showRealityGuide, showClubSelection]);
+  }, [view, state.currentEvent, state.eventResult, handleChoice, handleEventConfirm, showRetireConfirm, showHelp, showGuide, showRestartConfirm, showStats, showLeaderboard, showApiSettings, showAchievements, showHistory, showSchedule, showContestHistory, showShop, showRealityGuide, showClubSelection]);
 
   React.useEffect(() => {
       if (state.phase === Phase.SEMESTER_1 && state.week === 2 && !state.hasSelectedClub && !showClubSelection) {
@@ -248,10 +276,8 @@ const App: React.FC = () => {
       setUseCustomStats(true);
   };
 
-  const prepareGame = (challenge?: Challenge) => {
-      setWeekendResult(null); setShowClubSelection(false); setShowRealityGuide(false);
-      setPendingChallenge(challenge || null);
-
+  /** 生成随机天赋池并进入选天赋界面 */
+  const proceedToTalentSelect = () => {
       const pool = [...TALENTS];
       const buffs = pool.filter(t => t.cost > 0).sort(() => 0.5 - Math.random()).slice(0, 5);
       const debuffs = pool.filter(t => t.cost < 0).sort(() => 0.5 - Math.random()).slice(0, 4);
@@ -262,10 +288,29 @@ const App: React.FC = () => {
       setView('TALENTS');
   };
 
+  const prepareGame = (challenge?: Challenge) => {
+      setWeekendResult(null); setShowClubSelection(false); setShowRealityGuide(false);
+      setPendingChallenge(challenge || null);
+
+      // 该难度已有存档时先确认，防止误覆盖（提示旧档信息，可先去导出备份）
+      const effectiveDifficulty = useCustomStats ? 'CUSTOM' : selectedDifficulty;
+      const existing = getSaveInfo(effectiveDifficulty);
+      if (existing) {
+          setRestartSaveLabel(`${DIFFICULTY_PRESETS[effectiveDifficulty]?.label || effectiveDifficulty} · 第 ${existing.week} 周`);
+          setShowRestartConfirm(true);
+          return;
+      }
+      proceedToTalentSelect();
+  };
+
   const handleStartGame = () => {
       const effectiveDifficulty = useCustomStats ? 'CUSTOM' : selectedDifficulty;
       startGameState(effectiveDifficulty, customStats, selectedTalents, pendingChallenge);
       setView('GAME');
+      // 首次开局弹出新手引导（只弹一次，localStorage 记住）
+      try {
+          if (!localStorage.getItem('bj8z_guide_seen')) setShowGuide(true);
+      } catch { }
   };
 
   const handleTalentToggle = (talent: Talent) => {
@@ -316,7 +361,14 @@ const App: React.FC = () => {
   // 音效触发：周末 / 考试 / 结局
   React.useEffect(() => { if (state.isWeekend) playWeekend(); }, [state.isWeekend]);
   React.useEffect(() => { if (EXAM_PHASES.includes(state.phase)) playExam(); }, [state.phase]);
-  React.useEffect(() => { if (state.phase === Phase.ENDING || state.phase === Phase.WITHDRAWAL) { playEnding(); navigator.vibrate?.(300); } }, [state.phase]);
+  React.useEffect(() => {
+      if (state.phase === Phase.ENDING || state.phase === Phase.WITHDRAWAL) {
+          playEnding(); navigator.vibrate?.(300);
+          // 记录结局到收集册（按 评级+称号+难度 去重）
+          const ed = getEndingData();
+          recordEnding({ rank: ed.rank, title: ed.title, score: ed.score, difficulty: state.difficulty, date: new Date().toISOString() });
+      }
+  }, [state.phase]);
 
   // 「继续游戏」按钮展示当前所选难度的存档概要（各难度存档分开存储）
   const [latestSave, setLatestSave] = useState<SaveInfo | null>(() => getSaveInfo(selectedDifficulty));
@@ -417,7 +469,8 @@ const App: React.FC = () => {
               latestSave={latestSave}
               onSaveDeleted={() => { refreshHasSave(); setLatestSave(getSaveInfo(selectedDifficulty)); }}
             />
-            {showLeaderboard && <LeaderboardModal onClose={() => setShowLeaderboard(false)} initialChallengeId={state.activeChallengeId} />}
+            {showLeaderboard && <LeaderboardModal flashTag={keyFlash} onClose={() => setShowLeaderboard(false)} initialChallengeId={state.activeChallengeId} />}
+            {showRestartConfirm && <RestartConfirmModal flashTag={keyFlash} saveLabel={restartSaveLabel} onCancel={() => setShowRestartConfirm(false)} onConfirm={() => { setShowRestartConfirm(false); proceedToTalentSelect(); }} />}
             {loadErrorMsg && (
                 <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[120] bg-rose-600 text-white px-5 py-3 rounded-2xl shadow-2xl text-sm font-bold animate-fadeIn">
                     {loadErrorMsg}
@@ -456,9 +509,9 @@ const App: React.FC = () => {
 
   return (
     <div className={`h-[100dvh] transition-all duration-1000 ${getAtmosphereTheme()} ${state.general.mindset <= 20 ? 'grayscale-[0.9] contrast-125 transition-all duration-[3000ms]' : ''} ${darkMode ? 'dark-filter' : ''} flex flex-col md:flex-row p-2 md:p-4 gap-2 md:gap-4 overflow-hidden font-sans text-slate-900 relative`}>
-            {showContestHistory && <Suspense fallback={null}><ContestHistoryModal state={state} onClose={() => setShowContestHistory(false)} /></Suspense>}
-      {showLeaderboard && <Suspense fallback={null}><LeaderboardModal onClose={() => setShowLeaderboard(false)} initialChallengeId={state.activeChallengeId} /></Suspense>}
-      {showApiSettings && <Suspense fallback={null}><ApiSettingsModal onClose={() => setShowApiSettings(false)} /></Suspense>}
+            {showContestHistory && <Suspense fallback={null}><ContestHistoryModal flashTag={keyFlash} state={state} onClose={() => setShowContestHistory(false)} /></Suspense>}
+      {showLeaderboard && <Suspense fallback={null}><LeaderboardModal flashTag={keyFlash} onClose={() => setShowLeaderboard(false)} initialChallengeId={state.activeChallengeId} /></Suspense>}
+      {showApiSettings && <Suspense fallback={null}><ApiSettingsModal flashTag={keyFlash} onClose={() => setShowApiSettings(false)} /></Suspense>}
       <div className={`fixed inset-0 pointer-events-none z-[50] transition-all duration-1000 ${state.general.health < 30 ? 'opacity-100' : 'opacity-0'}`} style={{ boxShadow: 'inset 0 0 100px rgba(255, 0, 0, 0.3)' }}></div>
       <FloatingTextLayer items={floatingTexts} />
       <input ref={importInputRef} type="file" accept=".json,application/json" className="hidden" onChange={handleImportFile} />
@@ -480,8 +533,9 @@ const App: React.FC = () => {
               }));
           }}
        />
-      {showRealityGuide && <Suspense fallback={null}><RealityGuideModal onClose={() => setShowRealityGuide(false)} /></Suspense>}
-      {showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
+      {showRealityGuide && <Suspense fallback={null}><RealityGuideModal flashTag={keyFlash} onClose={() => setShowRealityGuide(false)} /></Suspense>}
+      {showHelp && <HelpModal flashTag={keyFlash} onClose={() => setShowHelp(false)} />}
+      {showGuide && <GuideModal flashTag={keyFlash} onClose={() => { setShowGuide(false); try { localStorage.setItem('bj8z_guide_seen', '1'); } catch { } }} />}
       
       
       {/* Toast */}
@@ -508,11 +562,12 @@ const App: React.FC = () => {
         <div className="md:hidden flex gap-1.5 pb-2.5 flex-shrink-0 overflow-x-auto custom-scroll">
              <button onClick={() => setShowSchedule(true)} disabled={state.isWeekend} className="bg-white border rounded-xl px-2.5 py-1.5 shadow-sm flex flex-col items-center gap-0.5 min-w-[54px] flex-shrink-0 disabled:opacity-40"><i className="fas fa-calendar-alt text-blue-500 text-sm"></i><span className="text-[10px] font-bold text-slate-600 whitespace-nowrap">时间表</span></button>
              <button onClick={() => setShowShop(true)} className="bg-white border rounded-xl px-2.5 py-1.5 shadow-sm flex flex-col items-center gap-0.5 min-w-[54px] flex-shrink-0"><i className="fas fa-store text-emerald-500 text-sm"></i><span className="text-[10px] font-bold text-slate-600 whitespace-nowrap">小卖部</span></button>
+             <button onClick={() => setShowStats(true)} className="bg-white border rounded-xl px-2.5 py-1.5 shadow-sm flex flex-col items-center gap-0.5 min-w-[54px] flex-shrink-0"><i className="fas fa-chart-bar text-indigo-500 text-sm"></i><span className="text-[10px] font-bold text-slate-600 whitespace-nowrap">属性</span></button>
              <button onClick={() => setShowAchievements(true)} className="bg-white border rounded-xl px-2.5 py-1.5 shadow-sm flex flex-col items-center gap-0.5 min-w-[54px] flex-shrink-0"><i className="fas fa-trophy text-yellow-500 text-sm"></i><span className="text-[10px] font-bold text-slate-600 whitespace-nowrap">成就</span></button>
              <button onClick={() => setShowHistory(true)} className="bg-white border rounded-xl px-2.5 py-1.5 shadow-sm flex flex-col items-center gap-0.5 min-w-[54px] flex-shrink-0"><i className="fas fa-archive text-indigo-500 text-sm"></i><span className="text-[10px] font-bold text-slate-600 whitespace-nowrap">历程</span></button>
+             <button onClick={cycleSpeed} className="bg-white border rounded-xl px-2.5 py-1.5 shadow-sm flex flex-col items-center gap-0.5 min-w-[54px] flex-shrink-0"><i className="fas fa-gauge-high text-amber-500 text-sm"></i><span className="text-[10px] font-bold text-slate-600 whitespace-nowrap">{speedLabel}</span></button>
              <button onClick={() => setShowSaveMenu(true)} disabled={!!state.currentEvent} className="bg-emerald-50 border border-emerald-100 rounded-xl px-2.5 py-1.5 shadow-sm flex flex-col items-center gap-0.5 min-w-[54px] flex-shrink-0 disabled:opacity-40"><i className="fas fa-save text-emerald-600 text-sm"></i><span className="text-[10px] font-bold text-emerald-700 whitespace-nowrap">存档</span></button>
-             <button onClick={() => setShowRetireConfirm(true)} disabled={!!state.currentEvent} className="bg-rose-50 border border-rose-100 rounded-xl px-2.5 py-1.5 shadow-sm flex flex-col items-center gap-0.5 min-w-[54px] flex-shrink-0 disabled:opacity-40"><i className="fas fa-door-open text-rose-600 text-sm"></i><span className="text-[10px] font-bold text-rose-700 whitespace-nowrap">退休</span></button>
-             <button onClick={() => setShowStats(true)} className="bg-white border rounded-xl px-2.5 py-1.5 shadow-sm flex flex-col items-center gap-0.5 min-w-[54px] flex-shrink-0"><i className="fas fa-chart-bar text-indigo-500 text-sm"></i><span className="text-[10px] font-bold text-slate-600 whitespace-nowrap">属性</span></button>
+             <button onClick={() => setShowRetireConfirm(true)} disabled={!!state.currentEvent} className={`bg-rose-50 border border-rose-100 rounded-xl px-2.5 py-1.5 shadow-sm flex flex-col items-center gap-0.5 min-w-[54px] flex-shrink-0 disabled:opacity-40 ${keyFlash === 'retire' ? 'key-pressed' : ''}`}><i className="fas fa-door-open text-rose-600 text-sm"></i><span className="text-[10px] font-bold text-rose-700 whitespace-nowrap">退休</span></button>
         </div>
 
         {/* Header */}
@@ -523,10 +578,11 @@ const App: React.FC = () => {
                   <button onClick={() => setShowShop(true)} className="bg-slate-50 border border-slate-200 px-2.5 py-2 rounded-xl text-xs font-bold text-slate-600 whitespace-nowrap hover:bg-white hover:shadow transition-all"><i className="fas fa-store text-emerald-500 mr-0.5"></i>小卖铺</button>
                   <button onClick={() => setShowAchievements(true)} className="bg-slate-50 border border-slate-200 px-2.5 py-2 rounded-xl text-xs font-bold text-slate-600 whitespace-nowrap hover:bg-white hover:shadow transition-all"><i className="fas fa-trophy text-yellow-500 mr-0.5"></i>成就</button>
                   <button onClick={() => setShowHistory(true)} className="bg-slate-50 border border-slate-200 px-2.5 py-2 rounded-xl text-xs font-bold text-slate-600 whitespace-nowrap hover:bg-white hover:shadow transition-all"><i className="fas fa-archive text-indigo-500 mr-0.5"></i>历程</button>
+                  <button onClick={cycleSpeed} title="点击切换游戏速度" className="bg-slate-50 border border-slate-200 px-2.5 py-2 rounded-xl text-xs font-bold text-slate-600 whitespace-nowrap hover:bg-white hover:shadow transition-all"><i className="fas fa-gauge-high text-amber-500 mr-0.5"></i>{speedLabel}</button>
                   <button onClick={() => { playConfirm(); saveGame(); }} disabled={!!state.currentEvent} className="bg-emerald-50 border border-emerald-200 px-2.5 py-2 rounded-xl text-xs font-bold text-emerald-600 whitespace-nowrap hover:bg-emerald-100 transition-all"><i className="fas fa-save mr-0.5"></i>保存</button>
                   <button onClick={() => { playConfirm(); exportSave(); }} className="bg-sky-50 border border-sky-200 px-2.5 py-2 rounded-xl text-xs font-bold text-sky-600 whitespace-nowrap hover:bg-sky-100 transition-all"><i className="fas fa-file-export mr-0.5"></i>导出</button>
                   <button onClick={() => { playClick(); importInputRef.current?.click(); }} className="bg-sky-50 border border-sky-200 px-2.5 py-2 rounded-xl text-xs font-bold text-sky-600 whitespace-nowrap hover:bg-sky-100 transition-all"><i className="fas fa-file-import mr-0.5"></i>导入</button>
-                  <button onClick={() => setShowRetireConfirm(true)} className="bg-rose-50 border border-rose-200 px-2.5 py-2 rounded-xl text-xs font-bold text-rose-600 whitespace-nowrap hover:bg-rose-100 transition-all"><i className="fas fa-door-open mr-0.5"></i>退休</button>
+                  <button onClick={() => setShowRetireConfirm(true)} title="快捷键 Esc" className={`bg-rose-50 border border-rose-200 px-2.5 py-2 rounded-xl text-xs font-bold text-rose-600 whitespace-nowrap hover:bg-rose-100 transition-all ${keyFlash === 'retire' ? 'key-pressed' : ''}`}><i className="fas fa-door-open mr-0.5"></i>退休</button>
                </div>
                <div className="flex items-center justify-between mt-0">
                    <div className="flex flex-col gap-1 w-full mr-4">
@@ -610,7 +666,7 @@ const App: React.FC = () => {
         )}
         {/* Timetable (View Mode) */}
         {showSchedule && !state.isWeekend && (
-            <Suspense fallback={null}><TimetableModal state={state} onConfirm={() => setShowSchedule(false)} /></Suspense>
+            <Suspense fallback={null}><TimetableModal flashTag={keyFlash} state={state} onConfirm={() => setShowSchedule(false)} /></Suspense>
         )}
         {/* Event Modal */}
         {state.currentEvent && (
@@ -695,17 +751,17 @@ const App: React.FC = () => {
 
         {/* Shop */}
         {showShop && (
-            <ShopModal state={state} onClose={() => setShowShop(false)} onPurchase={(item, actualPrice) => handleShopPurchase(item, () => spawnFloatingText(`-${actualPrice}`, window.innerWidth/2, window.innerHeight/2, 'money'))} />
+            <ShopModal flashTag={keyFlash} state={state} onClose={() => setShowShop(false)} onPurchase={(item, actualPrice) => handleShopPurchase(item, () => spawnFloatingText(`-${actualPrice}`, window.innerWidth/2, window.innerHeight/2, 'money'))} />
         )}
 
         {/* History */}
         {showHistory && (
-            <HistoryPanel history={state.history} onClose={() => setShowHistory(false)} />
+            <HistoryPanel flashTag={keyFlash} history={state.history} onClose={() => setShowHistory(false)} />
         )}
 
         {/* Achievements */}
         {showAchievements && (
-            <GameAchievementsModal unlockedAchievements={state.unlockedAchievements} onClose={() => setShowAchievements(false)} />
+            <GameAchievementsModal flashTag={keyFlash} unlockedAchievements={state.unlockedAchievements} onClose={() => setShowAchievements(false)} />
         )}
         
         {/* 移动端存档菜单（保存/导出/导入） */}
@@ -722,6 +778,7 @@ const App: React.FC = () => {
         {/* 提前退休确认弹窗 */}
         {showRetireConfirm && state.phase !== Phase.WITHDRAWAL && state.phase !== Phase.ENDING && (
             <RetireConfirmModal
+                flashTag={keyFlash}
                 onCancel={() => setShowRetireConfirm(false)}
                 onConfirm={() => { setState(p => ({ ...p, phase: Phase.WITHDRAWAL })); setShowRetireConfirm(false); }}
             />
@@ -729,7 +786,7 @@ const App: React.FC = () => {
 
         {/* 移动端属性面板 */}
         {showStats && (
-            <MobileStatsModal state={state} onClose={() => setShowStats(false)} onShowGuide={() => setShowRealityGuide(true)} />
+            <MobileStatsModal flashTag={keyFlash} state={state} onClose={() => setShowStats(false)} onShowGuide={() => setShowRealityGuide(true)} />
         )}
 
         {/* Ending */}

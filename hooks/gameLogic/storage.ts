@@ -91,6 +91,35 @@ export const deleteSaveByKey = (key: string) => {
     try { localStorage.removeItem(key); } catch { }
 };
 
+// --- 结局收集册（跨局持久化，按 评级+称号+难度 去重） ---
+export const ENDINGS_KEY = 'bj8z_endings_global';
+
+export interface EndingEntry {
+    rank: string;
+    title: string;
+    score: number;
+    difficulty: string;
+    /** ISO 日期串 */
+    date: string;
+}
+
+export const getCollectedEndings = (): EndingEntry[] => {
+    try {
+        const stored = localStorage.getItem(ENDINGS_KEY);
+        return stored ? JSON.parse(stored) : [];
+    } catch { return []; }
+};
+
+export const recordEnding = (entry: EndingEntry) => {
+    try {
+        const all = getCollectedEndings();
+        if (!all.some(e => e.rank === entry.rank && e.title === entry.title && e.difficulty === entry.difficulty)) {
+            all.push(entry);
+            localStorage.setItem(ENDINGS_KEY, JSON.stringify(all));
+        }
+    } catch { }
+};
+
 export const getGlobalAchievements = (): string[] => {
     try {
         const stored = localStorage.getItem(ACHIEVEMENTS_KEY);

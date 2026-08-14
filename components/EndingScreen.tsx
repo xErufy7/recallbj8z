@@ -267,6 +267,7 @@ const EndingScreen: React.FC<EndingScreenProps> = ({ state, endingData, onRestar
                                              <i className="fas fa-times"></i>
                                          </button>
                                      </div>
+                                     <p className="text-[10px] font-bold text-slate-400">将上传到：{getUseNewDb() ? '新版排行榜' : '旧版排行榜'}（可在主页设置中切换）</p>
                                      {uploadMsg && (
                                          <p className={`text-xs font-bold ${uploadStatus === 'ok' ? 'text-emerald-600' : uploadStatus === 'err' ? 'text-rose-500' : 'text-slate-400'}`}>
                                              {uploadMsg}

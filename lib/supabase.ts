@@ -61,8 +61,12 @@ export const getLeaderboard = async (challengeId: string | null = null, limit = 
     return await query;
 };
 
-export const ALLOWED_RANKS = ['SSS', 'A', 'C', 'F', 'S', 'B'];
-export const ALLOWED_TITLES = ['高中毕业生', '遗憾离场'];
+// 白名单 = 游戏真实产出的评级/称号全集（getEndingData），防止测试页灌入的垃圾数据上榜
+export const ALLOWED_RANKS = ['SSS', 'SS', 'S', 'A', 'B', 'C', 'D', 'Z', 'F'];
+export const ALLOWED_TITLES = [
+    '清北保送生（国集）', '强基破格入围者', '省队巨佬', '年级学神',
+    '尖子生', '中流砥柱', '芸芸众生', '学业危机', '家里蹲预备役', '退学离场'
+];
 export const MAX_LEADERBOARD_SCORE = 10000;
 
 export const filterLeaderboardEntry = (e: any): boolean =>

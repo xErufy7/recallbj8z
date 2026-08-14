@@ -3,10 +3,12 @@ import { GameState } from '../types';
 
 interface Props {
     state: GameState;
+    /** 键盘按压标记（App 的 keyFlash），命中时按钮呈按下状态 */
+    flashTag?: string | null;
     onClose: () => void;
 }
 
-const ContestHistoryModal: React.FC<Props> = ({ state, onClose }) => {
+const ContestHistoryModal: React.FC<Props> = ({ state, flashTag, onClose }) => {
     const history = state.oiStats?.history || [];
     const rating = state.oiStats?.rating || 1200;
 
@@ -21,7 +23,7 @@ const ContestHistoryModal: React.FC<Props> = ({ state, onClose }) => {
                         </h2>
                         <p className="text-indigo-200 text-sm mt-1">当前 Rating: <span className="font-bold text-white text-lg">{rating}</span></p>
                     </div>
-                    <button onClick={onClose} className="w-10 h-10 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-colors">
+                    <button onClick={onClose} className={`w-10 h-10 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-colors ${flashTag === 'contest-close' ? 'key-pressed' : ''}`}>
                         <i className="fas fa-times"></i>
                     </button>
                 </div>

@@ -1,0 +1,11 @@
+{
+  "name": "八中重开模拟器",
+  "short_name": "八中重开",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#4f46e5",
+  "description": "真实的高中生活模拟：选科、考试、社团、感情、竞赛……如果是你，能在这所学校里活得更精彩吗？",
+  "lang": "zh-CN"
+}

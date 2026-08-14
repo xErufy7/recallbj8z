@@ -2,6 +2,8 @@
 import React from 'react';
 
 interface HelpModalProps {
+    /** 键盘按压标记（App 的 keyFlash），命中时按钮呈按下状态 */
+    flashTag?: string | null;
     onClose: () => void;
 }
 
@@ -10,7 +12,7 @@ const Kbd: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 );
 
 /** 游戏内快捷键说明弹窗（桌面端，键盘操作） */
-const HelpModal: React.FC<HelpModalProps> = ({ onClose }) => {
+const HelpModal: React.FC<HelpModalProps> = ({ flashTag, onClose }) => {
     const rows: { keys: React.ReactNode; desc: string }[] = [
         { keys: <><Kbd>1</Kbd> ~ <Kbd>9</Kbd></>, desc: '选择事件选项（只有一个选项时按 1）' },
         { keys: <><Kbd>回车</Kbd> / <Kbd>空格</Kbd></>, desc: '确认结果、继续剧情、关闭考试/竞赛结果弹窗' },
@@ -23,7 +25,7 @@ const HelpModal: React.FC<HelpModalProps> = ({ onClose }) => {
             <div className="bg-white rounded-3xl p-5 md:p-6 max-w-sm w-full shadow-2xl no-btn-scale" onClick={e => e.stopPropagation()}>
                 <div className="flex justify-between items-center mb-4">
                     <h3 className="text-lg font-black text-slate-800 flex items-center gap-2"><i className="fas fa-keyboard text-indigo-500"></i>快捷键说明</h3>
-                    <button onClick={onClose} className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 transition-colors"><i className="fas fa-times"></i></button>
+                    <button onClick={onClose} className={`w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 transition-colors ${flashTag === 'help-close' ? 'key-pressed' : ''}`}><i className="fas fa-times"></i></button>
                 </div>
                 <div className="space-y-3">
                     {rows.map((r, i) => (

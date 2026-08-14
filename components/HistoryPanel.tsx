@@ -4,16 +4,18 @@ import { StoryEntry } from '../types';
 
 interface HistoryPanelProps {
     history: StoryEntry[];
+    /** 键盘按压标记（App 的 keyFlash），命中时按钮呈按下状态 */
+    flashTag?: string | null;
     onClose: () => void;
 }
 
-const HistoryPanel: React.FC<HistoryPanelProps> = ({ history, onClose }) => {
+const HistoryPanel: React.FC<HistoryPanelProps> = ({ history, flashTag, onClose }) => {
     return (
         <div className="absolute inset-0 z-[60] flex justify-end bg-slate-900/40 backdrop-blur-sm animate-fadeIn" onClick={onClose}>
             <div className="w-full md:w-96 bg-white h-full shadow-2xl p-6 md:p-8 flex flex-col animate-slideInRight" onClick={e => e.stopPropagation()}>
                <div className="flex justify-between items-center mb-8 border-b border-slate-100 pb-4">
                   <h2 className="text-2xl font-black text-slate-800 tracking-tight">故事线存档</h2>
-                  <button onClick={onClose} className="text-slate-400 hover:text-slate-800 text-xl"><i className="fas fa-times"></i></button>
+                  <button onClick={onClose} className={`text-slate-400 hover:text-slate-800 text-xl ${flashTag === 'history-close' ? 'key-pressed' : ''}`}><i className="fas fa-times"></i></button>
                </div>
                <div className="flex-1 overflow-y-auto custom-scroll space-y-6">
                   {history.length === 0 ? <div className="text-slate-300 text-center py-20 italic">尚未开启故事...</div> :

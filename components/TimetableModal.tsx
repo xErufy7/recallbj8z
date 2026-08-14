@@ -5,10 +5,12 @@ import { SCHEDULE_SLOTS, TimeSlotId, BLOCKED_SLOTS_MAP } from '../data/timetable
 
 interface Props {
     state: GameState;
+    /** 键盘按压标记（App 的 keyFlash），命中时按钮呈按下状态 */
+    flashTag?: string | null;
     onConfirm: (schedule: Record<string, string>) => void;
 }
 
-const TimetableModal: React.FC<Props> = ({ state, onConfirm }) => {
+const TimetableModal: React.FC<Props> = ({ state, flashTag, onConfirm }) => {
     // Initialize with last week's schedule
 
     const availableActivities = WEEKEND_ACTIVITIES.filter(a => {
@@ -202,9 +204,9 @@ const TimetableModal: React.FC<Props> = ({ state, onConfirm }) => {
                         执行本周计划 <i className="fas fa-play ml-2"></i>
                     </button>
                 ) : (
-                    <button 
+                    <button
                         onClick={() => onConfirm(schedule)}
-                        className="w-full mt-4 md:mt-6 py-3 md:py-4 bg-slate-600 hover:bg-slate-700 text-white rounded-2xl font-black text-base md:text-lg shadow-lg transition-all active:scale-95"
+                        className={`w-full mt-4 md:mt-6 py-3 md:py-4 bg-slate-600 hover:bg-slate-700 text-white rounded-2xl font-black text-base md:text-lg shadow-lg transition-all active:scale-95 ${flashTag === 'schedule-close' ? 'key-pressed' : ''}`}
                     >
                         关闭 <i className="fas fa-times ml-2"></i>
                     </button>

@@ -5,10 +5,12 @@ import { getApiSettings, saveApiSettings } from '../lib/api';
 const DEFAULT_MODEL = "DeepSeek-v4-flash";
 
 interface Props {
+  /** 键盘按压标记（App 的 keyFlash），命中时按钮呈按下状态 */
+  flashTag?: string | null;
   onClose: () => void;
 }
 
-const ApiSettingsModal: React.FC<Props> = ({ onClose }) => {
+const ApiSettingsModal: React.FC<Props> = ({ flashTag, onClose }) => {
   const [settings, setSettings] = useState<ApiSettings>(getApiSettings);
   const [saved, setSaved] = useState(false);
 
@@ -38,7 +40,7 @@ const ApiSettingsModal: React.FC<Props> = ({ onClose }) => {
             </h2>
             <p className="text-xs text-slate-400 mt-1">配置自定义 API 以使用 AI_STORY 模式</p>
           </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 transition-colors">
+          <button onClick={onClose} className={`w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 transition-colors ${flashTag === 'settings-close' ? 'key-pressed' : ''}`}>
             <i className="fas fa-times"></i>
           </button>
         </div>

@@ -6,11 +6,13 @@ import { getShopPriceMultiplier } from '../data/utils';
 
 interface ShopModalProps {
     state: GameState;
+    /** 键盘按压标记（App 的 keyFlash），命中时按钮呈按下状态 */
+    flashTag?: string | null;
     onClose: () => void;
     onPurchase: (item: Item, actualPrice: number) => void;
 }
 
-const ShopModal: React.FC<ShopModalProps> = ({ state, onClose, onPurchase }) => {
+const ShopModal: React.FC<ShopModalProps> = ({ state, flashTag, onClose, onPurchase }) => {
     return (
         <div className="fixed inset-0 z-[100] bg-slate-900/90 backdrop-blur-md flex items-center justify-center p-4 md:p-8 animate-fadeIn" onClick={onClose}>
             <div className="bg-white rounded-3xl w-full max-w-2xl h-[90vh] md:h-auto md:max-h-[85vh] flex flex-col shadow-2xl overflow-hidden relative" onClick={e => e.stopPropagation()}>
@@ -19,7 +21,7 @@ const ShopModal: React.FC<ShopModalProps> = ({ state, onClose, onPurchase }) => 
                         <h2 className="text-2xl font-black text-slate-800">小卖部</h2>
                         <p className="text-sm text-slate-500">持有金钱: <span className="text-yellow-600 font-bold">{state.general.money}</span></p>
                     </div>
-                    <button onClick={onClose} className="w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 transition-colors">
+                    <button onClick={onClose} className={`w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 transition-colors ${flashTag === 'shop-close' ? 'key-pressed' : ''}`}>
                         <i className="fas fa-times"></i>
                     </button>
                 </div>

@@ -2,11 +2,13 @@
 import React from 'react';
 
 interface RetireConfirmModalProps {
+    /** 键盘按压标记（App 的 keyFlash），命中时按钮呈按下状态 */
+    flashTag?: string | null;
     onCancel: () => void;
     onConfirm: () => void;
 }
 
-const RetireConfirmModal: React.FC<RetireConfirmModalProps> = ({ onCancel, onConfirm }) => {
+const RetireConfirmModal: React.FC<RetireConfirmModalProps> = ({ flashTag, onCancel, onConfirm }) => {
     return (
         <div className="fixed inset-0 z-[110] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-6 animate-fadeIn" onClick={onCancel}>
             <div className="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl" onClick={e => e.stopPropagation()}>
@@ -16,8 +18,10 @@ const RetireConfirmModal: React.FC<RetireConfirmModalProps> = ({ onCancel, onCon
                 </div>
                 <p className="text-sm text-slate-500 mb-6">本局游戏将立即结束并结算成绩，无法撤销。</p>
                 <div className="flex gap-3">
-                    <button onClick={onCancel} className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-slate-500 font-bold text-sm hover:bg-slate-50 transition-colors">再想想</button>
-                    <button onClick={onConfirm} className="relative flex-1 px-4 py-2.5 rounded-xl bg-rose-600 text-white font-bold text-sm hover:bg-rose-700 transition-colors">确认退休<span className="absolute bottom-1 right-2.5 text-sm font-black opacity-40 hidden md:inline">⏎</span></button>
+                    <button onClick={onCancel} className={`relative flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-slate-500 font-bold text-sm hover:bg-slate-50 transition-colors ${flashTag === 'retire-cancel' ? 'key-pressed' : ''}`}>
+                        再想想<span className="absolute bottom-1 right-2.5 text-[10px] font-black opacity-40 hidden md:inline">Esc</span>
+                    </button>
+                    <button onClick={onConfirm} className={`relative flex-1 px-4 py-2.5 rounded-xl bg-rose-600 text-white font-bold text-sm hover:bg-rose-700 transition-colors ${flashTag === 'retire-confirm' ? 'key-pressed' : ''}`}>确认退休<span className="absolute bottom-1 right-2.5 text-sm font-black opacity-40 hidden md:inline">⏎</span></button>
                 </div>
             </div>
         </div>

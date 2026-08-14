@@ -14,7 +14,7 @@ export interface ReportCardData {
 
 const FONT = "'Noto Sans SC','Microsoft YaHei',system-ui,sans-serif";
 
-const RANK_COLORS: Record<string, { main: string; light: string; label: string }> = {
+export const RANK_COLORS: Record<string, { main: string; light: string; label: string }> = {
     SSS: { main: '#b45309', light: '#fef3c7', label: 'GOLD' },
     SS:  { main: '#64748b', light: '#f1f5f9', label: 'SILVER' },
     S:   { main: '#b45309', light: '#ffedd5', label: 'BRONZE' },

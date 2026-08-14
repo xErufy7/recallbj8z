@@ -2,10 +2,12 @@
 import React, { useState } from 'react';
 
 interface RealityGuideModalProps {
+    /** 键盘按压标记（App 的 keyFlash），命中时按钮呈按下状态 */
+    flashTag?: string | null;
     onClose: () => void;
 }
 
-const RealityGuideModal: React.FC<RealityGuideModalProps> = ({ onClose }) => {
+const RealityGuideModal: React.FC<RealityGuideModalProps> = ({ flashTag, onClose }) => {
     const [tab, setTab] = useState<'STATS' | 'MECHANICS' | 'EXAMS'>('STATS');
 
     return (
@@ -17,7 +19,7 @@ const RealityGuideModal: React.FC<RealityGuideModalProps> = ({ onClose }) => {
                     <h2 className="text-xl font-black text-slate-800 flex items-center gap-2">
                         <i className="fas fa-book-reader text-indigo-600"></i> 现实模式生存手册
                     </h2>
-                    <button onClick={onClose} className="w-8 h-8 rounded-full hover:bg-slate-200 flex items-center justify-center text-slate-500 transition-colors">
+                    <button onClick={onClose} className={`w-8 h-8 rounded-full hover:bg-slate-200 flex items-center justify-center text-slate-500 transition-colors ${flashTag === 'reality-close' ? 'key-pressed' : ''}`}>
                         <i className="fas fa-times"></i>
                     </button>
                 </div>

@@ -3,6 +3,8 @@ import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { getLeaderboard, LeaderboardEntry, getUseNewDb, filterLeaderboardEntry } from '../lib/supabase';
 
 interface LeaderboardModalProps {
+    /** 键盘按压标记（App 的 keyFlash），命中时按钮呈按下状态 */
+    flashTag?: string | null;
     onClose: () => void;
     initialChallengeId?: string | null;
 }
@@ -10,11 +12,16 @@ interface LeaderboardModalProps {
 const PAGE_SIZE = 100;
 const SUPABASE_BATCH = 100;
 
+/** 本机玩家名（上传分数时记住的），用于高亮自己的成绩 */
+const getMyName = () => {
+    try { return (localStorage.getItem('bj8z_player_name') || '').trim(); } catch { return ''; }
+};
+
 function filterBatch(data: any[]): LeaderboardEntry[] {
     return data.filter(filterLeaderboardEntry);
 }
 
-const LeaderboardModal: React.FC<LeaderboardModalProps> = ({ onClose, initialChallengeId }) => {
+const LeaderboardModal: React.FC<LeaderboardModalProps> = ({ flashTag, onClose, initialChallengeId }) => {
     const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
     const [loading, setLoading] = useState(true);
     const [loadingMore, setLoadingMore] = useState(false);
@@ -24,6 +31,7 @@ const LeaderboardModal: React.FC<LeaderboardModalProps> = ({ onClose, initialCha
     const [retryTick, setRetryTick] = useState(0);
     const offsetRef = useRef(0);
     const loadingMoreRef = useRef(false);
+    const [myName] = useState(getMyName);
 
     const doFetch = useCallback(async (currentFilter: string | null, fromOffset: number, targetCount: number) => {
         const result: LeaderboardEntry[] = [];
@@ -106,7 +114,7 @@ const LeaderboardModal: React.FC<LeaderboardModalProps> = ({ onClose, initialCha
                     <h2 className="text-xl md:text-3xl font-black text-slate-800 flex items-center gap-3">
                         <i className="fas fa-trophy text-yellow-500"></i> 八中名人堂
                     </h2>
-                    <button onClick={onClose} className="px-3 py-2 rounded-xl bg-white border border-slate-200 hover:border-slate-300 text-slate-500 hover:text-slate-600 flex items-center gap-1.5 text-xs font-bold transition-colors">
+                    <button onClick={onClose} className={`px-3 py-2 rounded-xl bg-white border border-slate-200 hover:border-slate-300 text-slate-500 hover:text-slate-600 flex items-center gap-1.5 text-xs font-bold transition-colors ${flashTag === 'leaderboard-close' ? 'key-pressed' : ''}`}>
                         <i className="fas fa-times"></i> 关闭
                     </button>
                 </div>
@@ -140,13 +148,16 @@ const LeaderboardModal: React.FC<LeaderboardModalProps> = ({ onClose, initialCha
                             </div>
                         ) : (
                             <>
-                                {entries.map((entry, idx) => (
-                                    <div key={entry.id} className="grid grid-cols-12 gap-2 py-3 hover:bg-white rounded-xl transition-colors text-sm border-b border-slate-100 last:border-0 group">
+                                {entries.map((entry, idx) => {
+                                    const isMe = myName !== '' && entry.player_name.trim() === myName;
+                                    return (
+                                    <div key={entry.id} className={`grid grid-cols-12 gap-2 py-3 hover:bg-white rounded-xl transition-colors text-sm border-b border-slate-100 last:border-0 group ${isMe ? 'bg-indigo-100/70 hover:bg-indigo-100' : ''}`}>
                                         <div className="col-span-1 text-center font-black text-slate-300 group-hover:text-indigo-500">
                                             {idx + 1}
                                         </div>
                                         <div className="col-span-7 md:col-span-3 text-center font-bold text-slate-700 truncate min-w-0">
                                             {entry.player_name}
+                                            {isMe && <span className="ml-1.5 px-1.5 py-0.5 bg-indigo-600 text-white rounded-md text-[9px] font-black align-middle">我</span>}
                                         </div>
                                         <div className="col-span-2 text-center font-mono font-bold text-indigo-600 text-xs md:text-sm">
                                             {Math.floor(entry.score)}
@@ -161,7 +172,8 @@ const LeaderboardModal: React.FC<LeaderboardModalProps> = ({ onClose, initialCha
                                             {new Date(entry.created_at).toLocaleDateString()}
                                         </div>
                                     </div>
-                                ))}
+                                    );
+                                })}
                                 {(hasMore || loadingMore) && (
                                     <div className="flex items-center justify-center py-4 text-slate-400">
                                         <i className="fas fa-spinner fa-spin text-sm mr-2"></i> 加载中...
