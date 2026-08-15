@@ -3,6 +3,9 @@ import { Phase } from '../../types';
 
 export const ALL_OI_PHASES = [Phase.CSP_EXAM, Phase.NOIP_EXAM, Phase.WC_EXAM, Phase.PROVINCIAL_EXAM, Phase.APIO_EXAM, Phase.NOI_EXAM];
 
+/** 所有考试阶段（含文化课考试与 OI 竞赛）。考试进行中不落存档，防止读档重考刷分 */
+export const EXAM_PHASES = [Phase.PLACEMENT_EXAM, Phase.MIDTERM_EXAM, Phase.FINAL_EXAM, Phase.MIDTERM_EXAM_2, Phase.FINAL_EXAM_2, ...ALL_OI_PHASES];
+
 /** 根据总分估算年级排名（正态分布近似） */
 export const calculateRank = (score: number, phase: Phase) => {
     if (ALL_OI_PHASES.includes(phase)) return -1;

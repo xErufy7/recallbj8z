@@ -1,6 +1,7 @@
 
-import { GameState, GameEvent, SubjectKey, SUBJECT_NAMES, OIStats } from '../types';
-import { modifySub, modifyOI, getEffectiveEfficiency } from './utils';
+import { GameState, GameEvent, SubjectKey, OIStats } from '../types';
+import { SUBJECT_NAMES } from './constants';
+import { modifySub, getEffectiveEfficiency, applyStatDeltas, OI_CITY_STAT_OPTS } from './utils';
 import { STATUSES } from './mechanics';
 import { CHAINED_EVENTS } from './event_defs';
 
@@ -31,31 +32,10 @@ const buildParsedOiEvents = () => {
     type: (e.type || 'neutral') as GameEvent['type'],
     choices: e.choices.map((c) => ({
         text: c.text,
-        action: (s: GameState) => {
-            const nextGen = { ...s.general };
-            let bonusOI: Partial<OIStats> = {};
-            if (c.effect) {
-                if (c.effect.efficiency) nextGen.efficiency = Math.min(100, Math.max(0, nextGen.efficiency + c.effect.efficiency));
-                if (c.effect.health) nextGen.health = Math.min(100, Math.max(0, nextGen.health + c.effect.health));
-                if (c.effect.mindset) nextGen.mindset = Math.min(100, Math.max(0, nextGen.mindset + c.effect.mindset));
-                if (c.effect.experience) nextGen.experience = Math.min(999, Math.max(0, nextGen.experience + c.effect.experience));
-                if (c.effect.luck) nextGen.luck = Math.min(100, Math.max(0, nextGen.luck + c.effect.luck));
-                if (c.effect.money) nextGen.money = nextGen.money + c.effect.money; // Allow negative (debt system)
-                if (c.effect.romance) nextGen.romance = Math.min(100, Math.max(0, nextGen.romance + c.effect.romance));
-                
-                if (c.effect.oi_dp) bonusOI.dp = c.effect.oi_dp;
-                if (c.effect.oi_ds) bonusOI.ds = c.effect.oi_ds;
-                if (c.effect.oi_graph) bonusOI.graph = c.effect.oi_graph;
-                if (c.effect.oi_string) bonusOI.string = c.effect.oi_string;
-                if (c.effect.oi_math) bonusOI.math = c.effect.oi_math;
-                if (c.effect.oi_misc) bonusOI.misc = c.effect.oi_misc;
-            }
-            return {
-                general: nextGen,
-                oiStats: modifyOI(s, bonusOI),
-                log: c.resultDescription ? [...s.log, { message: c.resultDescription, type: 'info', timestamp: Date.now() }] : s.log
-            };
-        }
+        action: (s: GameState) => ({
+            ...applyStatDeltas(s, c.effect || {}, OI_CITY_STAT_OPTS),
+            log: c.resultDescription ? [...s.log, { message: c.resultDescription, type: 'info', timestamp: Date.now() }] : s.log
+        })
     }))
     }));
 };
@@ -77,7 +57,7 @@ export const ensureOiEvents = (): Promise<void> => {
     return oiLoadPromise;
 };
 
-export const generateOIRandomEvent = (state: GameState): GameEvent => {
+const generateOIRandomEvent = (state: GameState): GameEvent => {
     // 理论上 ensureOiEvents 已先加载；兜底返回占位事件
     if (!oiEventsData || parsedOiEvents.length === 0) {
         return {

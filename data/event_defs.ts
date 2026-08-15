@@ -126,72 +126,22 @@ export const BASE_EVENTS: Record<string, GameEvent> = {
         title: '债主上门',
         description: '因为你的负债过高，几个高大的学生拦住了你的去路...',
         type: 'negative',
+        // RANDOM 类型才会记入 recentEventIds 冷却，防止债主每周连环上门形成死亡螺旋
+        triggerType: 'RANDOM',
         choices: [
-            { 
-                text: '还钱 (金钱归零)', 
-                action: (s) => ({ 
+            {
+                text: '还钱 (金钱归零)',
+                action: (s) => ({
                     general: { ...s.general, money: 0, mindset: s.general.mindset - 40, health: s.general.health - 20, romance: s.general.romance - 10 },
                     log: [...s.log, { message: "你被迫还清了所有债务（虽然本来就是负的）。", type: 'warning', timestamp: Date.now() }]
-                }) 
+                })
             },
-            { 
-                text: '逃跑', 
-                action: (s) => ({ 
+            {
+                text: '逃跑',
+                action: (s) => ({
                     general: { ...s.general, health: s.general.health - 20, mindset: s.general.mindset - 10 },
                     log: [...s.log, { message: "你没跑掉，被揍了一顿。", type: 'error', timestamp: Date.now() }]
-                }) 
-            }
-        ]
-    },
-    'exam_fail_talk': {
-        id: 'exam_fail_talk',
-        title: '考后谈话',
-        description: '因为考试成绩太差，班主任找你谈话。',
-        type: 'negative',
-        choices: [
-            { 
-                text: '虚心接受', 
-                action: (s) => ({ 
-                    general: { ...s.general, mindset: s.general.mindset + 5 } 
-                }) 
-            },
-            { 
-                text: '左耳进右耳出', 
-                action: (s) => ({ 
-                    general: { ...s.general, mindset: s.general.mindset - 2 } 
-                }) 
-            }
-        ]
-    },
-    'evt_april_fools': {
-        id: 'evt_april_fools',
-        title: '愚人节的玩笑',
-        description: '今天是4月1日。班长在黑板上写下：“今天下午放假半天”，但你总觉得哪里不对劲...',
-        type: 'neutral',
-        choices: [
-            { 
-                text: '不管了，收拾书包！', 
-                action: (s) => {
-                    const fooled = Math.random() < 0.8;
-                    if (fooled) {
-                        return {
-                            general: { ...s.general, mindset: s.general.mindset - 15, health: s.general.health + 2 },
-                            log: [...s.log, { message: "你真的背着书包走出了校门，结果被保安拦住，还被班主任叫去办公室喝茶... 愚人节快乐！", type: 'warning', timestamp: Date.now() }]
-                        };
-                    } else {
-                        return {
-                            general: { ...s.general, mindset: s.general.mindset + 10, luck: s.general.luck + 5 },
-                            log: [...s.log, { message: "你刚走到门口就发现年级主任在巡视，果断折返！躲过一劫。", type: 'success', timestamp: Date.now() }]
-                        };
-                    }
-                }
-            },
-            { 
-                text: '哼，这种小把戏骗不了我', 
-                action: (s) => ({ 
-                    general: { ...s.general, efficiency: s.general.efficiency + 2 },
-                    log: [...s.log, { message: "你安静地坐在座位上刷题，看着其他被骗的同学哈哈大笑。", type: 'info', timestamp: Date.now() }]
-                }) 
+                })
             }
         ]
     }

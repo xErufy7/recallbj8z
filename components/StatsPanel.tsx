@@ -1,6 +1,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
-import { GameState, SUBJECT_NAMES, SubjectKey } from '../types';
+import { GameState, SubjectKey } from '../types';
+import { SUBJECT_NAMES } from '../data/constants';
 import { getEffectiveEfficiency } from '../data/utils';
 
 interface StatsPanelProps {
@@ -231,4 +232,4 @@ const StatMini = ({ icon, label, value, color, hideValue }: { icon: string, labe
   );
 };
 
-export default StatsPanel;
+export default React.memo(StatsPanel);

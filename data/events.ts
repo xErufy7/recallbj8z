@@ -3,14 +3,10 @@ import { STUDY_TOUR_EVENTS } from "./events_study_tour";
 import { OI_EVENTS } from "./events_oi";
 import { ROMANCE_EVENTS } from "./events_romance";
 
-import { GameState, GameEvent, SubjectKey, SUBJECT_NAMES, OIStats, Phase } from '../types';
+import { GameState, GameEvent, SubjectKey, OIStats, Phase } from '../types';
 import { modifySub, modifyOI, mapAiEventToGameEvent } from './utils';
 import { STATUSES } from './mechanics';
 import { CHAINED_EVENTS, SCIENCE_FESTIVAL_EVENT, NEW_YEAR_GALA_EVENT } from './event_defs';
-import AI_EVENTS from './ai_generated_events.json';
-
-export * from './event_defs';
-export * from './event_generators';
 
 const SUMMER_EVENTS_RAW: GameEvent[] = [
     {
@@ -614,20 +610,30 @@ const SEMESTER_1_EVENTS_RAW: GameEvent[] = [
     }
 ];
 
-const PARSED_AI_EVENTS = (AI_EVENTS as any[]).reduce((acc: GameEvent[], e: any) => {
-    if (e.childrens && Array.isArray(e.childrens)) {
-        acc.push(...e.childrens.map(mapAiEventToGameEvent));
-    } else if (e.choices) {
-        acc.push(mapAiEventToGameEvent(e));
+/** AI 事件池（ai_generated_events.json，约 450KB）懒加载：进入学期时才动态加载，避免打进主包并在启动时全量解析 */
+let aiEventsPromise: Promise<GameEvent[]> | null = null;
+export const ensureAiEvents = (): Promise<GameEvent[]> => {
+    if (!aiEventsPromise) {
+        aiEventsPromise = import('./ai_generated_events.json').then((m: any) => parseAiEventsJson(m.default));
     }
-    return acc;
-}, []);
+    return aiEventsPromise;
+};
+
+const parseAiEventsJson = (json: any): GameEvent[] =>
+    (json as any[]).reduce((acc: GameEvent[], e: any) => {
+        if (e.childrens && Array.isArray(e.childrens)) {
+            acc.push(...e.childrens.map(mapAiEventToGameEvent));
+        } else if (e.choices) {
+            acc.push(mapAiEventToGameEvent(e));
+        }
+        return acc;
+    }, []);
 
 export const PHASE_EVENTS: Record<Phase, GameEvent[]> = {
     [Phase.INIT]: [],
     [Phase.SUMMER]: SUMMER_EVENTS_RAW,
     [Phase.MILITARY]: MILITARY_EVENTS_RAW,
-    [Phase.SEMESTER_1]: [...SEMESTER_1_EVENTS_RAW, ...PARSED_AI_EVENTS, ...ROMANCE_EVENTS],
+    [Phase.SEMESTER_1]: [...SEMESTER_1_EVENTS_RAW, ...ROMANCE_EVENTS],
     [Phase.SELECTION]: [],
     [Phase.PLACEMENT_EXAM]: [],
     [Phase.MIDTERM_EXAM]: [],
@@ -640,7 +646,7 @@ export const PHASE_EVENTS: Record<Phase, GameEvent[]> = {
     [Phase.ENDING]: [],
     [Phase.WITHDRAWAL]: [],
     [Phase.WINTER_BREAK]: [...WINTER_BREAK_EVENTS, ...OI_EVENTS, ...ROMANCE_EVENTS],
-    [Phase.SEMESTER_2]: [...SEMESTER_2_EVENTS, ...STUDY_TOUR_EVENTS, ...OI_EVENTS, ...PARSED_AI_EVENTS, ...ROMANCE_EVENTS],
+    [Phase.SEMESTER_2]: [...SEMESTER_2_EVENTS, ...STUDY_TOUR_EVENTS, ...OI_EVENTS, ...ROMANCE_EVENTS],
     [Phase.SUMMER_BREAK]: [...OI_EVENTS, ...ROMANCE_EVENTS],
     [Phase.WC_EXAM]: [],
     [Phase.PROVINCIAL_EXAM]: [],

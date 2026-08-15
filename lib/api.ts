@@ -1,5 +1,6 @@
 
-import { GameState, SUBJECT_NAMES, SubjectKey, ApiSettings, Phase, AiGeneratedEvent } from '../types';
+import { GameState, SubjectKey, ApiSettings, Phase, AiGeneratedEvent } from '../types';
+import { SUBJECT_NAMES } from '../data/constants';
 
 const STORAGE_KEY_API = 'bj8z_api_settings';
 
@@ -147,11 +148,6 @@ export const generateBatchGameEvents = async (state: GameState): Promise<AiGener
 
   const apiKey = settings.apiKey;
 
-  if (!apiKey) {
-    console.error("API Key is missing!");
-    throw new Error("API Key is missing. 请在设置中配置 API Key。");
-  }
-
   const systemPrompt = buildSystemPrompt(
     state,
     settings.customPrompt
@@ -159,6 +155,11 @@ export const generateBatchGameEvents = async (state: GameState): Promise<AiGener
 
   let timeoutId: ReturnType<typeof setTimeout>;
   try {
+    // Key 缺失也走兜底事件（而不是抛错让游戏卡死），提示玩家去配置
+    if (!apiKey) {
+      throw new Error("API Key is missing. 请在设置中配置 API Key。");
+    }
+
     const controller = new AbortController();
     timeoutId = setTimeout(() => controller.abort(), 30000);
     const response = await fetch(apiUrl, {

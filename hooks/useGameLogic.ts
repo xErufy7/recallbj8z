@@ -1,22 +1,24 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import {
-    GameState, Difficulty, GeneralStats, Talent, Challenge,
+    GameState, Difficulty, GeneralStats, Talent,
     Phase, GameStatus, SubjectKey, GameEvent,
-    EventChoice, ExamResult, ClubId, Item, WeekendActivity, Project, GameLogEntry, StoryEntry
+    EventChoice, ExamResult, ClubId, Item, Project, GameLogEntry, StoryEntry
 } from '../types';
 import { DIFFICULTY_PRESETS } from '../data/constants';
-import { PHASE_EVENTS, BASE_EVENTS, CHAINED_EVENTS, generateSummerLifeEvent, generateStudyEvent, generateOIEvent, generateRandomFlavorEvent, ensureOiEvents } from '../data/events';
+import { PHASE_EVENTS, ensureAiEvents } from '../data/events';
+import { BASE_EVENTS, CHAINED_EVENTS } from '../data/event_defs';
+import { generateSummerLifeEvent, generateStudyEvent, generateOIEvent, generateRandomFlavorEvent, ensureOiEvents } from '../data/event_generators';
 import { WEEKEND_ACTIVITIES, STATUSES, ACHIEVEMENTS } from '../data/mechanics';
-import { getShopPriceMultiplier, hasNoDebtEvents, getRomanceEventMultiplier, applyStatCaps } from '../data/utils';
+import { getShopPriceMultiplier, hasNoDebtEvents, getRomanceEventMultiplier, applyStatCaps, mapAiEventToGameEvent } from '../data/utils';
 import { getRandomWorldContext, CHARACTER_TEMPLATES } from '../data/world_context';
 import { getHistoricalEventsForWeek, loadCityEvents } from '../data/historical_events';
 import { OI_EVENTS_POOL } from '../data/events_oi';
-import { PHASE_NAMES, getNextPhaseInfo } from './gameLogic/phases';
+import { PHASE_NAMES, getNextPhaseInfo, PHASE_FLOW, getPhaseResultInfo } from './gameLogic/phases';
 import { getInitialSubjects, getInitialOIStats, getInitialGameState } from './gameLogic/initialState';
-import { getSaveKey, getAllSaveKeys, hasAnySave, getGlobalAchievements, buildSaveData, stampNewLogWeeks, ACHIEVEMENTS_KEY, getLatestSaveKey } from './gameLogic/storage';
+import { getSaveKey, hasAnySave, getGlobalAchievements, buildSaveData, stampNewLogWeeks, ACHIEVEMENTS_KEY, getLatestSaveKey, normalizeLoadedState, MAX_LOG_ENTRIES } from './gameLogic/storage';
 import { calculateWeeklyUpdates } from './gameLogic/weekly';
-import { calculateRank, ALL_OI_PHASES } from './gameLogic/exams';
+import { calculateRank, ALL_OI_PHASES, EXAM_PHASES } from './gameLogic/exams';
 import { fetchAiEvents } from './gameLogic/ai';
 import { applyTalentPassivesToUpdates } from './gameLogic/passives';
 
@@ -37,8 +39,16 @@ export const useGameLogic = () => {
     const achievementTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const achievementPopupTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const resumeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    // 最新 state 镜像：供异步回调/键盘事件读取，避免陈旧闭包
+    const stateRef = useRef(state);
+    stateRef.current = state;
+    // AI 生成令牌：等待期间加载存档/重开新局则使本次生成结果作废
+    const aiGenerationTokenRef = useRef(0);
 
-    const [weekendResult, setWeekendResult] = useState<{ activity: WeekendActivity; resultText: string; diff: string[] } | null>(null);
+    /** 日志截断：单局日志保留最近 MAX_LOG_ENTRIES 条，防止存档与渲染负担无限膨胀 */
+    const capLog = (log: GameLogEntry[]): GameLogEntry[] =>
+        log.length > MAX_LOG_ENTRIES ? log.slice(-MAX_LOG_ENTRIES) : log;
+
     const [hasSave, setHasSave] = useState(false);
     // 游戏速度：自动推进的事件间隔（快/正常/慢），localStorage 持久化
     const [gameSpeed, setGameSpeedState] = useState<GameSpeed>(() => {
@@ -58,18 +68,19 @@ export const useGameLogic = () => {
     }, []);
 
     /** 删除存档后刷新 hasSave 状态（存档管理界面用） */
-    const refreshHasSave = () => setHasSave(hasAnySave());
+    const refreshHasSave = useCallback(() => setHasSave(hasAnySave()), []);
 
     useEffect(() => {
         setHasSave(hasAnySave());
     }, []);
 
-    // Auto-save on week/phase change
+    // Auto-save on week/phase change（考试进行中不落盘：读档会重考刷分）
     useEffect(() => {
+        if (EXAM_PHASES.includes(state.phase) && !state.popupExamResult) return;
         if (state.phase !== Phase.INIT && state.phase !== Phase.ENDING && state.phase !== Phase.SELECTION && state.phase !== Phase.WITHDRAWAL) {
             autoSave(state);
         }
-    }, [state.week, state.phase]);
+    }, [state.week, state.phase, state.popupExamResult]);
 
     const advancePhase = useCallback(() => {
         setState(prev => {
@@ -80,8 +91,8 @@ export const useGameLogic = () => {
                 phase: nextPhase,
                 week: 1,
                 totalWeeksInPhase: weeks,
-                isPlaying: nextPhase !== Phase.ENDING && nextPhase !== Phase.SELECTION && nextPhase !== Phase.FINAL_EXAM && nextPhase !== Phase.FINAL_EXAM_2 && nextPhase !== Phase.PLACEMENT_EXAM,
-                log: [...prev.log, { message: `进入新阶段: ${PHASE_NAMES[nextPhase] || nextPhase}`, type: 'info', timestamp: Date.now(), week: 1 }],
+                isPlaying: nextPhase !== Phase.ENDING && nextPhase !== Phase.SELECTION && !EXAM_PHASES.includes(nextPhase),
+                log: capLog([...prev.log, { message: `进入新阶段: ${PHASE_NAMES[nextPhase] || nextPhase}`, type: 'info', timestamp: Date.now(), week: 1 }]),
                 aiBuffer: []
             };
         });
@@ -89,7 +100,7 @@ export const useGameLogic = () => {
 
     // --- Achievement Check Effect ---
     useEffect(() => {
-        const isEligibleMode = state.difficulty === 'REALITY' || !!state.activeChallengeId;
+        const isEligibleMode = state.difficulty === 'REALITY';
         if (!isEligibleMode) return;
 
         const newUnlocked: string[] = [];
@@ -137,11 +148,11 @@ export const useGameLogic = () => {
             if (achievementPopupTimerRef.current) clearTimeout(achievementPopupTimerRef.current);
             achievementPopupTimerRef.current = setTimeout(() => setState(prev => ({ ...prev, achievementPopup: null })), 3000);
         }
-    }, [state.general, state.sleepCount, state.rejectionCount, state.examResult, state.difficulty, state.unlockedAchievements, state.phase, state.activeChallengeId]);
+    }, [state.general, state.sleepCount, state.rejectionCount, state.examResult, state.difficulty, state.unlockedAchievements, state.phase, state.week, state.flags]);
 
     // --- MAIN GAME LOOP ---
     useEffect(() => {
-        if (!state.isPlaying || state.currentEvent || state.isWeekend || state.weekendProcessed || state.isAiGenerating) return;
+        if (!state.isPlaying || state.currentEvent || state.isWeekend || state.isAiGenerating) return;
 
         const processTurn = async () => {
             // Check Project Deadlines
@@ -167,7 +178,7 @@ export const useGameLogic = () => {
                     }
                     logs.push({ message: `【课题失败】${p.title} 截止日期已过，未能完成。`, type: 'error', timestamp: Date.now(), week: state.week });
                 });
-                setState(prev => ({ ...prev, ...updates, log: [...prev.log, ...logs] }));
+                setState(prev => ({ ...prev, ...updates, log: capLog([...prev.log, ...logs]) }));
                 return;
             }
 
@@ -184,27 +195,32 @@ export const useGameLogic = () => {
                 return;
             }
 
-            // 2. Fixed Triggers (Exams)
-            if (state.phase === Phase.SEMESTER_1 && state.week === 7 && state.competition === 'OI' && !state.triggeredEvents.includes('csp_exam_trigger')) {
-                setState(prev => ({ ...prev, phase: Phase.CSP_EXAM, isPlaying: false, triggeredEvents: [...prev.triggeredEvents, 'csp_exam_trigger'] }));
-                return;
-            }
-            if (state.phase === Phase.SEMESTER_2 && state.week === 11 && state.midtermRank !== 'SEMESTER_2_DONE') {
-                setState(prev => ({ ...prev, phase: Phase.MIDTERM_EXAM_2, isPlaying: false }));
-                return;
-            }
-            if (state.phase === Phase.SEMESTER_1 && state.week === 11 && state.midtermRank !== 'SEMESTER_1_DONE') {
-                setState(prev => ({ ...prev, phase: Phase.MIDTERM_EXAM, isPlaying: false }));
-                return;
-            }
-            if (state.phase === Phase.SEMESTER_1 && state.week === 13 && state.competition === 'OI' && !state.triggeredEvents.includes('noip_exam_trigger')) {
-                setState(prev => ({ ...prev, phase: Phase.NOIP_EXAM, isPlaying: false, triggeredEvents: [...prev.triggeredEvents, 'noip_exam_trigger'] }));
-                return;
+            // 2. Fixed Triggers (Exams) — 由 PHASE_FLOW.examTriggers 数据驱动
+            const examTriggers = PHASE_FLOW[state.phase]?.examTriggers || [];
+            for (const trigger of examTriggers) {
+                if (state.week === trigger.week && (!trigger.condition || trigger.condition(state))) {
+                    setState(prev => ({
+                        ...prev,
+                        phase: trigger.phase,
+                        isPlaying: false,
+                        triggeredEvents: trigger.markTriggered ? [...prev.triggeredEvents, trigger.markTriggered] : prev.triggeredEvents
+                    }));
+                    return;
+                }
             }
 
             // 3. Generate Week's Events
             let weekEvents: GameEvent[] = [];
-            const phasePool = PHASE_EVENTS[state.phase] || [];
+            let phasePool = PHASE_EVENTS[state.phase] || [];
+            // AI 事件池懒加载：学期阶段首次推进周时动态加载并并入事件池
+            if (state.phase === Phase.SEMESTER_1 || state.phase === Phase.SEMESTER_2) {
+                try {
+                    phasePool = [...phasePool, ...(await ensureAiEvents())];
+                } catch (e) {
+                    // chunk 加载失败（如离线且未缓存）：降级为标准事件池，游戏继续
+                    console.error('AI 事件池加载失败，本周使用标准事件池', e);
+                }
+            }
 
             // Historical Events
             const historicalEvents = getHistoricalEventsForWeek(state);
@@ -242,9 +258,12 @@ export const useGameLogic = () => {
                     applyWeeklyUpdates(nextAiEvent, remainingBuffer);
                     return;
                 }
+                const genToken = aiGenerationTokenRef.current;
                 setState(prev => ({ ...prev, isAiGenerating: true, isPlaying: false }));
                 try {
-                    const aiEvents = await fetchAiEvents(state);
+                    const aiEvents = await fetchAiEvents(stateRef.current);
+                    // 等待期间加载了存档或重开新局：丢弃本次过期结果
+                    if (genToken !== aiGenerationTokenRef.current) return;
                     if (aiEvents.length > 0) {
                         const [first, ...rest] = aiEvents;
                         setState(prev => {
@@ -264,8 +283,19 @@ export const useGameLogic = () => {
                     }
                     setState(prev => ({ ...prev, isAiGenerating: false }));
                 } catch (e) {
-                    console.error("Fallback to standard events", e);
-                    setState(prev => ({ ...prev, isAiGenerating: false }));
+                    console.error("AI 事件生成异常，降级为本地兜底事件", e);
+                    if (genToken !== aiGenerationTokenRef.current) return;
+                    // 防御性兜底：即使 api.ts 未拦住意外错误，也保证玩家有事件可点、游戏不卡死
+                    const fallback = mapAiEventToGameEvent({
+                        title: '灵感枯竭',
+                        description: 'AI 事件生成失败，本周没有特别的事情发生。可在设置中检查 API 配置。',
+                        type: 'neutral',
+                        choices: [
+                            { text: '继续', resultDescription: '日子还得过。', effect: {} },
+                            { text: '重试', resultDescription: '再试一次，重新生成本周事件。', effect: {}, retry: true }
+                        ]
+                    });
+                    setState(prev => ({ ...prev, isAiGenerating: false, isPlaying: false, currentEvent: fallback }));
                 }
             }
 
@@ -334,17 +364,13 @@ export const useGameLogic = () => {
                             else weekEvents.push(generateStudyEvent(state));
                         }
                     }
-                    if (state.flags?.joined_evening_study && Math.random() < 0.5) {
-                        const eveningEvents = validRandoms.filter(e => e.id.includes('evening_'));
-                        if (eveningEvents.length > 0) weekEvents.push(eveningEvents[Math.floor(Math.random() * eveningEvents.length)]);
-                    }
                 } else {
                     weekEvents.push(Math.random() < 0.7 ? generateStudyEvent(state) : generateRandomFlavorEvent(state));
                 }
             }
 
             const eventsToMark = weekEvents
-                .filter(e => (e.once || e.triggerType === 'FIXED') && e.id !== 'debt_collection')
+                .filter(e => e.once || e.triggerType === 'FIXED')
                 .map(e => e.id);
 
             const [first, ...rest] = weekEvents;
@@ -379,7 +405,7 @@ export const useGameLogic = () => {
                     currentEvent: null,
                     eventQueue: [],
                     isPlaying: false,
-                    log: [...prev.log, { message: '【猝死】你的健康值降到了0以下，身体再也承受不住了...游戏结束。', type: 'error', timestamp: Date.now(), week: prev.week }]
+                    log: capLog([...prev.log, { message: '【猝死】你的健康值降到了0以下，身体再也承受不住了...游戏结束。', type: 'error', timestamp: Date.now(), week: prev.week }])
                 };
             }
 
@@ -395,7 +421,7 @@ export const useGameLogic = () => {
                 else if (avgLevel < 45) feedback = '知识体系逐渐成形，解题时越来越有感觉。';
                 else if (avgLevel < 70) feedback = '你已经进入了高分段，各科都有不错的积累。';
                 else feedback = '你的学识已经超出了高中范围，开始思考更深层的问题。';
-                weeklyLog = [...weeklyLog, { message: `📋 第${prev.week}周学习小结：${feedback}`, type: 'info', timestamp: Date.now(), week: prev.week }];
+                weeklyLog = capLog([...weeklyLog, { message: `📋 第${prev.week}周学习小结：${feedback}`, type: 'info', timestamp: Date.now(), week: prev.week }]);
             }
 
             return {
@@ -417,7 +443,7 @@ export const useGameLogic = () => {
     };
 
     const startWeekend = () => {
-        if (state.phase === Phase.ENDING || state.phase === Phase.WITHDRAWAL) return;
+        if (stateRef.current.phase === Phase.ENDING || stateRef.current.phase === Phase.WITHDRAWAL) return;
         setState(prev => {
             let availableIds = undefined;
             if (prev.difficulty === 'REALITY') {
@@ -436,7 +462,6 @@ export const useGameLogic = () => {
                 eventResult: null,
                 isWeekend: true,
                 isPlaying: false,
-                weekendActionPoints: 1,
                 availableWeekendActivityIds: availableIds
             };
         });
@@ -452,13 +477,21 @@ export const useGameLogic = () => {
         }
     };
 
-    const saveGame = () => {
+    const saveGame = useCallback(() => {
+        const state = stateRef.current;
+        // 考试进行中无法存档：考试过程不支持恢复，落盘等于允许读档重考
+        if (EXAM_PHASES.includes(state.phase) && !state.popupExamResult) {
+            setState(s => ({ ...s, log: [...s.log, { message: "考试进行中，无法保存。考试结束后会自动保存。", type: 'warning', timestamp: Date.now(), week: s.week }] }));
+            return;
+        }
         autoSave(state);
         setState(s => ({ ...s, log: [...s.log, { message: "游戏进度已保存。", type: 'success', timestamp: Date.now(), week: s.week }] }));
-    };
+    }, []);
 
     /** 校验并应用一份存档数据（localStorage 读取或导入文件共用） */
     const applyLoadedState = (loaded: GameState, announce?: string) => {
+        // 作废进行中的 AI 生成：其结果基于旧状态，会覆盖刚加载的存档
+        aiGenerationTokenRef.current++;
         const globalAchievements = getGlobalAchievements();
         const mergedAchievements = Array.from(new Set([...(loaded.unlockedAchievements || []), ...globalAchievements]));
         if (loaded.worldContext) {
@@ -475,7 +508,7 @@ export const useGameLogic = () => {
         });
     };
 
-    const loadGame = (difficulty?: Difficulty): boolean => {
+    const loadGame = useCallback((difficulty?: Difficulty): boolean => {
         let saved: string | null = null;
         if (difficulty) {
             saved = localStorage.getItem(getSaveKey(difficulty));
@@ -485,12 +518,12 @@ export const useGameLogic = () => {
         }
         if (saved) {
             try {
-                const loaded = JSON.parse(saved);
-                if (!loaded.general || !loaded.subjects || !loaded.phase) {
+                const normalized = normalizeLoadedState(JSON.parse(saved));
+                if (!normalized) {
                     console.error("Save data corrupted");
                     return false;
                 }
-                applyLoadedState(loaded);
+                applyLoadedState(normalized);
                 return true;
             } catch (e) {
                 console.error("Failed to load save", e);
@@ -498,10 +531,16 @@ export const useGameLogic = () => {
             }
         }
         return false;
-    };
+    }, []);
 
     /** 导出当前进度为 JSON 文件，玩家自己保管，可随时导入回滚 */
-    const exportSave = () => {
+    const exportSave = useCallback(() => {
+        const state = stateRef.current;
+        // 考试进行中无法导出：导出文件导入后会重考刷分
+        if (EXAM_PHASES.includes(state.phase) && !state.popupExamResult) {
+            setState(s => ({ ...s, log: [...s.log, { message: "考试进行中，无法导出。考试结束后会自动保存。", type: 'warning', timestamp: Date.now(), week: s.week }] }));
+            return;
+        }
         const data = buildSaveData(state);
         const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
@@ -513,18 +552,18 @@ export const useGameLogic = () => {
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
         setState(s => ({ ...s, log: [...s.log, { message: '存档已导出为文件，请妥善保存。', type: 'success', timestamp: Date.now(), week: s.week }] }));
-    };
+    }, []);
 
     /** 导入存档文件并加载，返回是否成功（结果会写入日志） */
-    const importSave = async (file: File): Promise<boolean> => {
+    const importSave = useCallback(async (file: File): Promise<boolean> => {
         try {
             const text = await file.text();
-            const loaded = JSON.parse(text);
-            if (!loaded || typeof loaded !== 'object' || !loaded.general || !loaded.subjects || !loaded.phase) {
+            const normalized = normalizeLoadedState(JSON.parse(text));
+            if (!normalized) {
                 setState(s => ({ ...s, log: [...s.log, { message: '导入失败：文件不是有效的存档。', type: 'error', timestamp: Date.now(), week: s.week }] }));
                 return false;
             }
-            applyLoadedState(loaded, `存档已导入：${loaded.difficulty || '未知'} 难度，第 ${loaded.week ?? '?'} 周。`);
+            applyLoadedState(normalized, `存档已导入：${normalized.difficulty} 难度，第 ${normalized.week} 周。`);
             setHasSave(true);
             return true;
         } catch (e) {
@@ -532,13 +571,15 @@ export const useGameLogic = () => {
             setState(s => ({ ...s, log: [...s.log, { message: '导入失败：文件解析出错。', type: 'error', timestamp: Date.now(), week: s.week }] }));
             return false;
         }
-    };
+    }, []);
 
-    const startGameState = (difficulty: Difficulty, customStats: GeneralStats, selectedTalents: Talent[], activeChallenge?: Challenge | null) => {
+    const startGameState = (difficulty: Difficulty, customStats: GeneralStats, selectedTalents: Talent[]) => {
+        // 作废进行中的 AI 生成：其结果是基于旧局的
+        aiGenerationTokenRef.current++;
         let initialGeneral = { ...DIFFICULTY_PRESETS['NORMAL'].stats };
-        const effectiveDifficulty = activeChallenge ? 'REALITY' : (difficulty === 'CUSTOM' ? 'NORMAL' : difficulty);
+        const effectiveDifficulty = difficulty === 'CUSTOM' ? 'NORMAL' : difficulty;
 
-        if (difficulty === 'CUSTOM' && !activeChallenge) {
+        if (difficulty === 'CUSTOM') {
             initialGeneral = { ...customStats };
         } else if (difficulty === 'AI_STORY') {
             initialGeneral = DIFFICULTY_PRESETS['AI_STORY'] ? { ...DIFFICULTY_PRESETS['AI_STORY'].stats } : { ...DIFFICULTY_PRESETS['NORMAL'].stats };
@@ -549,12 +590,6 @@ export const useGameLogic = () => {
         let initialStatuses: GameStatus[] = [];
         if (effectiveDifficulty === 'REALITY') {
             initialStatuses.push({ ...STATUSES['anxious'], duration: 4 });
-        }
-
-        if (activeChallenge) {
-            if (activeChallenge.conditions?.initialStats) {
-                initialGeneral = { ...initialGeneral, ...activeChallenge.conditions.initialStats };
-            }
         }
 
         const rolledSubjects = getInitialSubjects();
@@ -586,7 +621,6 @@ export const useGameLogic = () => {
             talents: selectedTalents,
             oiStats: getInitialOIStats(),
             difficulty: difficulty,
-            activeChallengeId: activeChallenge ? activeChallenge.id : null,
             unlockedAchievements: globalAchievements
         };
 
@@ -613,7 +647,7 @@ export const useGameLogic = () => {
             isPlaying: false
         });
 
-        if (!activeChallenge && !tempState.unlockedAchievements.includes('first_blood') && difficulty === 'REALITY') {
+        if (!tempState.unlockedAchievements.includes('first_blood') && difficulty === 'REALITY') {
             if (achievementTimerRef.current) clearTimeout(achievementTimerRef.current);
             if (achievementPopupTimerRef.current) clearTimeout(achievementPopupTimerRef.current);
             achievementTimerRef.current = setTimeout(() => {
@@ -629,23 +663,27 @@ export const useGameLogic = () => {
         }
     };
 
-    const handleChoice = (choice: EventChoice, visualizer?: (oldS: GameState, newS: GameState) => string[]) => {
+    const handleChoice = useCallback((choice: EventChoice, visualizer?: (oldS: GameState, newS: GameState) => string[]) => {
         // AI 生成失败的重试选项：不消耗进度、不记入故事线，直接重新生成本周事件
         if (choice.retry) {
+            const genToken = aiGenerationTokenRef.current;
             setState(prev => ({ ...prev, currentEvent: null, eventResult: null, isPlaying: false, isAiGenerating: true }));
-            fetchAiEvents(state).then(aiEvents => {
+            fetchAiEvents(stateRef.current).then(aiEvents => {
+                if (genToken !== aiGenerationTokenRef.current) return;
                 if (aiEvents.length > 0) {
                     const [first, ...rest] = aiEvents;
                     setState(prev => ({ ...prev, isAiGenerating: false, currentEvent: first, aiBuffer: rest }));
                 } else {
-                    setState(prev => ({ ...prev, isAiGenerating: false }));
+                    setState(prev => ({ ...prev, isAiGenerating: false, isPlaying: true }));
                 }
             }).catch(() => {
+                if (genToken !== aiGenerationTokenRef.current) return;
                 setState(prev => ({ ...prev, isAiGenerating: false, isPlaying: true }));
             });
             return;
         }
 
+        const state = stateRef.current;
         const oldState = { ...state };
         let updates = choice.action(state);
 
@@ -668,10 +706,11 @@ export const useGameLogic = () => {
             timestamp: Date.now()
         };
 
-        setState(prev => ({ ...prev, ...updates, log: stampNewLogWeeks(prev.log, updates.log, prev.week), history: [...prev.history, entry], eventResult: { choice, diff } }));
-    };
+        setState(prev => ({ ...prev, ...updates, log: capLog(stampNewLogWeeks(prev.log, updates.log, prev.week)), history: [...prev.history, entry], eventResult: { choice, diff } }));
+    }, []);
 
-    const handleEventConfirm = () => {
+    const handleEventConfirm = useCallback(() => {
+        const state = stateRef.current;
         const miniGameId = state.currentEvent?.miniGameId;
 
         if (state.chainedEvent) {
@@ -709,62 +748,39 @@ export const useGameLogic = () => {
         }
 
         startWeekend();
-    };
+    }, []);
 
-    const handleClubSelect = (id: ClubId | 'none') => {
+    const handleClubSelect = useCallback((id: ClubId | 'none') => {
         setState(prev => ({
             ...prev,
             club: id === 'none' ? null : id,
             hasSelectedClub: true
         }));
-    };
+    }, []);
 
-    const handleShopPurchase = (item: Item, effectVisualizer: () => void) => {
+    const handleShopPurchase = useCallback((item: Item, effectVisualizer: () => void) => {
+        const state = stateRef.current;
         const multiplier = getShopPriceMultiplier(state);
         const actualPrice = Math.floor(item.price * multiplier);
         if (state.general.money < actualPrice) return;
 
-        const updates = item.effect(state);
-        const priceDiff = item.price - actualPrice;
-        if (priceDiff !== 0 && updates.general) {
-            updates.general.money = (updates.general.money ?? state.general.money) + priceDiff;
-        }
-        // 商店购买同样遵守天赋带来的属性上限/下限（如体弱多病的健康上限）
-        applyStatCaps(state, updates);
-        setState(prev => ({ ...prev, ...updates, log: stampNewLogWeeks(prev.log, updates.log, prev.week) }));
-        effectVisualizer();
-    };
-
-    const handleWeekendActivityClick = (activity: WeekendActivity, visualizer?: (oldS: GameState, newS: GameState) => string[]) => {
-        if (state.weekendActionPoints <= 0) return;
-
-        const oldState = { ...state };
-        let updates = activity.action(state);
-
-        // Apply talent passives
-        updates = applyTalentPassivesToUpdates(state, updates);
-
-        let resultText = typeof activity.resultText === 'function' ? activity.resultText(state) : activity.resultText;
-
-        const newState = { ...state, ...updates };
-        const diff = visualizer ? visualizer(oldState, newState) : [];
-
-        setWeekendResult({ activity, resultText, diff });
-        setState(prev => ({ ...prev, ...updates, log: stampNewLogWeeks(prev.log, updates.log, prev.week) }));
-    };
-
-    const confirmWeekendActivity = () => {
-        setWeekendResult(null);
+        // 余额校验与结算移入函数式更新：同一渲染帧内连点两次也不会重复扣款/重复结算
         setState(prev => {
-            const newPoints = prev.weekendActionPoints - 1;
-            if (newPoints <= 0) {
-                return { ...prev, weekendActionPoints: 0, isWeekend: false, isPlaying: false, week: prev.week + 1 };
+            if (prev.general.money < actualPrice) return prev;
+            const updates = item.effect(prev);
+            const priceDiff = item.price - actualPrice;
+            if (priceDiff !== 0 && updates.general) {
+                updates.general.money = (updates.general.money ?? prev.general.money) + priceDiff;
             }
-            return { ...prev, weekendActionPoints: newPoints };
+            // 商店购买同样遵守天赋带来的属性上限/下限（如体弱多病的健康上限）
+            applyStatCaps(prev, updates);
+            return { ...prev, ...updates, log: stampNewLogWeeks(prev.log, updates.log, prev.week) };
         });
-    };
+        effectVisualizer();
+    }, []);
 
-    const executeTimetable = (schedule: Record<string, string>) => {
+    const executeTimetable = useCallback((schedule: Record<string, string>) => {
+        const state = stateRef.current;
         let currentState = { ...state };
         let results = [];
 
@@ -790,7 +806,7 @@ export const useGameLogic = () => {
             currentState = { ...currentState, ...updates };
             if (resultText) results.push(`[${slotId}] ${resultText}`);
         }
-        currentState.log = [...(currentState.log || []), ...batchLogs];
+        currentState.log = capLog([...(currentState.log || []), ...batchLogs]);
 
         currentState.week += 1;
         currentState.isPlaying = true;
@@ -799,9 +815,10 @@ export const useGameLogic = () => {
         currentState.isWeekend = false;
 
         setState(prev => ({ ...prev, ...currentState }));
-    };
+    }, []);
 
-    const handleExamFinish = (result: ExamResult) => {
+    const handleExamFinish = useCallback((result: ExamResult) => {
+        const state = stateRef.current;
         const rank = calculateRank(result.totalScore, state.phase);
         const isOI = ALL_OI_PHASES.includes(state.phase);
         const resultWithRank: ExamResult = { ...result, rank: isOI ? undefined : rank, type: isOI ? 'COMPETITION' : 'ACADEMIC' };
@@ -829,60 +846,49 @@ export const useGameLogic = () => {
             className: newClassName,
             flags: newFlags
         }));
-    };
+    }, []);
 
-    const closeCompetitionPopup = () => {
+    const closeCompetitionPopup = useCallback(() => {
         setState(prev => ({ ...prev, popupCompetitionResult: null, isPlaying: false }));
         if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
         resumeTimerRef.current = setTimeout(() => {
             setState(prev => ({ ...prev, isPlaying: true }));
         }, 500);
-    };
+    }, []);
 
-    const closeExamResult = () => {
+    const closeExamResult = useCallback(() => {
         setState(prev => {
+            const flow = getPhaseResultInfo(prev.phase);
             const nextState = { ...prev, popupExamResult: null, isPlaying: false };
 
-            if (prev.phase === Phase.MIDTERM_EXAM) {
-                return { ...nextState, phase: Phase.SUBJECT_RESELECTION, week: 11, isPlaying: false };
+            // 无结算去向的阶段（不应出现）：仅关闭弹窗
+            if (!flow) return nextState;
+
+            const week = flow.resultWeek === '+1' ? prev.week + 1
+                : typeof flow.resultWeek === 'number' ? flow.resultWeek
+                : prev.week;
+
+            let eventQueue = prev.eventQueue;
+            if (flow.resultQueueEventId) {
+                const resultEvent = OI_EVENTS_POOL.find((e: GameEvent) => e.id === flow.resultQueueEventId);
+                if (resultEvent) eventQueue = [...prev.eventQueue, resultEvent];
             }
-            if (prev.phase === Phase.PLACEMENT_EXAM) {
-                return { ...nextState, phase: Phase.SEMESTER_1, week: 1, totalWeeksInPhase: 21, isPlaying: false };
-            }
-            if (prev.phase === Phase.FINAL_EXAM) {
-                return { ...nextState, phase: Phase.WINTER_BREAK, week: 1, totalWeeksInPhase: 5, isPlaying: false };
-            }
-            if (prev.phase === Phase.MIDTERM_EXAM_2) {
-                return { ...nextState, phase: Phase.SEMESTER_2, week: 12, isPlaying: false };
-            }
-            if (prev.phase === Phase.FINAL_EXAM_2) {
-                return { ...nextState, phase: Phase.SUMMER_BREAK, week: 1, totalWeeksInPhase: 8, isPlaying: false };
-            }
-            if ([Phase.CSP_EXAM, Phase.NOIP_EXAM].includes(prev.phase)) {
-                return { ...nextState, phase: Phase.SEMESTER_1, week: prev.week + 1, totalWeeksInPhase: 21, isPlaying: false };
-            }
-            if (prev.phase === Phase.WC_EXAM) {
-                const resultEvent = OI_EVENTS_POOL.find((e: GameEvent) => e.id === 'oi_wc_result') as GameEvent;
-                return { ...nextState, phase: Phase.WINTER_BREAK, week: prev.week + 1, totalWeeksInPhase: 5, isPlaying: false, eventQueue: [...prev.eventQueue, resultEvent] };
-            }
-            if ([Phase.PROVINCIAL_EXAM, Phase.APIO_EXAM].includes(prev.phase)) {
-                const resultEventId = prev.phase === Phase.PROVINCIAL_EXAM ? 'oi_provincial_result' : 'oi_apio_result';
-                const resultEvent = OI_EVENTS_POOL.find((e: GameEvent) => e.id === resultEventId) as GameEvent;
-                return { ...nextState, phase: Phase.SEMESTER_2, week: prev.week + 1, totalWeeksInPhase: 21, isPlaying: false, eventQueue: [...prev.eventQueue, resultEvent] };
-            }
-            if (prev.phase === Phase.NOI_EXAM) {
-                const socialPractice = OI_EVENTS_POOL.find((e: GameEvent) => e.id === 'oi_noi_social_practice') as GameEvent;
-                return { ...nextState, phase: Phase.SUMMER_BREAK, week: prev.week + 1, totalWeeksInPhase: 8, isPlaying: false, eventQueue: [...prev.eventQueue, socialPractice] };
-            }
-            return { ...nextState, isPlaying: false };
+
+            return {
+                ...nextState,
+                phase: flow.resultPhase!,
+                week,
+                totalWeeksInPhase: flow.resultWeeks ?? prev.totalWeeksInPhase,
+                eventQueue
+            };
         });
         if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
         resumeTimerRef.current = setTimeout(() => {
             setState(prev => ({ ...prev, isPlaying: true }));
         }, 500);
-    };
+    }, []);
 
-    const closeMiniGame = (res?: Partial<GameState>) => {
+    const closeMiniGame = useCallback((res?: Partial<GameState>) => {
         setState(prev => {
             const next = { ...prev, activeMiniGame: null, ...res };
             const skipWeekend = next.phase === Phase.SUMMER || next.phase === Phase.MILITARY;
@@ -892,24 +898,15 @@ export const useGameLogic = () => {
             return next;
         });
 
-        if (state.phase !== Phase.SUMMER && state.phase !== Phase.MILITARY) {
+        if (stateRef.current.phase !== Phase.SUMMER && stateRef.current.phase !== Phase.MILITARY) {
             setTimeout(() => startWeekend(), 0);
         }
-    };
-
-    const weekendOptions = WEEKEND_ACTIVITIES.filter(a => {
-        if (state.availableWeekendActivityIds) {
-            return state.availableWeekendActivityIds.includes(a.id) && (!a.condition || a.condition(state));
-        }
-        return !a.condition || a.condition(state);
-    });
+    }, []);
 
     return {
-        state, setState, weekendResult, setWeekendResult, hasSave, checkHasSave, refreshHasSave, saveGame, loadGame, gameSpeed, setGameSpeed,
+        state, setState, hasSave, checkHasSave, refreshHasSave, saveGame, loadGame, gameSpeed, setGameSpeed,
         exportSave, importSave,
         startGameState, handleChoice, handleEventConfirm, handleClubSelect, handleShopPurchase,
-        handleWeekendActivityClick, confirmWeekendActivity,
-        executeTimetable, handleExamFinish, closeCompetitionPopup, closeExamResult, closeMiniGame,
-        weekendOptions
+        executeTimetable, handleExamFinish, closeCompetitionPopup, closeExamResult, closeMiniGame
     };
 };

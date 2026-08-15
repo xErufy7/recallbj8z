@@ -1,12 +1,12 @@
 
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { getLeaderboard, LeaderboardEntry, getUseNewDb, filterLeaderboardEntry } from '../lib/supabase';
+import { getLeaderboard } from '../lib/supabase';
+import { LeaderboardEntry, getUseNewDb, filterLeaderboardEntry } from '../lib/leaderboardConfig';
 
 interface LeaderboardModalProps {
     /** 键盘按压标记（App 的 keyFlash），命中时按钮呈按下状态 */
     flashTag?: string | null;
     onClose: () => void;
-    initialChallengeId?: string | null;
 }
 
 const PAGE_SIZE = 100;
@@ -21,7 +21,31 @@ function filterBatch(data: any[]): LeaderboardEntry[] {
     return data.filter(filterLeaderboardEntry);
 }
 
-const LeaderboardModal: React.FC<LeaderboardModalProps> = ({ flashTag, onClose, initialChallengeId }) => {
+const LeaderboardRow = React.memo(({ entry, idx, isMe, dateLabel }: { entry: LeaderboardEntry; idx: number; isMe: boolean; dateLabel: string }) => (
+    <div className={`grid grid-cols-12 gap-2 py-3 hover:bg-white rounded-xl transition-colors text-sm border-b border-slate-100 last:border-0 group ${isMe ? 'bg-indigo-100/70 hover:bg-indigo-100' : ''}`}>
+        <div className="col-span-1 text-center font-black text-slate-300 group-hover:text-indigo-500">
+            {idx + 1}
+        </div>
+        <div className="col-span-7 md:col-span-3 text-center font-bold text-slate-700 truncate min-w-0">
+            {entry.player_name}
+            {isMe && <span className="ml-1.5 px-1.5 py-0.5 bg-indigo-600 text-white rounded-md text-[9px] font-black align-middle">我</span>}
+        </div>
+        <div className="col-span-2 text-center font-mono font-bold text-indigo-600 text-xs md:text-sm">
+            {Math.floor(entry.score)}
+        </div>
+        <div className="col-span-2 md:col-span-1 text-center text-xs text-slate-500 truncate min-w-0">
+            <span className="px-1.5 md:px-2 py-0.5 bg-slate-200 rounded text-[9px] md:text-[10px]">{entry.details?.rank || 'B'}</span>
+        </div>
+        <div className="hidden md:block col-span-3 text-center truncate min-w-0">
+            {entry.details?.title}
+        </div>
+        <div className="hidden md:block col-span-2 text-center text-xs text-slate-400 font-mono">
+            {dateLabel}
+        </div>
+    </div>
+));
+
+const LeaderboardModal: React.FC<LeaderboardModalProps> = ({ flashTag, onClose }) => {
     const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
     const [loading, setLoading] = useState(true);
     const [loadingMore, setLoadingMore] = useState(false);
@@ -33,13 +57,13 @@ const LeaderboardModal: React.FC<LeaderboardModalProps> = ({ flashTag, onClose, 
     const loadingMoreRef = useRef(false);
     const [myName] = useState(getMyName);
 
-    const doFetch = useCallback(async (currentFilter: string | null, fromOffset: number, targetCount: number) => {
+    const doFetch = useCallback(async (fromOffset: number, targetCount: number) => {
         const result: LeaderboardEntry[] = [];
         let offset = fromOffset;
         let exhausted = false;
 
         while (result.length < targetCount) {
-            const { data, error: fetchError } = await getLeaderboard(currentFilter, SUPABASE_BATCH, offset, useNewDb);
+            const { data, error: fetchError } = await getLeaderboard(SUPABASE_BATCH, offset, useNewDb);
             if (fetchError) throw fetchError;
             if (!data || data.length === 0) { exhausted = true; break; }
             result.push(...filterBatch(data));
@@ -61,7 +85,7 @@ const LeaderboardModal: React.FC<LeaderboardModalProps> = ({ flashTag, onClose, 
             offsetRef.current = 0;
 
             try {
-                const { entries: fresh, newOffset, exhausted } = await doFetch(null,0, PAGE_SIZE);
+                const { entries: fresh, newOffset, exhausted } = await doFetch(0, PAGE_SIZE);
                 if (cancelled) return;
                 offsetRef.current = newOffset;
                 setHasMore(!exhausted);
@@ -84,7 +108,7 @@ const LeaderboardModal: React.FC<LeaderboardModalProps> = ({ flashTag, onClose, 
         setLoadingMore(true);
 
         try {
-            const { entries: fresh, newOffset, exhausted } = await doFetch(null,offsetRef.current, PAGE_SIZE);
+            const { entries: fresh, newOffset, exhausted } = await doFetch(offsetRef.current, PAGE_SIZE);
             offsetRef.current = newOffset;
             setHasMore(!exhausted);
             if (fresh.length > 0) {
@@ -104,6 +128,13 @@ const LeaderboardModal: React.FC<LeaderboardModalProps> = ({ flashTag, onClose, 
             loadMore();
         }
     }, [loadMore, hasMore]);
+
+    // 日期格式化预计算一次，避免每行每次渲染都构造 Date 对象
+    const dateLabels = React.useMemo(() => {
+        const map = new Map<string, string>();
+        for (const e of entries) map.set(e.id, new Date(e.created_at).toLocaleDateString());
+        return map;
+    }, [entries]);
 
     return (
         <div className="fixed inset-0 z-[110] bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn" onClick={onClose}>
@@ -151,27 +182,13 @@ const LeaderboardModal: React.FC<LeaderboardModalProps> = ({ flashTag, onClose, 
                                 {entries.map((entry, idx) => {
                                     const isMe = myName !== '' && entry.player_name.trim() === myName;
                                     return (
-                                    <div key={entry.id} className={`grid grid-cols-12 gap-2 py-3 hover:bg-white rounded-xl transition-colors text-sm border-b border-slate-100 last:border-0 group ${isMe ? 'bg-indigo-100/70 hover:bg-indigo-100' : ''}`}>
-                                        <div className="col-span-1 text-center font-black text-slate-300 group-hover:text-indigo-500">
-                                            {idx + 1}
-                                        </div>
-                                        <div className="col-span-7 md:col-span-3 text-center font-bold text-slate-700 truncate min-w-0">
-                                            {entry.player_name}
-                                            {isMe && <span className="ml-1.5 px-1.5 py-0.5 bg-indigo-600 text-white rounded-md text-[9px] font-black align-middle">我</span>}
-                                        </div>
-                                        <div className="col-span-2 text-center font-mono font-bold text-indigo-600 text-xs md:text-sm">
-                                            {Math.floor(entry.score)}
-                                        </div>
-                                        <div className="col-span-2 md:col-span-1 text-center text-xs text-slate-500 truncate min-w-0">
-                                            <span className="px-1.5 md:px-2 py-0.5 bg-slate-200 rounded text-[9px] md:text-[10px]">{entry.details?.rank || 'B'}</span>
-                                        </div>
-                                        <div className="hidden md:block col-span-3 text-center truncate min-w-0">
-                                            {entry.details?.title}
-                                        </div>
-                                        <div className="hidden md:block col-span-2 text-center text-xs text-slate-400 font-mono">
-                                            {new Date(entry.created_at).toLocaleDateString()}
-                                        </div>
-                                    </div>
+                                        <LeaderboardRow
+                                            key={entry.id}
+                                            entry={entry}
+                                            idx={idx}
+                                            isMe={isMe}
+                                            dateLabel={dateLabels.get(entry.id) || ''}
+                                        />
                                     );
                                 })}
                                 {(hasMore || loadingMore) && (

@@ -3,7 +3,8 @@ import React, { useState } from 'react';
 import { GameState, Phase } from '../types';
 import { DIFFICULTY_PRESETS } from '../data/constants';
 import { PHASE_NAMES } from '../hooks/gameLogic/phases';
-import { uploadScore, getUseNewDb } from '../lib/supabase';
+import { uploadScore } from '../lib/supabase';
+import { getUseNewDb } from '../lib/leaderboardConfig';
 import ReportCardModal from './ReportCardModal';
 import { ReportCardData } from '../lib/reportCard';
 
@@ -34,7 +35,6 @@ const EndingScreen: React.FC<EndingScreenProps> = ({ state, endingData, onRestar
             await uploadScore({
                 player_name: playerName.trim(),
                 score: Math.floor(endingData.score),
-                challenge_id: state.activeChallengeId || null,
                 difficulty: state.difficulty,
                 details: { title: endingData.title, rank: endingData.rank },
             }, useNew);
@@ -53,7 +53,7 @@ const EndingScreen: React.FC<EndingScreenProps> = ({ state, endingData, onRestar
         const lines = [
             '【八中重开模拟器】我的高一战绩',
             `评级 ${endingData.rank} · ${endingData.title}`,
-            `得分 ${Math.floor(endingData.score)} · 难度 ${DIFFICULTY_PRESETS[state.difficulty]?.label || state.difficulty}${state.activeChallengeId ? '（挑战）' : ''}`,
+            `得分 ${Math.floor(endingData.score)} · 难度 ${DIFFICULTY_PRESETS[state.difficulty]?.label || state.difficulty}`,
             `成就 ${state.unlockedAchievements.length} 个`,
             `「${endingData.comment}」`,
             window.location.origin
@@ -83,7 +83,7 @@ const EndingScreen: React.FC<EndingScreenProps> = ({ state, endingData, onRestar
         comment: endingData.comment,
         score: Math.floor(endingData.score),
         name: playerName || '匿名',
-        meta: `难度 ${DIFFICULTY_PRESETS[state.difficulty]?.label || state.difficulty} · ${PHASE_NAMES[state.phase] || state.phase} 第 ${state.week} 周 · 成就 ${state.unlockedAchievements.length} 个${state.activeChallengeId ? ' · 挑战模式' : ''}`,
+        meta: `难度 ${DIFFICULTY_PRESETS[state.difficulty]?.label || state.difficulty} · ${PHASE_NAMES[state.phase] || state.phase} 第 ${state.week} 周 · 成就 ${state.unlockedAchievements.length} 个`,
         stats: [
             { label: '学识', value: (Object.values(state.subjects) as { level: number }[]).reduce((s, v) => s + (v.level || 0), 0) / Math.max(1, Object.keys(state.subjects).length), max: 150, color: '#4f46e5' },
             { label: '心态', value: state.general.mindset, max: 150, color: '#3b82f6' },
@@ -124,8 +124,7 @@ const EndingScreen: React.FC<EndingScreenProps> = ({ state, endingData, onRestar
 
                          {state.difficulty && (
                              <div className="mb-6 inline-block px-3 py-1 rounded bg-slate-200 text-slate-600 text-xs font-bold">
-                                 难度: {DIFFICULTY_PRESETS[state.difficulty]?.label || '自定义'} 
-                                 {state.activeChallengeId ? ' (挑战模式)' : ''}
+                                 难度: {DIFFICULTY_PRESETS[state.difficulty]?.label || '自定义'}
                              </div>
                          )}
                          

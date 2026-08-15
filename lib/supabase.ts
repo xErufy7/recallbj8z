@@ -1,5 +1,7 @@
 
-import { createClient, SupabaseClient } from '@supabase/supabase-js'
+import type { SupabaseClient } from '@supabase/supabase-js'
+
+export * from './leaderboardConfig';
 
 // 旧排行榜
 const OLD_URL = 'https://qmgfcirrgwzcmmyjnecn.supabase.co';
@@ -9,67 +11,32 @@ const OLD_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsIn
 const NEW_URL = 'https://mcjyuveyfgefdtyavygj.supabase.co';
 const NEW_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1janl1dmV5ZmdlZmR0eWF2eWdqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2NjQyMjAsImV4cCI6MjA5NTI0MDIyMH0.-ZCKodHMGKUHLNURxm0ACp7wGhTPb4cPHTBHx07Wihc';
 
-const STORAGE_KEY = 'bj8z_use_new_leaderboard';
+// 重客户端懒加载：supabase-js（~220KB）只在真正上传/查询成绩时才下载
+let clientsPromise: Promise<{ oldClient: SupabaseClient; newClient: SupabaseClient }> | null = null;
 
-const oldClient = createClient(OLD_URL, OLD_KEY);
-const newClient = createClient(NEW_URL, NEW_KEY);
-
-const getClient = (useNew: boolean): SupabaseClient => useNew ? newClient : oldClient;
-
-export const getUseNewDb = (): boolean => {
-  try {
-    return localStorage.getItem(STORAGE_KEY) !== 'false';
-  } catch {
-    return true;
-  }
+const getClients = (): Promise<{ oldClient: SupabaseClient; newClient: SupabaseClient }> => {
+    if (!clientsPromise) {
+        clientsPromise = import('@supabase/supabase-js').then(({ createClient }) => ({
+            oldClient: createClient(OLD_URL, OLD_KEY),
+            newClient: createClient(NEW_URL, NEW_KEY)
+        }));
+    }
+    return clientsPromise;
 };
 
-export const setUseNewDb = (useNew: boolean) => {
-  localStorage.setItem(STORAGE_KEY, String(useNew));
+export const uploadScore = async (entry: { player_name: string; score: number; difficulty: string; details: { title: string; rank: string } }, useNew: boolean) => {
+    const { oldClient, newClient } = await getClients();
+    const client = useNew ? newClient : oldClient;
+    return await client.from('leaderboard').insert([entry]);
 };
 
-export interface LeaderboardEntry {
-    id: string;
-    created_at: string;
-    player_name: string;
-    score: number;
-    challenge_id: string | null;
-    difficulty: string;
-    details: {
-        title: string;
-        rank: string;
-    };
-}
-
-export const uploadScore = async (entry: Omit<LeaderboardEntry, 'id' | 'created_at'>, useNew: boolean) => {
-    return await getClient(useNew).from('leaderboard').insert([entry]);
-};
-
-export const getLeaderboard = async (challengeId: string | null = null, limit = 50, offset = 0, useNew = false) => {
-    const client = getClient(useNew);
-    let query = client
+export const getLeaderboard = async (limit = 50, offset = 0, useNew = false) => {
+    const { oldClient, newClient } = await getClients();
+    const client = useNew ? newClient : oldClient;
+    return await client
         .from('leaderboard')
         .select('*')
         .order('score', { ascending: false })
         .limit(limit)
         .range(offset, offset + limit - 1);
-
-    if (challengeId) {
-        query = query.eq('challenge_id', challengeId);
-    }
-
-    return await query;
 };
-
-// 白名单 = 游戏真实产出的评级/称号全集（getEndingData），防止测试页灌入的垃圾数据上榜
-export const ALLOWED_RANKS = ['SSS', 'SS', 'S', 'A', 'B', 'C', 'D', 'Z', 'F'];
-export const ALLOWED_TITLES = [
-    '清北保送生（国集）', '强基破格入围者', '省队巨佬', '年级学神',
-    '尖子生', '中流砥柱', '芸芸众生', '学业危机', '家里蹲预备役', '退学离场'
-];
-export const MAX_LEADERBOARD_SCORE = 10000;
-
-export const filterLeaderboardEntry = (e: any): boolean =>
-    ALLOWED_RANKS.includes(e.details?.rank) &&
-    ALLOWED_TITLES.includes(e.details?.title) &&
-    e.score <= MAX_LEADERBOARD_SCORE;

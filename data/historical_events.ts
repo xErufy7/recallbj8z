@@ -1,4 +1,5 @@
 import { GameState, GameEvent, Project } from '../types';
+import { applyStatDeltas, OI_CITY_STAT_OPTS } from './utils';
 
 interface HistoricalEventDef {
     id: string;
@@ -8,7 +9,7 @@ interface HistoricalEventDef {
     generateEvent: (state: GameState) => GameEvent;
 }
 
-export const HISTORICAL_EVENTS: HistoricalEventDef[] = [
+const HISTORICAL_EVENTS: HistoricalEventDef[] = [
     {
         id: 'he_typhoon_mangkhut_2018',
         region: '广州',
@@ -106,7 +107,7 @@ export const HISTORICAL_EVENTS: HistoricalEventDef[] = [
     }
 ];
 
-export let loadedCityEvents: HistoricalEventDef[] = [];
+let loadedCityEvents: HistoricalEventDef[] = [];
 let currentLoadedCityCode = '';
 
 export const loadCityEvents = async (code: string, regionName: string) => {
@@ -129,22 +130,10 @@ export const loadCityEvents = async (code: string, regionName: string) => {
                 choices: e.choices.map((c: any) => ({
                     text: c.text,
                     resultDescription: c.resultDescription,
-                    action: (s: GameState) => {
-                       let nextGen = { ...s.general };
-                       if (c.effect) {
-                           if (c.effect.efficiency) nextGen.efficiency = Math.min(100, Math.max(0, nextGen.efficiency + c.effect.efficiency));
-                           if (c.effect.health) nextGen.health = Math.min(100, Math.max(0, nextGen.health + c.effect.health));
-                           if (c.effect.mindset) nextGen.mindset = Math.min(100, Math.max(0, nextGen.mindset + c.effect.mindset));
-                           if (c.effect.experience) nextGen.experience = Math.min(999, Math.max(0, nextGen.experience + c.effect.experience));
-                           if (c.effect.luck) nextGen.luck = Math.min(100, Math.max(0, nextGen.luck + c.effect.luck));
-                           if (c.effect.romance) nextGen.romance = Math.min(100, Math.max(0, nextGen.romance + c.effect.romance));
-                           if (c.effect.money) nextGen.money = nextGen.money + c.effect.money; // Allow negative (debt system)
-                       }
-                       return {
-                           general: nextGen,
-                           log: c.resultDescription ? [...s.log, { message: c.resultDescription, type: 'info', timestamp: Date.now() }] : s.log
-                       };
-                    }
+                    action: (s: GameState) => ({
+                        ...applyStatDeltas(s, c.effect || {}, OI_CITY_STAT_OPTS),
+                        log: c.resultDescription ? [...s.log, { message: c.resultDescription, type: 'info', timestamp: Date.now() }] : s.log
+                    })
                 }))
             })
         }));

@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { GameState, ExamResult, SubjectKey, SUBJECT_NAMES, Phase, OIProblem, OIStats } from '../types';
+import { GameState, ExamResult, SubjectKey, Phase, OIProblem, OIStats } from '../types';
+import { SUBJECT_NAMES } from '../data/constants';
 import { OI_PROBLEMS } from '../data/oi_data';
 import { PHASE_NAMES } from '../hooks/useGameLogic';
 import { getExamScoreMultiplier } from '../data/utils';
@@ -191,7 +192,7 @@ const ExamView: React.FC<ExamViewProps> = ({ title, state, onFinish }) => {
     } else if (!isFinished) {
       setIsFinished(true);
     }
-  }, [examStep, state, currentScores, isFinished, subjectsToTest, oiProblems]);
+  }, [examStep, state, isFinished, subjectsToTest, oiProblems]);
 
   // Keep the currently-being-tested card visible in the scroll row on mobile
   useEffect(() => {

@@ -1,6 +1,7 @@
 
 import React from 'react';
-import { SubjectKey, GameState, SUBJECT_NAMES } from '../types';
+import { SubjectKey, GameState } from '../types';
+import { SUBJECT_NAMES } from '../data/constants';
 
 interface SubjectSelectionModalProps {
     state: GameState;

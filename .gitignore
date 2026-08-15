@@ -24,3 +24,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local project documentation (not part of the app bundle)
+FILES_OVERVIEW.md

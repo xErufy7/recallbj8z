@@ -1,5 +1,8 @@
 
-import { GameState, SubjectKey, OIStats, Phase } from '../../types';
+import { GameState, SubjectKey, OIStats, Phase, GeneralStats } from '../../types';
+
+/** 初始六维属性（general 与 initialGeneral 同源，避免两份字面量漂移） */
+const INITIAL_GENERAL: GeneralStats = { mindset: 50, experience: 0, luck: 50, romance: 0, health: 100, money: 0, efficiency: 10 };
 
 export const getInitialSubjects = (): Record<SubjectKey, { aptitude: number; level: number }> => ({
     chinese: { aptitude: 0, level: 0 },
@@ -25,14 +28,13 @@ export const getInitialGameState = (): GameState => ({
     isAiGenerating: false,
     eventQueue: [],
     aiBuffer: [],
-    pendingHistoricalEvents: [],
     recentEventIds: [],
     phase: Phase.INIT,
     week: 1,
     totalWeeksInPhase: 0,
     subjects: getInitialSubjects(),
-    general: { mindset: 50, experience: 0, luck: 50, romance: 0, health: 100, money: 0, efficiency: 10 },
-    initialGeneral: { mindset: 50, experience: 0, luck: 50, romance: 0, health: 100, money: 0, efficiency: 10 },
+    general: { ...INITIAL_GENERAL },
+    initialGeneral: { ...INITIAL_GENERAL },
     oiStats: getInitialOIStats(),
     selectedSubjects: [],
     competition: 'None',
@@ -51,25 +53,19 @@ export const getInitialGameState = (): GameState => ({
     popupCompetitionResult: null,
     popupExamResult: null,
     triggeredEvents: [],
-    isSick: false,
     isGrounded: false,
     debugMode: false,
     activeStatuses: [],
     unlockedAchievements: [],
     achievementPopup: null,
     difficulty: 'NORMAL',
-    activeChallengeId: null,
     isWeekend: false,
-    weekendActionPoints: 0,
     lastWeekSchedule: {},
-    lastHistoricalWeek: -3,
-    weekendProcessed: false,
     activeMiniGame: null,
     sleepCount: 0,
     rejectionCount: 0,
     talents: [],
     inventory: [],
     theme: 'light',
-    dreamtExam: false,
     availableWeekendActivityIds: undefined
 });

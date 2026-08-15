@@ -1,6 +1,6 @@
 import { CharacterTemplate } from '../types';
 
-export const WORLD_REGIONS = [
+const WORLD_REGIONS = [
     { id: 'beijing', code: 'bj', name: '北京', type: 'tier1' },
     { id: 'chengdu', code: 'cd', name: '成都', type: 'tier1' },
     { id: 'chongqing', code: 'cq', name: '重庆', type: 'tier1' },

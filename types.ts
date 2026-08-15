@@ -69,7 +69,7 @@ export interface StoryEntry {
   timestamp: number;
 }
 
-export type CompetitionType = 'None' | 'OI' | 'MO' | 'PhO' | 'ChO';
+export type CompetitionType = 'None' | 'OI';
 
 export interface CompetitionResultData {
     title: string;
@@ -88,14 +88,24 @@ export interface Achievement {
   unlockedAt?: number; 
 }
 
+/** 状态每周结算的数值效果（数据驱动，weekly.ts 遍历此字段而非硬编码 switch） */
+export interface StatusWeeklyEffects {
+  mindset?: number;
+  efficiency?: number;
+  romance?: number;
+  luck?: number;
+  experience?: number;
+}
+
 export interface GameStatus {
   id: string;
   name: string;
   description: string;
   type: 'BUFF' | 'DEBUFF' | 'NEUTRAL';
-  duration: number; 
+  duration: number;
   icon: string;
-  effectDescription?: string; 
+  effectDescription?: string;
+  weeklyEffects?: StatusWeeklyEffects;
 }
 
 export type ClubId = 'rap' | 'dance' | 'social_science' | 'mun' | 'touhou' | 'astronomy' | 'math_research' | 'ttrpg' | 'literature' | 'otaku' | 'anime' | 'volleyball' | 'vocaloid' | 'poetry' | 'human_behavior' | 'none';
@@ -146,7 +156,7 @@ export interface Talent {
     id: string;
     name: string;
     description: string;
-    rarity: 'common' | 'rare' | 'legendary' | 'mythical' | 'cursed';
+    rarity: 'common' | 'rare' | 'legendary' | 'cursed';
     cost: number;
     effect?: (state: GameState) => Partial<GameState>;
     passive?: TalentPassiveEffects;
@@ -168,15 +178,6 @@ export interface ApiSettings {
   apiKey: string;
   modelName: string;
   customPrompt: string;
-}
-
-export interface Challenge {
-    id: string;
-    title: string;
-    description: string;
-    conditions: {
-        initialStats?: Partial<GeneralStats>;
-    };
 }
 
 export interface SerializableEffect {
@@ -239,12 +240,11 @@ export interface GameState {
   worldContext?: WorldContext; 
   activeProjects: Project[]; 
   completedProjects: string[]; 
-  isPlaying: boolean; 
+  isPlaying: boolean;
   isAiGenerating?: boolean;
   eventQueue: GameEvent[];
   aiBuffer: GameEvent[];
-  pendingHistoricalEvents: GameEvent[];
-  recentEventIds: string[]; 
+  recentEventIds: string[];
   phase: Phase;
   week: number;
   totalWeeksInPhase: number;
@@ -269,28 +269,24 @@ export interface GameState {
   competitionResults: Array<CompetitionResultData>;
   popupCompetitionResult: CompetitionResultData | null;
   popupExamResult: (ExamResult & { nextPhase?: Phase }) | null;
-  triggeredEvents: string[]; 
-  isSick: boolean;
+  triggeredEvents: string[];
   isGrounded: boolean;
   debugMode: boolean;
   activeStatuses: GameStatus[];
   unlockedAchievements: string[]; 
   achievementPopup: Achievement | null; 
   difficulty: Difficulty;
-  activeChallengeId: string | null; 
   isWeekend: boolean;
-  weekendActionPoints: number;
   lastWeekSchedule: Record<string, string>;
-  lastHistoricalWeek: number;
-  weekendProcessed: boolean; 
-  availableWeekendActivityIds?: string[]; 
+  availableWeekendActivityIds?: string[];
   activeMiniGame: 'AUTUMN_TRIP' | null;
   sleepCount: number;
-  rejectionCount: number; 
-  dreamtExam?: boolean;
+  rejectionCount: number;
   talents: Talent[];
-  inventory: string[]; 
+  inventory: string[];
   theme: Theme;
+  /** 存档格式版本号（buildSaveData 写入，normalizeLoadedState 读取） */
+  saveVersion?: number;
 }
 
 export interface GameLogEntry {
@@ -327,7 +323,7 @@ export interface EventChoice {
 
 export interface ExamResult {
   title: string;
-  type?: 'ACADEMIC' | 'COMPETITION'; 
+  type?: 'ACADEMIC' | 'COMPETITION';
   scores: Record<string, number>;
   totalScore: number;
   rank?: number;
@@ -337,7 +333,7 @@ export interface ExamResult {
 
 export interface OIProblem {
     name: string;
-    level: number; 
+    level: number;
     difficulty: {
         dp: number;
         ds: number;
@@ -347,15 +343,3 @@ export interface OIProblem {
         misc: number;
     }
 }
-
-export const SUBJECT_NAMES: Record<SubjectKey, string> = {
-  chinese: '语文',
-  math: '数学',
-  english: '英语',
-  physics: '物理',
-  chemistry: '化学',
-  biology: '生物',
-  history: '历史',
-  geography: '地理',
-  politics: '政治'
-};

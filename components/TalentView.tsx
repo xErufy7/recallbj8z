@@ -10,9 +10,10 @@ interface TalentViewProps {
     onToggleTalent: (talent: Talent) => void;
     onConfirm: () => void;
     onBack: () => void;
+    darkMode: boolean;
 }
 
-const TalentView: React.FC<TalentViewProps> = ({ availableTalents, selectedTalents, talentPoints, maxTalents = 5, onToggleTalent, onConfirm, onBack }) => {
+const TalentView: React.FC<TalentViewProps> = ({ availableTalents, selectedTalents, talentPoints, maxTalents = 5, onToggleTalent, onConfirm, onBack, darkMode }) => {
     const [showLimitHint, setShowLimitHint] = useState(false);
     const hintTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -32,7 +33,7 @@ const TalentView: React.FC<TalentViewProps> = ({ availableTalents, selectedTalen
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
+        <div className={`min-h-screen bg-slate-50 flex flex-col font-sans transition-all duration-500 ${darkMode ? 'dark-filter' : ''}`}>
             {/* 超限提示 */}
             {showLimitHint && (
                 <div className="fixed top-20 left-1/2 -translate-x-1/2 z-40 bg-slate-800 text-white px-5 py-2.5 rounded-full text-xs font-bold shadow-2xl animate-fadeIn pointer-events-none whitespace-nowrap">

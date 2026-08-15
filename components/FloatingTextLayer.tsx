@@ -40,4 +40,4 @@ const FloatingTextLayer: React.FC<{ items: FloatingTextItem[] }> = ({ items }) =
   );
 };
 
-export default FloatingTextLayer;
+export default React.memo(FloatingTextLayer);

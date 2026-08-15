@@ -207,13 +207,6 @@
         <option value="old">旧版排行榜</option>
       </select>
     </label>
-    <label>进入特定挑战榜
-      <select id="challenge_id">
-        <option value="c_sleep_king">睡觉榜</option>
-        <option value="c_debt_king">欠债榜</option>
-        <option value="">哪个都不进入</option>
-      </select>
-    </label>
     <label>评级
       <select id="rank">
         <option value="SSS">SSS</option>
@@ -283,7 +276,6 @@
       const name = document.getElementById('player_name').value.trim();
       const scoreVal = document.getElementById('score').value;
       const difficulty = document.getElementById('difficulty').value || null;
-      const challenge_id = document.getElementById('challenge_id').value || null;
 
       // 1. 获取下拉框的原始值
       let title = document.getElementById('title').value.trim(); // 使用 let 以便修改
@@ -333,7 +325,6 @@
         player_name: name,
         score: score,
         difficulty: difficulty,
-        challenge_id: challenge_id,
         details: details // 使用构建好的 details 对象
       };
 
@@ -478,7 +469,7 @@
     refreshMenu();
   }
 
-  ['difficulty', 'database', 'challenge_id', 'rank', 'title'].forEach(id => {
+  ['difficulty', 'database', 'rank', 'title'].forEach(id => {
     const el = document.getElementById(id);
     if (el) initDropdown(el);
   });

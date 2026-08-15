@@ -1,15 +1,15 @@
 
-import React, { useState, useRef, lazy, Suspense } from 'react';
-import { Difficulty, GeneralStats, Talent, Phase, GameState, Challenge, SubjectKey } from './types';
+import React, { useState, useRef, useCallback, lazy, Suspense } from 'react';
+import { Difficulty, GeneralStats, Talent, Phase, GameState, SubjectKey, EventChoice, GameLogEntry } from './types';
 import { TALENTS } from './data/mechanics';
 import { useGameLogic, ACHIEVEMENTS_KEY, PHASE_NAMES } from './hooks/useGameLogic';
 import { playClick, playConfirm, playAchievement, playError, playWeekend, playExam, playEnding, isSoundEnabled, setSoundEnabled } from './lib/sound';
 import { getSaveInfo, SaveInfo, recordEnding } from './hooks/gameLogic/storage';
-
-const EXAM_PHASES = [Phase.PLACEMENT_EXAM, Phase.MIDTERM_EXAM, Phase.FINAL_EXAM, Phase.MIDTERM_EXAM_2, Phase.FINAL_EXAM_2, Phase.CSP_EXAM, Phase.NOIP_EXAM, Phase.WC_EXAM, Phase.PROVINCIAL_EXAM, Phase.APIO_EXAM, Phase.NOI_EXAM];
+import { EXAM_PHASES } from './hooks/gameLogic/exams';
+import { getPhaseResultInfo } from './hooks/gameLogic/phases';
+import { SUBJECT_NAMES } from './data/constants';
 
 // Component Imports（非首屏界面懒加载，减小首屏包体积）
-import HistoricalTicker from "./components/HistoricalTicker";
 import EventModal from './components/EventModal';
 import FloatingTextLayer, { FloatingTextItem } from './components/FloatingTextLayer';
 import ShopModal from './components/ShopModal';
@@ -41,6 +41,20 @@ const FullScreenLoader = () => (
     </div>
 );
 
+// 日志条目的图标/颜色映射提为模块级常量，避免每条目每次渲染重复创建
+const LOG_ICON_MAP: Record<string, string> = { event: 'fa-bolt', success: 'fa-check-circle', error: 'fa-times-circle', warning: 'fa-exclamation-triangle', info: 'fa-info-circle' };
+const LOG_COLOR_MAP: Record<string, string> = { event: 'text-indigo-500', success: 'text-emerald-500', error: 'text-rose-500', warning: 'text-amber-500', info: 'text-slate-400' };
+
+const LogEntry = React.memo(({ entry }: { entry: GameLogEntry }) => (
+    <div className={`group p-3 rounded-xl border-l-4 animate-fadeIn ${entry.type === 'event' ? 'bg-indigo-50 border-indigo-400' : entry.type === 'success' ? 'bg-emerald-50 border-emerald-400' : entry.type === 'error' ? 'bg-rose-50 border-rose-400' : entry.type === 'warning' ? 'bg-amber-50 border-amber-400' : 'bg-slate-50 border-slate-300'}`}>
+        <div className="flex items-center gap-2 mb-0.5">
+            <i className={`fas ${LOG_ICON_MAP[entry.type] || 'fa-circle'} text-[10px] ${LOG_COLOR_MAP[entry.type] || 'text-slate-400'}`}></i>
+            {entry.week != null && <span className="text-[10px] font-bold text-slate-400">第{entry.week}周</span>}
+        </div>
+        <p className="text-sm font-medium text-slate-800">{entry.message}</p>
+    </div>
+));
+
 const App: React.FC = () => {
   const [isDevMode, setIsDevMode] = useState(false);
 
@@ -58,7 +72,6 @@ const App: React.FC = () => {
   const [showContestHistory, setShowContestHistory] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [showApiSettings, setShowApiSettings] = useState(false);
-  const [pendingChallenge, setPendingChallenge] = useState<Challenge | null>(null);
   const [showRetireConfirm, setShowRetireConfirm] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
@@ -108,13 +121,11 @@ const App: React.FC = () => {
   };
 
   const {
-      state, setState, weekendResult, setWeekendResult, hasSave, checkHasSave, refreshHasSave, saveGame, loadGame,
+      state, setState, hasSave, checkHasSave, refreshHasSave, saveGame, loadGame,
       gameSpeed, setGameSpeed,
       exportSave, importSave,
       startGameState, handleChoice, handleEventConfirm, handleClubSelect, handleShopPurchase,
-      handleWeekendActivityClick, confirmWeekendActivity,
-      executeTimetable, handleExamFinish, closeCompetitionPopup, closeExamResult, closeMiniGame,
-      weekendOptions
+      executeTimetable, handleExamFinish, closeCompetitionPopup, closeExamResult, closeMiniGame
   } = useGameLogic();
 
   // 速度切换（正常→快速→慢速 循环），按钮显示当前速度
@@ -129,8 +140,35 @@ const App: React.FC = () => {
   };
 
   React.useEffect(() => {
-    logEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    // 仅在滚动位置接近底部时跟随新日志（用户上翻阅读历史时不被强行拉回）
+    const container = logEndRef.current?.parentElement;
+    if (!container) return;
+    const nearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 80;
+    if (nearBottom) logEndRef.current?.scrollIntoView({ behavior: 'auto' });
   }, [state.log]);
+
+  // 传给 memo 组件的稳定回调：避免每次 App 重渲染都打破子组件的 memo
+  const handleShowRealityGuide = useCallback(() => setShowRealityGuide(true), []);
+  const handleEventChoice = useCallback((c: EventChoice, e: React.MouseEvent) => {
+      playClick();
+      handleChoice(c, (oldS, newS) => calculateAndVisualizeDiff(oldS, newS, e.clientX, e.clientY));
+  }, [handleChoice]);
+  const handleEventConfirmClick = useCallback(() => {
+      playConfirm();
+      handleEventConfirm();
+  }, [handleEventConfirm]);
+
+  // 选科确认：SELECTION → 分班考，期中改选 → 回到高一上（目标阶段由 PHASE_FLOW 数据驱动）
+  const confirmSubjectSelection = useCallback(() => setState(prev => {
+      const flow = getPhaseResultInfo(prev.phase);
+      if (!flow) return prev;
+      return {
+          ...prev,
+          phase: flow.resultPhase!,
+          isPlaying: prev.phase === Phase.SUBJECT_RESELECTION,
+          totalWeeksInPhase: flow.resultWeeks ?? prev.totalWeeksInPhase
+      };
+  }), []);
 
   // 键盘快捷键：数字键选选项、Enter 确认结果、Esc 关闭弹窗
   React.useEffect(() => {
@@ -188,15 +226,7 @@ const App: React.FC = () => {
         }
         if ((e.key === 'Enter' || e.key === ' ') && state.selectedSubjects.length === 3) {
           if (e.key === ' ') e.preventDefault();
-          pressKey('subject-confirm', () => setState(prev => {
-              const nextPhase = prev.phase === Phase.SELECTION ? Phase.PLACEMENT_EXAM : Phase.SEMESTER_1;
-              return {
-                  ...prev,
-                  phase: nextPhase,
-                  isPlaying: prev.phase === Phase.SUBJECT_RESELECTION,
-                  totalWeeksInPhase: nextPhase === Phase.SEMESTER_1 ? 21 : 0
-              };
-          }));
+          pressKey('subject-confirm', confirmSubjectSelection);
         }
         return;
       }
@@ -254,7 +284,7 @@ const App: React.FC = () => {
       window.removeEventListener('keyup', keyupHandler);
       window.removeEventListener('blur', blurHandler);
     };
-  }, [view, state.currentEvent, state.eventResult, handleChoice, handleEventConfirm, showRetireConfirm, showHelp, showGuide, showRestartConfirm, showStats, showLeaderboard, showApiSettings, showAchievements, showHistory, showSchedule, showContestHistory, showShop, showRealityGuide, showClubSelection]);
+  }, [view, state.currentEvent, state.eventResult, state.phase, state.selectedSubjects, state.popupExamResult, state.popupCompetitionResult, handleChoice, handleEventConfirm, showRetireConfirm, showHelp, showGuide, showRestartConfirm, showStats, showLeaderboard, showApiSettings, showAchievements, showHistory, showSchedule, showContestHistory, showShop, showRealityGuide, showClubSelection]);
 
   React.useEffect(() => {
       if (state.phase === Phase.SEMESTER_1 && state.week === 2 && !state.hasSelectedClub && !showClubSelection) {
@@ -288,9 +318,8 @@ const App: React.FC = () => {
       setView('TALENTS');
   };
 
-  const prepareGame = (challenge?: Challenge) => {
-      setWeekendResult(null); setShowClubSelection(false); setShowRealityGuide(false);
-      setPendingChallenge(challenge || null);
+  const prepareGame = () => {
+      setShowClubSelection(false); setShowRealityGuide(false);
 
       // 该难度已有存档时先确认，防止误覆盖（提示旧档信息，可先去导出备份）
       const effectiveDifficulty = useCustomStats ? 'CUSTOM' : selectedDifficulty;
@@ -305,7 +334,7 @@ const App: React.FC = () => {
 
   const handleStartGame = () => {
       const effectiveDifficulty = useCustomStats ? 'CUSTOM' : selectedDifficulty;
-      startGameState(effectiveDifficulty, customStats, selectedTalents, pendingChallenge);
+      startGameState(effectiveDifficulty, customStats, selectedTalents);
       setView('GAME');
       // 首次开局弹出新手引导（只弹一次，localStorage 记住）
       try {
@@ -469,7 +498,7 @@ const App: React.FC = () => {
               latestSave={latestSave}
               onSaveDeleted={() => { refreshHasSave(); setLatestSave(getSaveInfo(selectedDifficulty)); }}
             />
-            {showLeaderboard && <LeaderboardModal flashTag={keyFlash} onClose={() => setShowLeaderboard(false)} initialChallengeId={state.activeChallengeId} />}
+            {showLeaderboard && <LeaderboardModal flashTag={keyFlash} onClose={() => setShowLeaderboard(false)} />}
             {showRestartConfirm && <RestartConfirmModal flashTag={keyFlash} saveLabel={restartSaveLabel} onCancel={() => setShowRestartConfirm(false)} onConfirm={() => { setShowRestartConfirm(false); proceedToTalentSelect(); }} />}
             {loadErrorMsg && (
                 <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[120] bg-rose-600 text-white px-5 py-3 rounded-2xl shadow-2xl text-sm font-bold animate-fadeIn">
@@ -487,6 +516,7 @@ const App: React.FC = () => {
             <TalentView
               availableTalents={availableTalents} selectedTalents={selectedTalents} talentPoints={talentPoints} maxTalents={MAX_TALENTS}
               onToggleTalent={handleTalentToggle} onConfirm={handleStartGame} onBack={() => setView('HOME')}
+              darkMode={darkMode}
             />
           </Suspense>
       )
@@ -510,29 +540,12 @@ const App: React.FC = () => {
   return (
     <div className={`h-[100dvh] transition-all duration-1000 ${getAtmosphereTheme()} ${state.general.mindset <= 20 ? 'grayscale-[0.9] contrast-125 transition-all duration-[3000ms]' : ''} ${darkMode ? 'dark-filter' : ''} flex flex-col md:flex-row p-2 md:p-4 gap-2 md:gap-4 overflow-hidden font-sans text-slate-900 relative`}>
             {showContestHistory && <Suspense fallback={null}><ContestHistoryModal flashTag={keyFlash} state={state} onClose={() => setShowContestHistory(false)} /></Suspense>}
-      {showLeaderboard && <Suspense fallback={null}><LeaderboardModal flashTag={keyFlash} onClose={() => setShowLeaderboard(false)} initialChallengeId={state.activeChallengeId} /></Suspense>}
+      {showLeaderboard && <Suspense fallback={null}><LeaderboardModal flashTag={keyFlash} onClose={() => setShowLeaderboard(false)} /></Suspense>}
       {showApiSettings && <Suspense fallback={null}><ApiSettingsModal flashTag={keyFlash} onClose={() => setShowApiSettings(false)} /></Suspense>}
       <div className={`fixed inset-0 pointer-events-none z-[50] transition-all duration-1000 ${state.general.health < 30 ? 'opacity-100' : 'opacity-0'}`} style={{ boxShadow: 'inset 0 0 100px rgba(255, 0, 0, 0.3)' }}></div>
       <FloatingTextLayer items={floatingTexts} />
       <input ref={importInputRef} type="file" accept=".json,application/json" className="hidden" onChange={handleImportFile} />
       
-      <HistoricalTicker
-          events={state.pendingHistoricalEvents}
-          onEventClick={(e) => {
-              setState(prev => ({
-                  ...prev,
-                  pendingHistoricalEvents: prev.pendingHistoricalEvents.filter(he => he.id !== e.id),
-                  currentEvent: e,
-                  isPlaying: false
-              }));
-          }}
-          onAnimationEnd={(id) => {
-              setState(prev => ({
-                  ...prev,
-                  pendingHistoricalEvents: prev.pendingHistoricalEvents.filter(he => he.id !== id)
-              }));
-          }}
-       />
       {showRealityGuide && <Suspense fallback={null}><RealityGuideModal flashTag={keyFlash} onClose={() => setShowRealityGuide(false)} /></Suspense>}
       {showHelp && <HelpModal flashTag={keyFlash} onClose={() => setShowHelp(false)} />}
       {showGuide && <GuideModal flashTag={keyFlash} onClose={() => { setShowGuide(false); try { localStorage.setItem('bj8z_guide_seen', '1'); } catch { } }} />}
@@ -551,7 +564,7 @@ const App: React.FC = () => {
 
       {/* Sidebar */}
       <div className="hidden md:block w-72 flex-shrink-0 z-20">
-        <Suspense fallback={null}><StatsPanel state={state} onShowGuide={() => setShowRealityGuide(true)} /></Suspense>
+        <Suspense fallback={null}><StatsPanel state={state} onShowGuide={handleShowRealityGuide} /></Suspense>
       </div>
       
 
@@ -587,7 +600,7 @@ const App: React.FC = () => {
                <div className="flex items-center justify-between mt-0">
                    <div className="flex flex-col gap-1 w-full mr-4">
                        <h2 className="font-black text-slate-800 text-lg flex items-center gap-2 uppercase tracking-tight truncate">
-                            <span className={`w-2 h-2 rounded-full flex-shrink-0 ${state.isSick ? 'bg-red-500 animate-pulse' : 'bg-indigo-500'}`}></span> {PHASE_NAMES[state.phase] || state.phase}
+                            <span className="w-2 h-2 rounded-full flex-shrink-0 bg-indigo-500"></span> {PHASE_NAMES[state.phase] || state.phase}
                             <button onClick={() => setShowHelp(true)} title="快捷键说明"
                                 className="hidden md:flex w-5 h-5 items-center justify-center rounded-full bg-slate-100 hover:bg-indigo-100 text-slate-400 hover:text-indigo-500 transition-colors flex-shrink-0">
                                 <i className="fas fa-circle-question text-[11px]"></i>
@@ -609,12 +622,12 @@ const App: React.FC = () => {
                    <div className="flex flex-col items-center gap-1">
                       <button
                          onClick={() => setState(p => ({ ...p, isPlaying: !p.isPlaying }))}
-                         disabled={!!state.currentEvent || state.isWeekend || !!weekendResult}
-                         className={`w-14 h-14 md:w-16 md:h-16 rounded-full flex-shrink-0 flex items-center justify-center shadow-xl transition-all ${state.currentEvent || state.isWeekend || weekendResult ? 'bg-slate-100 text-slate-300' : state.isPlaying ? 'bg-amber-400 text-white hover:bg-amber-500' : 'bg-indigo-600 text-white hover:bg-indigo-700'}`}
+                         disabled={!!state.currentEvent || state.isWeekend || !!state.isAiGenerating}
+                         className={`w-14 h-14 md:w-16 md:h-16 rounded-full flex-shrink-0 flex items-center justify-center shadow-xl transition-all ${state.currentEvent || state.isWeekend || state.isAiGenerating ? 'bg-slate-100 text-slate-300' : state.isPlaying ? 'bg-amber-400 text-white hover:bg-amber-500' : 'bg-indigo-600 text-white hover:bg-indigo-700'}`}
                       >
-                         <i className={`fas ${state.isPlaying ? 'fa-pause' : 'fa-play'} text-xl`}></i>
+                         <i className={`fas ${state.isAiGenerating ? 'fa-spinner fa-spin' : state.isPlaying ? 'fa-pause' : 'fa-play'} text-xl`}></i>
                       </button>
-                      {!state.currentEvent && !state.isWeekend && !weekendResult && (
+                      {!state.currentEvent && !state.isWeekend && !state.isAiGenerating && (
                          <span className="text-[10px] font-bold text-slate-400">{state.isPlaying ? '进行中' : '点击开始'}</span>
                       )}
                    </div>
@@ -630,18 +643,7 @@ const App: React.FC = () => {
         {/* Log */}
         <div className="flex-1 bg-white/70 backdrop-blur-xl rounded-2xl shadow-sm border border-white/40 overflow-hidden relative">
           <div className="h-full p-4 md:p-6 overflow-y-auto custom-scroll space-y-3">
-             {state.log.map((l, i) => {
-                const iconMap: Record<string, string> = { event: 'fa-bolt', success: 'fa-check-circle', error: 'fa-times-circle', warning: 'fa-exclamation-triangle', info: 'fa-info-circle' };
-                const colorMap: Record<string, string> = { event: 'text-indigo-500', success: 'text-emerald-500', error: 'text-rose-500', warning: 'text-amber-500', info: 'text-slate-400' };
-                return (
-                <div key={i} className={`group p-3 rounded-xl border-l-4 animate-fadeIn ${l.type === 'event' ? 'bg-indigo-50 border-indigo-400' : l.type === 'success' ? 'bg-emerald-50 border-emerald-400' : l.type === 'error' ? 'bg-rose-50 border-rose-400' : l.type === 'warning' ? 'bg-amber-50 border-amber-400' : 'bg-slate-50 border-slate-300'}`}>
-                   <div className="flex items-center gap-2 mb-0.5">
-                      <i className={`fas ${iconMap[l.type] || 'fa-circle'} text-[10px] ${colorMap[l.type] || 'text-slate-400'}`}></i>
-                      {l.week != null && <span className="text-[10px] font-bold text-slate-400">第{l.week}周</span>}
-                   </div>
-                   <p className="text-sm font-medium text-slate-800">{l.message}</p>
-                </div>
-             )})}
+             {state.log.map((l, i) => <LogEntry key={i} entry={l} />)}
              <div ref={logEndRef} />
           </div>
         </div>
@@ -672,14 +674,14 @@ const App: React.FC = () => {
         {state.currentEvent && (
             <EventModal
                 event={state.currentEvent} state={state} eventResult={state.eventResult}
-                onChoice={(c, e) => { playClick(); handleChoice(c, (oldS, newS) => calculateAndVisualizeDiff(oldS, newS, e.clientX, e.clientY)); }}
-                onConfirm={() => { playConfirm(); handleEventConfirm(); }}
+                onChoice={handleEventChoice}
+                onConfirm={handleEventConfirmClick}
                 flashTag={keyFlash}
             />
         )}
 
-        {/* Exams */}
-        {(state.phase === Phase.PLACEMENT_EXAM || state.phase === Phase.FINAL_EXAM || state.phase === Phase.MIDTERM_EXAM || state.phase === Phase.MIDTERM_EXAM_2 || state.phase === Phase.FINAL_EXAM_2 || state.phase === Phase.CSP_EXAM || state.phase === Phase.NOIP_EXAM || state.phase === Phase.WC_EXAM || state.phase === Phase.PROVINCIAL_EXAM || state.phase === Phase.APIO_EXAM || state.phase === Phase.NOI_EXAM) && (
+        {/* Exams（考试结果已弹出时不重新渲染考试，读档直接恢复结果弹窗） */}
+        {EXAM_PHASES.includes(state.phase) && !state.popupExamResult && (
              <div className="absolute inset-0 z-40 rounded-2xl overflow-hidden">
                  <Suspense fallback={<div className="flex items-center justify-center h-full"><i className="fas fa-spinner fa-spin text-3xl text-indigo-500"></i></div>}><ExamView title={state.phase} state={state} onFinish={handleExamFinish} /></Suspense>
              </div>
@@ -713,9 +715,7 @@ const App: React.FC = () => {
                         <div className="grid grid-cols-3 gap-2 mt-4 text-sm text-slate-700">
                             {Object.entries(state.popupExamResult.scores).map(([subj, score]) => (
                                 <div key={subj} className="bg-white p-2 rounded border border-slate-200">
-                                    <span className="font-bold text-slate-600">{
-                                        {'chinese': '语文', 'math': '数学', 'english': '英语', 'physics': '物理', 'chemistry': '化学', 'biology': '生物', 'history': '历史', 'geography': '地理', 'politics': '政治'}[subj] || subj
-                                    }: </span>
+                                    <span className="font-bold text-slate-600">{SUBJECT_NAMES[subj as SubjectKey] || subj}: </span>
                                     <span className="text-indigo-600">{score}</span>
                                 </div>
                             ))}
@@ -731,15 +731,7 @@ const App: React.FC = () => {
             <SubjectSelectionModal
                 state={state}
                 onToggle={(s) => setState(prev => ({ ...prev, selectedSubjects: prev.selectedSubjects.includes(s) ? prev.selectedSubjects.filter(x => x !== s) : (prev.selectedSubjects.length < 3 ? [...prev.selectedSubjects, s] : prev.selectedSubjects) }))}
-                onConfirm={() => setState(prev => {
-                    const nextPhase = prev.phase === Phase.SELECTION ? Phase.PLACEMENT_EXAM : Phase.SEMESTER_1;
-                    return {
-                        ...prev,
-                        phase: nextPhase,
-                        isPlaying: prev.phase === Phase.SUBJECT_RESELECTION,
-                        totalWeeksInPhase: nextPhase === Phase.SEMESTER_1 ? 21 : 0
-                    };
-                })}
+                onConfirm={confirmSubjectSelection}
                 flashTag={keyFlash}
             />
         )}

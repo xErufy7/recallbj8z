@@ -3,7 +3,7 @@ import { Difficulty, GeneralStats, ApiSettings } from '../types';
 import { DIFFICULTY_PRESETS, CHANGELOG_DATA } from '../data/constants';
 import { ACHIEVEMENTS } from '../data/mechanics';
 import { getApiSettings, saveApiSettings } from '../lib/api';
-import { getUseNewDb, setUseNewDb } from '../lib/supabase';
+import { getUseNewDb, setUseNewDb } from '../lib/leaderboardConfig';
 import { SaveInfo, getAllSaveInfos, deleteSaveByKey } from '../hooks/gameLogic/storage';
 import { version } from '../package.json';
 import EndingCollectionModal from './EndingCollectionModal';

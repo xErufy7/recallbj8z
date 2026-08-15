@@ -23,64 +23,119 @@ export const modifyOI = (s: GameState, changes: Partial<OIStats>) => {
     return newOI;
 };
 
-export const getEffectiveEfficiency = (state: GameState): number => {
-    let eff = state.general.efficiency;
-    
-    // Debt King Challenge: +1 Efficiency per 15 Debt
-    if (state.activeChallengeId === 'c_debt_king' && state.general.money < 0) {
-        const debt = Math.abs(state.general.money);
-        eff += Math.floor(debt / 15);
-    }
-    
-    return eff;
-};
+export const getEffectiveEfficiency = (state: GameState): number => state.general.efficiency;
 
 // --- Helper for AI Event Effects ---
-export const applyAiEffect = (s: GameState, effect: SerializableEffect): Partial<GameState> => {
-    const updates: Partial<GameState> = {
-        general: { ...s.general },
-        subjects: { ...s.subjects },
-        oiStats: { ...s.oiStats }
-    };
 
-    if (effect.mindset) updates.general!.mindset = Math.min(150, Math.max(0, s.general.mindset + effect.mindset));
-    if (effect.health) updates.general!.health = Math.min(150, Math.max(0, s.general.health + effect.health));
-    if (effect.money) updates.general!.money = s.general.money + effect.money; // Money can be negative
-    if (effect.efficiency) updates.general!.efficiency = Math.min(30, Math.max(1, s.general.efficiency + effect.efficiency));
-    if (effect.romance) updates.general!.romance = Math.min(150, Math.max(0, s.general.romance + effect.romance));
-    if (effect.experience) updates.general!.experience = Math.min(150, Math.max(0, s.general.experience + effect.experience));
-    if (effect.luck) updates.general!.luck = Math.min(150, Math.max(0, s.general.luck + effect.luck));
+/** AI 模型偶尔产出非标准 effect 键（含拼写错误），统一归一到标准属性再结算，避免选择静默无效 */
+const AI_EFFECT_KEY_ALIASES: Record<string, keyof SerializableEffect> = {
+    study: 'efficiency',    // 学习 → 学习效率
+    enjoyment: 'mindset',   // 快乐 → 心态
+    hunger: 'health',       // 饱食 → 健康
+    social: 'romance',      // 社交 → 魅力
+    wealth: 'money',        // 财富 → 金钱
+    knowledge: 'experience',// 知识 → 经验
+    knowlege: 'experience'  // 常见拼写错误
+};
 
-    // AI Romance Logic
-    if (effect.romancePartner) {
-        updates.romancePartner = effect.romancePartner;
+const normalizeAiEffectKeys = (effect: SerializableEffect): SerializableEffect => {
+    const normalized: SerializableEffect = { ...effect };
+    for (const [key, val] of Object.entries(effect)) {
+        const target = AI_EFFECT_KEY_ALIASES[key];
+        // 标准键已存在时保留原值，别名只做补位
+        if (target && val !== undefined && normalized[target] === undefined) {
+            (normalized as any)[target] = val;
+            delete (normalized as any)[key];
+        }
     }
+    return normalized;
+};
+
+/** 属性增量 effect 的统一结算入口（AI 事件 / OI 事件 / 城市历史事件三条管线共用） */
+export interface StatDeltaEffect {
+    mindset?: number;
+    health?: number;
+    money?: number;
+    efficiency?: number;
+    romance?: number;
+    experience?: number;
+    luck?: number;
+    subjects?: Partial<Record<SubjectKey, number>>;
+    oiStats?: Partial<OIStats>;
+    /** oi_events.json 风格的 OI 别名键 */
+    oi_dp?: number;
+    oi_ds?: number;
+    oi_graph?: number;
+    oi_string?: number;
+    oi_math?: number;
+    oi_misc?: number;
+}
+
+export interface StatDeltaOptions {
+    /** 普通属性上限（默认 150） */
+    cap?: number;
+    /** 经验上限（默认与 cap 相同） */
+    experienceCap?: number;
+    /** 效率上限（默认 30） */
+    efficiencyCap?: number;
+    /** 效率下限（默认 1；OI/城市管线为 0） */
+    efficiencyMin?: number;
+}
+
+/** OI/城市历史事件管线：沿用旧行为（上限 100、经验 999、效率 0-100） */
+export const OI_CITY_STAT_OPTS: StatDeltaOptions = { cap: 100, experienceCap: 999, efficiencyCap: 100, efficiencyMin: 0 };
+
+export const applyStatDeltas = (s: GameState, effect: StatDeltaEffect, opts: StatDeltaOptions = {}): Partial<GameState> => {
+    const cap = opts.cap ?? 150;
+    const expCap = opts.experienceCap ?? cap;
+    const effCap = opts.efficiencyCap ?? 30;
+    const effMin = opts.efficiencyMin ?? 1;
+
+    const updates: Partial<GameState> = { general: { ...s.general } };
+    const g = updates.general!;
+
+    if (effect.mindset) g.mindset = Math.min(cap, Math.max(0, g.mindset + effect.mindset));
+    if (effect.health) g.health = Math.min(cap, Math.max(0, g.health + effect.health));
+    if (effect.money) g.money = g.money + effect.money; // 允许为负（欠债系统）
+    if (effect.efficiency) g.efficiency = Math.min(effCap, Math.max(effMin, g.efficiency + effect.efficiency));
+    if (effect.romance) g.romance = Math.min(cap, Math.max(0, g.romance + effect.romance));
+    if (effect.experience) g.experience = Math.min(expCap, Math.max(0, g.experience + effect.experience));
+    if (effect.luck) g.luck = Math.min(cap, Math.max(0, g.luck + effect.luck));
 
     if (effect.subjects) {
+        updates.subjects = { ...s.subjects };
         Object.entries(effect.subjects).forEach(([key, val]) => {
             const subKey = key as SubjectKey;
             if (updates.subjects![subKey]) {
                 const numVal = Number(val);
                 if (!isNaN(numVal)) {
-                    updates.subjects![subKey] = { 
-                        ...updates.subjects![subKey], 
-                        level: Math.max(0, updates.subjects![subKey].level + numVal) 
-                    };
+                    updates.subjects![subKey] = { ...updates.subjects![subKey], level: Math.max(0, updates.subjects![subKey].level + numVal) };
                 }
             }
         });
     }
 
-    if (effect.oiStats) {
-        Object.entries(effect.oiStats).forEach(([key, val]) => {
-            const oiKey = key as keyof OIStats;
-            if (oiKey !== 'history') {
-                const numVal = Number(val);
-                if (!isNaN(numVal)) {
-                    (updates.oiStats as any)[oiKey] = Math.max(0, ((updates.oiStats as any)[oiKey] || 0) + numVal);
-                }
-            }
-        });
+    const oiDeltas: Partial<OIStats> = { ...(effect.oiStats || {}) };
+    if (effect.oi_dp) oiDeltas.dp = effect.oi_dp;
+    if (effect.oi_ds) oiDeltas.ds = effect.oi_ds;
+    if (effect.oi_graph) oiDeltas.graph = effect.oi_graph;
+    if (effect.oi_string) oiDeltas.string = effect.oi_string;
+    if (effect.oi_math) oiDeltas.math = effect.oi_math;
+    if (effect.oi_misc) oiDeltas.misc = effect.oi_misc;
+    if (Object.keys(oiDeltas).length > 0) {
+        updates.oiStats = modifyOI(s, oiDeltas);
+    }
+
+    return updates;
+};
+
+export const applyAiEffect = (s: GameState, effect: SerializableEffect): Partial<GameState> => {
+    effect = normalizeAiEffectKeys(effect);
+    const updates = applyStatDeltas(s, effect);
+
+    // AI Romance Logic
+    if (effect.romancePartner) {
+        updates.romancePartner = effect.romancePartner;
     }
 
     return updates;
