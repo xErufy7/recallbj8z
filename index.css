@@ -57,6 +57,15 @@ html.dark .check-badge {
     background-image: linear-gradient(to bottom right, #065f46, #047857);
     color: #a7f3d0;
 }
+/* 确认结果按钮：暗色模式下 bg-slate-900 反色成刺眼米白；改用浅灰源色 → 反色后是深灰底+浅字，
+   与选项按钮（bg-white/60 反色后深灰）观感一致 */
+html.dark .confirm-btn {
+    background-color: #d4d4d4;
+    color: #111827;
+}
+html.dark .confirm-btn:hover {
+    background-color: #c6c6c6;
+}
 .dark-filter {
     filter: invert(0.9) hue-rotate(180deg);
 }

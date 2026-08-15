@@ -69,7 +69,7 @@ const EventModal: React.FC<EventModalProps> = ({ event, state, eventResult, onCh
                         </div>
                       )}
                       <button
-                        onClick={onConfirm} className={`relative w-full py-4 rounded-2xl bg-slate-900 text-white font-black text-lg hover:bg-black shadow-xl transition-all flex items-baseline justify-center gap-2 hover:scale-[1.02] active:scale-[0.95] ${flashTag === 'confirm' ? 'key-pressed' : ''}`}
+                        onClick={onConfirm} className={`confirm-btn relative w-full py-4 rounded-2xl bg-slate-900 text-white font-black text-lg hover:bg-black shadow-xl transition-all flex items-baseline justify-center gap-2 hover:scale-[1.02] active:scale-[0.95] ${flashTag === 'confirm' ? 'key-pressed' : ''}`}
                       >
                            {(state.chainedEvent || eventResult.choice.nextEventId) ? '继续...' : '确认结果'} <i className="fas fa-arrow-right text-slate-400"></i> <span className="absolute bottom-2 right-3 text-sm font-black opacity-40 hidden md:inline">⏎</span>
                       </button>
