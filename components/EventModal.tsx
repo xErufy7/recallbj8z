@@ -51,7 +51,7 @@ const EventModal: React.FC<EventModalProps> = ({ event, state, eventResult, onCh
                   ) : (
                     <div className="text-center py-3 animate-popIn">
                       <div
-                        className="w-20 h-20 bg-gradient-to-br from-indigo-500 to-indigo-400 text-white rounded-full flex items-center justify-center mx-auto mb-4 text-3xl shadow-inner border-4 border-white animate-checkIn"
+                        className="check-badge w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl shadow-inner border-4 border-white animate-checkIn"
                       >
                         <i className="fas fa-check"></i>
                       </div>

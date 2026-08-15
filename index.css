@@ -46,6 +46,17 @@ button:active:not(:disabled) { transform: scale(0.95); transition: transform 0.1
 html.dark body {
     background-color: #0b1220;
 }
+/* 事件确认弹窗对勾圆章：亮色=浅绿圆章+深绿对勾；
+   暗色模式经 invert(0.9)+hue-rotate(180°) 滤镜，深绿源色→浅薄荷绿、浅绿源色→深绿，
+   所以暗色下用「深绿底+浅绿勾」的源色，渲染出来仍是深绿对勾 */
+.check-badge {
+    background-image: linear-gradient(to bottom right, #d1fae5, #ecfdf5);
+    color: #059669;
+}
+html.dark .check-badge {
+    background-image: linear-gradient(to bottom right, #065f46, #047857);
+    color: #a7f3d0;
+}
 .dark-filter {
     filter: invert(0.9) hue-rotate(180deg);
 }
